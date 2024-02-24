@@ -118,4 +118,5 @@ dmypy.json
 
 web/credentials.json
 web/.vscode
- 
+
+.DS_Store
