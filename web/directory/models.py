@@ -21,12 +21,7 @@ class ContactMethod(models.Model):
     )
     phone = PhoneNumberField(null=True)
     email = models.EmailField(null=True)
-    coops = models.ManyToManyField('Coop')
-    email_is_public = models.BooleanField(default=True, null=False)
-    phone_is_public = models.BooleanField(default=True, null=False)
 
-    class Meta:
-        unique_together = ('phone', 'email',)
 
 
 class CoopTypeManager(models.Manager):
@@ -104,35 +99,17 @@ class CoopManager(models.Manager):
         queryset = Coop.objects.filter(filter, enabled=True)
         return queryset
 
-    def find_wo_coords(self):
-        """
-        Look up coops with addresses that don't have either a latitude
-        or a longitude.
-        """
-        queryset = Coop.objects.filter(
-            Q(addresses__latitude__isnull=True) |
-            Q(addresses__longitude__isnull=True)
-        )
-        return queryset
-
-    def find_unapproved(self):
-        """
-        Return all coops whose approved fields are set to False
-        """
-        queryset = Coop.objects.filter(
-            approved=False
-        )
-        return queryset
-
+class CoopAddressTags(models.Model):
+    coop = models.ForeignKey('Coop', related_name='coop_address_tags', on_delete=models.SET_NULL, null=True)
+    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
+    is_public = models.BooleanField(default=True, null=False)
 
 class Coop(models.Model):
     objects = CoopManager()
     name = models.CharField(max_length=250, null=False)
     types = models.ManyToManyField(CoopType, blank=False)
-    addresses = models.ManyToManyField(Address, through='CoopAddressTags')
     enabled = models.BooleanField(default=True, null=False)
-    phone = models.ManyToManyField(ContactMethod, null=True, related_name='contact_phone')
-    email = models.ManyToManyField(ContactMethod, null=True, related_name='contact_email')
+    contact_methods = models.ManyToManyField(ContactMethod)
     web_site = models.TextField()
     description = models.TextField(null=True)
     approved = models.BooleanField(default=False, null=True)
@@ -143,7 +120,7 @@ class Coop(models.Model):
     scope = models.TextField(null=True)
     tags = models.TextField(null=True)
     rec_source = models.TextField(null=True)
-    rec_updated_by = models.ManyToManyField(User, null=True)
+    rec_updated_by = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     rec_updated_date = models.DateTimeField(default=now, blank=True)
 
     def apply_proposed_changes(self):
@@ -152,13 +129,7 @@ class Coop(models.Model):
         self.web_site = proposed.get('web_site')
         for type in proposed.get('types'):
             self.types.add(CoopType.objects.get(name=type))
-        self.save()  
-
-class CoopAddressTags(models.Model):
-    # Retain referencing coop & address, but set "is_public" relation to NULL
-    coop = models.ForeignKey(Coop, on_delete=models.SET_NULL, null=True)
-    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
-    is_public = models.BooleanField(default=True, null=False)
+        self.save()
 
 class Person(models.Model):
     first_name = models.CharField(max_length=250, null=False)
