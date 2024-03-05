@@ -7,6 +7,7 @@ from directory.models import Coop, CoopType, ContactMethod, Person, CoopAddressT
 from address.models import Address, Locality, State, Country
 from .services.location_service import LocationService
 import re
+from django.utils.timezone import now
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     coops = serializers.HyperlinkedRelatedField(many=True, view_name='coop-detail', read_only=True)
@@ -17,7 +18,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
 # TODO - Don't let it create duplicate rows
 class CoopTypeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = CoopType
         fields = ['name']
@@ -64,7 +64,6 @@ class AddressSerializer(serializers.ModelSerializer):
         fields = ['id', 'street_number', 'route', 'raw', 'formatted', 'latitude', 'longitude', 'locality']
 
     def create(self, validated_data):
-        print("AddressSerializer - create")
         locality_data = validated_data.pop('locality', {})
         state_data = locality_data.pop('state', {})
         country_data = state_data.pop('country', {})
@@ -94,13 +93,9 @@ class CoopAddressTagsSerializer(serializers.ModelSerializer):
         fields = ['id', 'address', 'is_public']
     
     def create(self, validated_data):
-        print("validated_data: " + str(type(validated_data)))
-        print(validated_data)
-
         address_data = validated_data.pop('address')
         address_serializer = AddressSerializer(data=address_data)
         if address_serializer.is_valid(raise_exception=True):
-            print("address_serializer.is_valid")
             address_instance = address_serializer.save()
         validated_data['address'] = address_instance
         return super().create(validated_data)
@@ -135,25 +130,78 @@ class CoopAddressTagsSerializer(serializers.ModelSerializer):
 #         validated_data['address'] = addr
 #         coop_object = Coop.objects.get(id=validated_data['coop_id'])
 #         return CoopAddressTags.objects.create(coop=coop_object, **validated_data)
+
+class PersonSerializer(serializers.ModelSerializer):
+    contact_methods = ContactMethodSerializer(many=True)
     
+    class Meta:
+        model = Person
+        fields = ['id', 'first_name', 'last_name', 'coops', 'contact_methods', 'is_public']
+        extra_kwargs = {'coops': {'required': False, 'write_only': True}} 
+        #required=False - When creating or updating a person instance the coops field isn't needed in input data.
+        #write_only=True -  Coops field not included in serialized read of person instance. But will be when coops are listed. 
+      
+    def create(self, validated_data):
+        contact_methods_data = validated_data.pop('contact_methods', [])
+        coops_data = validated_data.pop('coops', None)
+        instance = Person.objects.create(**validated_data)
+        for item in contact_methods_data:
+            contact_method, created = ContactMethod.objects.get_or_create(**item)
+            instance.contact_methods.add(contact_method)
+        if coops_data:
+            for coop in coops_data:
+                instance.coops.add(coop)
+        return instance
+
+    def update(self, instance, validated_data):
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.is_public = validated_data.get('is_public', instance.is_public)
+
+        instance.save()
+
+        if 'contact_methods' in validated_data:
+            instance.contact_methods.all().delete()
+            contact_methods_data = validated_data.pop('contact_methods')
+            for item in contact_methods_data:
+                contact_method_serializer = ContactMethodSerializer(data=item)
+                if contact_method_serializer.is_valid():
+                    contact_method = contact_method_serializer.save()
+                    instance.contact_methods.add(contact_method)
+    
+        if 'coops' in validated_data:
+            instance.coops.clear()
+            coops_data = validated_data.pop('coops')
+            for item in coops_data:
+                instance.coops.add(item)
+        
+        return instance
+
+
+
+
 
 class CoopSerializer(serializers.HyperlinkedModelSerializer):
     rec_updated_by = serializers.ReadOnlyField(source='rec_updated_by.username')
     types = CoopTypeSerializer(many=True, read_only=False)
     contact_methods = ContactMethodSerializer(many=True, read_only=False, required=False, allow_null=True)
     coop_address_tags = CoopAddressTagsSerializer(many=True, read_only=False, required=False, allow_null=True)
+    people = PersonSerializer(many=True, read_only=False, required=False, allow_null=False)
  
     class Meta:
         model = Coop
-        fields = ['id', 'name', 'types', 'coop_address_tags', 'enabled', 'contact_methods', 'web_site', 'description', 'approved', 'proposed_changes', 'reject_reason', 'coop_public', 'status', 'scope', 'tags', 'rec_source', 'rec_updated_by', 'rec_updated_date']
+        fields = ['id', 'name', 'types', 'coop_address_tags', 'people', 'enabled', 'contact_methods', 'web_site', 'description', 'approved', 'proposed_changes', 'reject_reason', 'coop_public', 'status', 'scope', 'tags', 'rec_source', 'rec_updated_by', 'rec_updated_date']
 
     @transaction.atomic
     def create(self, validated_data):
         types_data = validated_data.pop('types', [])
         contact_methods_data = validated_data.pop('contact_methods', [])
         coop_address_tags_data = validated_data.pop('coop_address_tags', [])
+        people_data = validated_data.pop('people', [])
+        rec_updated_date = now()
 
         instance = Coop.objects.create(**validated_data)
+        instance.rec_updated_date = rec_updated_date
 
         for item in types_data:
             coop_type, _ = CoopType.objects.get_or_create(**item)
@@ -166,13 +214,22 @@ class CoopSerializer(serializers.HyperlinkedModelSerializer):
         for tag_data in coop_address_tags_data:
             coop_address_tag_serializer = CoopAddressTagsSerializer(data=tag_data)
             if coop_address_tag_serializer.is_valid(raise_exception=True):
-                print("coop_address_tag_serializer.is_valid")
                 coop_address_tag_serializer.save(coop=instance)
+        
+        for person_data in people_data:
+            person_serializer = PersonSerializer(data=person_data, context=self.context)
+            if person_serializer.is_valid(raise_exception=True):
+                person = person_serializer.save()
+                person.coops.add(instance)
         
         return instance
     
     @transaction.atomic
     def update(self, instance, validated_data):
+        # Update read-only fields
+        instance.rec_updated_by = validated_data.get('rec_updated_by')
+        instance.rec_updated_date = now()
+
         # Update simple fields on Coop instance
         instance.name = validated_data.get('name', instance.name)
         instance.enabled = validated_data.get('enabled', instance.enabled)
@@ -186,11 +243,11 @@ class CoopSerializer(serializers.HyperlinkedModelSerializer):
         instance.scope = validated_data.get('scope', instance.scope)
         instance.tags = validated_data.get('tags', instance.tags)
         instance.rec_source = validated_data.get('rec_source', instance.rec_source)
-        # Assume rec_updated_by and rec_updated_date are handled elsewhere, e.g., in view layer
 
         instance.save()
 
         # Handle ManyToManyField for types
+        #TODO - Should never allow types to be empty
         if 'types' in validated_data:
             instance.types.clear()
             types_data = validated_data.pop('types')
@@ -204,21 +261,41 @@ class CoopSerializer(serializers.HyperlinkedModelSerializer):
             instance.contact_methods.all().delete()
             contact_methods_data = validated_data.pop('contact_methods')
             for item in contact_methods_data:
-                item['coop'] = instance  # Assuming a ForeignKey to Coop in ContactMethod
                 contact_method_serializer = ContactMethodSerializer(data=item)
                 if contact_method_serializer.is_valid():
-                    contact_method_serializer.save()
+                    contact_method = contact_method_serializer.save()
+                    instance.contact_methods.add(contact_method)
 
         # Handle related objects for addresses
         # Deletes all existing and adds the provided
-        if 'addresses' in validated_data:
-            instance.addresses.all().delete()
-            addresses_data = validated_data.pop('addresses')
-            for item in addresses_data:
-                item['coop'] = instance  # Assuming a ForeignKey to Coop in Address
-                address_serializer = AddressSerializer(data=item)
-                if address_serializer.is_valid():
-                    address_serializer.save()
+        if 'coop_address_tags' in validated_data:
+            instance.coop_address_tags.all().delete()
+            coop_address_tags_data = validated_data.pop('coop_address_tags')
+            for item in coop_address_tags_data:
+                coop_address_tags_serializer = CoopAddressTagsSerializer(data=item)
+                if coop_address_tags_serializer.is_valid():
+                    coop_address_tag = coop_address_tags_serializer.save()
+                    instance.coop_address_tags.add(coop_address_tag)
+        
+        # Update people
+        # Clear and recreate links to handle removals and additions.
+        if 'people' in validated_data:
+            people_data = validated_data.pop('people', [])
+            existing_person_ids = [person_data.get('id') for person_data in people_data if 'id' in person_data]
+            # Remove people not included in the update.
+            for person in instance.people.all():
+                if person.id not in existing_person_ids:
+                    person.coops.remove(instance)
+            for person_data in people_data:
+                person_id = person_data.get('id')
+                if person_id:
+                    person_instance = Person.objects.get(id=person_id)
+                    person_serializer = PersonSerializer(person_instance, data=person_data, partial=True, context=self.context)
+                else:
+                    person_serializer = PersonSerializer(data=person_data, context=self.context)
+                if person_serializer.is_valid(raise_exception=True):
+                    person = person_serializer.save()
+                    person.coops.add(instance)
 
         return instance
 

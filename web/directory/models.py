@@ -1,10 +1,9 @@
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
-from address.models import Address
+from address.models import Address, State, Country, Locality
 from django.contrib.auth.models import User
 from phonenumber_field.modelfields import PhoneNumberField
-from address.models import State, Country, Locality
 from django.db.models import Prefetch
 from django.utils.timezone import now
 
@@ -22,13 +21,10 @@ class ContactMethod(models.Model):
     phone = PhoneNumberField(null=True)
     email = models.EmailField(null=True)
 
-
-
 class CoopTypeManager(models.Manager):
 
     def get_by_natural_key(self, name):
         return self.get_or_create(name=name)[0]
-
 
 class CoopType(models.Model):
     name = models.CharField(max_length=200, null=False)
@@ -38,7 +34,6 @@ class CoopType(models.Model):
     class Meta:
         # Creates a new unique constraint with the `name` field
         constraints = [models.UniqueConstraint(fields=['name'], name='coop_type_unq')]
-
 
 class CoopManager(models.Manager):
     # Look up by coop type

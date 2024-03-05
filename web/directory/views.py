@@ -148,7 +148,7 @@ class UserDetail(generics.RetrieveAPIView):
 class CoopList(generics.ListCreateAPIView):
     queryset = Coop.objects.all()
     serializer_class = CoopSerializer
-    permission_classes = [ permissions.IsAuthenticatedOrReadOnly ]
+    permission_classes = [ IsAuthenticated ]
 
     def perform_create(self, serializer):
         serializer.save(rec_updated_by=self.request.user)
@@ -240,6 +240,9 @@ class CoopDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CoopSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    def perform_update(self, serializer):
+        serializer.save(rec_updated_by=self.request.user)
+
 # class CoopDetail(APIView):
 #     """
 #     Retrieve, update or delete a coop instance.
@@ -312,6 +315,9 @@ class CoopDetail(generics.RetrieveUpdateDestroyAPIView):
 #         coop.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class PersonList(generics.ListCreateAPIView):
+    queryset = Person.objects.all()
+    serializer_class = PersonSerializer
 
 # class PersonList(APIView):
 #     """
@@ -353,6 +359,10 @@ class CoopDetail(generics.RetrieveUpdateDestroyAPIView):
 #             return Response(serializer.data, status=status.HTTP_201_CREATED)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class PersonDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Person.objects.all()
+    serializer_class = PersonSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 # class PersonDetail(APIView):
 #     """
