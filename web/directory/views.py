@@ -187,13 +187,6 @@ class CoopList(generics.ListCreateAPIView):
 #         serializer = CoopSearchSerializer(coops, many=True)
 #         return Response(serializer.data)
 
-#     def post(self, request, format=None):
-#         serializer = CoopSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 # class CoopListAll(APIView):
 #     """
 #     List all coops, or create a new coop. Includes details omitted in CoopList
@@ -279,65 +272,9 @@ class CoopDetail(generics.RetrieveUpdateDestroyAPIView):
 #         coop.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
 
-# class CoopWithPerson(APIView):
-#     """
-#     Retrieve, update or delete a coop instance.
-#     """
-#     def get_object(self, pk):
-#         try:
-#             return Coop.objects.get(pk=pk)
-#         except Coop.DoesNotExist:
-#             raise Http404
-
-#     def get(self, request, pk, format=None):
-#         coop = self.get_object(pk)
-#         serializer = CoopSerializerWithPerson(coop)
-#         return Response(serializer.data)
-
-#     def put(self, request, pk, format=None):
-#         coop = self.get_object(pk)
-#         serializer = CoopSerializerWithPerson(coop, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     def patch(self, request, pk, format=None):
-#         coop = self.get_object(pk)
-#         serializer = CoopProposedChangeSerializer(coop, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     def delete(self, request, pk, format=None):
-#         coop = self.get_object(pk)
-#         coop.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
-
 class PersonList(generics.ListCreateAPIView):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
-
-# class PersonList(APIView):
-#     """
-#     List all people, or create a new person.
-#     """
-#     def get(self, request, format=None):
-#         coop = request.GET.get("coop", "")
-#         if coop:
-#             people = Person.objects.filter(coops__in=[coop])
-#         else:
-#             people = Person.objects.all()
-#         serializer = PersonSerializer(people, many=True)
-#         return Response(serializer.data)
-
-#     def post(self, request, format=None):
-#         serializer = PersonSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # class PersonWithCoopList(APIView):
 #     """
@@ -363,34 +300,6 @@ class PersonDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-# class PersonDetail(APIView):
-#     """
-#     Retrieve, update or delete a person instance.
-#     """
-#     def get_object(self, pk):
-#         try:
-#             return Person.objects.get(pk=pk)
-#         except Coop.DoesNotExist:
-#             raise Http404
-
-#     def get(self, request, pk, format=None):
-#         person = self.get_object(pk)
-#         serializer = PersonSerializer(person)
-#         return Response(serializer.data)
-
-#     def put(self, request, pk, format=None):
-#         person = self.get_object(pk)
-#         serializer = PersonSerializer(person, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     def delete(self, request, pk, format=None):
-#         person = self.get_object(pk)
-#         person.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class CoopTypeList(generics.ListAPIView):
     queryset = CoopType.objects.all().order_by(Lower('name'))

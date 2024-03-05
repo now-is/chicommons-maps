@@ -107,39 +107,16 @@ class CoopAddressTagsSerializer(serializers.ModelSerializer):
         
         return super().save(**kwargs)  # Calls create() with updated validated_data    
 
-#     #def to_representation(self, instance):
-#     #    print("type of instance: %s" % type(instance))
-#     #    rep = super().to_representation(instance)
-#     #    rep['address'] = AddressSerializer(instance.address).data
-#     #    return rep
-
-#     def update(self, instance, validated_data):
-#         """
-#         Update and return an existing `AddresssField` instance, given the validated data.
-#         """
-#         instance.is_public = validated_data.get('is_public', instance.is_public)
-#         address = validated_data.get('address')
-#         instance.address = serializer.create_obj(validated_data=address)
-#         instance.save()
-#         return instance
-
-#     def create_obj(self, validated_data):
-#         address_data = validated_data.pop('address', {})
-#         serializer = AddressSerializer()
-#         addr = serializer.create_obj(validated_data=address_data)
-#         validated_data['address'] = addr
-#         coop_object = Coop.objects.get(id=validated_data['coop_id'])
-#         return CoopAddressTags.objects.create(coop=coop_object, **validated_data)
-
 class PersonSerializer(serializers.ModelSerializer):
     contact_methods = ContactMethodSerializer(many=True)
     
     class Meta:
         model = Person
         fields = ['id', 'first_name', 'last_name', 'coops', 'contact_methods', 'is_public']
-        extra_kwargs = {'coops': {'required': False, 'write_only': True}} 
-        #required=False - When creating or updating a person instance the coops field isn't needed in input data.
-        #write_only=True -  Coops field not included in serialized read of person instance. But will be when coops are listed. 
+        extra_kwargs = {'coops': {
+            'required': False, # When creating or updating a person instance the coops field isn't needed in input data.
+            'write_only': True # Coops field not included in serialized read of person instance. But will be when coops are listed.
+        }} 
       
     def create(self, validated_data):
         contact_methods_data = validated_data.pop('contact_methods', [])
@@ -173,13 +150,10 @@ class PersonSerializer(serializers.ModelSerializer):
             instance.coops.clear()
             coops_data = validated_data.pop('coops')
             for item in coops_data:
+                #TODO - Check if Coop is valid
                 instance.coops.add(item)
         
         return instance
-
-
-
-
 
 class CoopSerializer(serializers.HyperlinkedModelSerializer):
     rec_updated_by = serializers.ReadOnlyField(source='rec_updated_by.username')
@@ -299,121 +273,6 @@ class CoopSerializer(serializers.HyperlinkedModelSerializer):
 
         return instance
 
-# class ContactMethodField(serializers.PrimaryKeyRelatedField):
-
-#     queryset = ContactMethod.objects
-
-#     def to_internal_value(self, data):
-#         if type(data) == dict:
-#             contact_method = ContactMethod.objects.create(**data)
-#             data = contact_method.pk
-#         return super().to_internal_value(data)
-
-
-# class LocalitySerializer(serializers.ModelSerializer):
-#     state = StateSerializer()
-#     class Meta:
-#         model = Locality
-#         fields = ['id', 'name', 'postal_code', 'state']
-
-#     def to_representation(self, instance):
-#         rep = super().to_representation(instance)
-#         rep['state'] = StateSerializer(instance.state).data
-#         return rep
-
-#     def create(self, validated_data):
-#         """
-#         Create and return a new `Locality` instance, given the validated data.
-#         """
-#         print("start create locality method.")
-#         country_id = validated_data['state']['country']
-#         validated_data['state'] = validated_data['state'].id
-#         print("\n\n\n\n****####\n\n", validated_data, "\n\n\n\n")
-#         return Locality.objects.create(**validated_data)
-
-#     def update(self, instance, validated_data):
-#         """
-#         Update and return an existing `Locality` instance, given the validated data.
-#         """
-#         print("\n\n\n\nupdating address entity \n\n\n\n")
-#         instance.name = validated_data.get('name', instance.name)
-#         instance.postal_code = validated_data.get('postal_code', instance.name)
-#         state = validated_data.get('state', instance.name)
-#         instance.state_id = state.id
-#         instance.save()
-#         return instance
-
-
-# class CoopAddressTagsSerializer(serializers.ModelSerializer):
-#     address = AddressSerializer()
-
-#     class Meta:
-#         model = CoopAddressTags
-#         fields = ['id', 'address', 'is_public']
-
-#     #def to_representation(self, instance):
-#     #    print("type of instance: %s" % type(instance))
-#     #    rep = super().to_representation(instance)
-#     #    rep['address'] = AddressSerializer(instance.address).data
-#     #    return rep
-
-#     def update(self, instance, validated_data):
-#         """
-#         Update and return an existing `AddresssField` instance, given the validated data.
-#         """
-#         instance.is_public = validated_data.get('is_public', instance.is_public)
-#         address = validated_data.get('address')
-#         instance.address = serializer.create_obj(validated_data=address)
-#         instance.save()
-#         return instance
-
-#     def create_obj(self, validated_data):
-#         address_data = validated_data.pop('address', {})
-#         serializer = AddressSerializer()
-#         addr = serializer.create_obj(validated_data=address_data)
-#         validated_data['address'] = addr
-#         coop_object = Coop.objects.get(id=validated_data['coop_id'])
-#         return CoopAddressTags.objects.create(coop=coop_object, **validated_data)
-
-# class PersonSerializer(serializers.ModelSerializer):
-#     contact_methods = ContactMethodField(many=True)
-
-#     class Meta:
-#         model = Person
-#         fields = ['id', 'first_name', 'last_name', 'coops', 'contact_methods', 'is_public']
-
-#     def to_representation(self, instance):
-#         rep = super().to_representation(instance)
-#         rep['contact_methods'] = ContactMethodSerializer(instance.contact_methods.all(), many=True).data
-#         return rep
-
-#     def create(self, validated_data):
-#         #"""
-#         #Create and return a new `Snippet` instance, given the validated data.
-#         #"""
-#         instance = super().create(validated_data)
-#         return instance
-
-#     def update(self, instance, validated_data):
-#         """
-#         Update and return an existing `Coop` instance, given the validated data.
-#         """
-#         instance.first_name = validated_data.get('first_name', instance.first_name)
-#         instance.last_name = validated_data.get('last_name', instance.last_name)
-#         coops = validated_data.pop('coops', {})
-#         for coop in coops:
-#             coop_obj = Coop.objects.get(pk=coop)
-#             instance.coops.add(coop)
-#         contact_methods = validated_data.pop('contact_methods', {})
-#         instance.contact_methods.clear()
-#         for contact_method in contact_methods:
-#             print("contact method:",contact_method)
-#             print("email:",contact_method.email)
-#             contact_method_obj = ContactMethod.objects.create(**contact_method)
-#             instance.contact_methods.add(contact_method)
-#         instance.save()
-#         return instance
-
 # class CoopSerializer(serializers.ModelSerializer):
 #     types = CoopTypeSerializer(many=True, allow_empty=False)
 #     coopaddresstags_set = CoopAddressTagsSerializer(many=True)
@@ -516,59 +375,9 @@ class CoopSerializer(serializers.HyperlinkedModelSerializer):
 #         rep['email'] = ContactMethodSerializer(instance.email.all(), many=True).data
 #         return rep
 
-# class ValidateNewCoopSerializer(serializers.Serializer):
-#     # Set all fields as not required and allow_blank=true, so we can combine all validation into one step
-#     id=serializers.CharField(required=False, allow_blank=True)
-#     coop_name=serializers.CharField(required=False, allow_blank=True)
-#     street=serializers.CharField(required=False, allow_blank=True)
-#     address_public=serializers.CharField(required=False, allow_blank=True)
-#     city=serializers.CharField(required=False, allow_blank=True)
-#     state=serializers.CharField(required=False, allow_blank=True)
-#     zip=serializers.CharField(required=False, allow_blank=True)
-#     county=serializers.CharField(required=False, allow_blank=True)
-#     country=serializers.CharField(required=False, allow_blank=True)
-#     websites=serializers.CharField(required=False, allow_blank=True)
-#     contact_name=serializers.CharField(required=False, allow_blank=True)
-#     contact_name_public=serializers.CharField(required=False, allow_blank=True)
-#     contact_email=serializers.CharField(required=False, allow_blank=True)
-#     contact_email_public=serializers.CharField(required=False, allow_blank=True)
-#     contact_phone=serializers.CharField(required=False, allow_blank=True)
-#     contact_phone_public=serializers.CharField(required=False, allow_blank=True)
-#     entity_types=serializers.CharField(required=False, allow_blank=True)
-#     scope=serializers.CharField(required=False, allow_blank=True)
-#     tags=serializers.CharField(required=False, allow_blank=True)
-#     desc_english=serializers.CharField(required=False, allow_blank=True)
-#     desc_other=serializers.CharField(required=False, allow_blank=True)
-#     req_reason=serializers.CharField(required=False, allow_blank=True)
-
-#     def validate(self, data):
-#         """
-#         Validation of start and end date.
-#         """
-#         errors = {}
-
-#         # required fields
-#         required_fields = ['coop_name', 'websites', 'contact_name', 'contact_name_public', 'entity_types', 'req_reason']
-#         for field in required_fields:
-#             if not data[field]:
-#                 errors[field] = 'This field is required.'
-
-#         # contact info
-#         contact_email = data['contact_email'] if 'contact_email' in data else None
-#         contact_phone = data['contact_phone'] if 'contact_phone' in data else None
-#         if not contact_email and not contact_phone:
-#             errors['contact'] = 'Either contact phone or contact email is required.'
-
-#         if errors:
-#             raise serializers.ValidationError(errors)
-
-#         return data
-
-
 class UserSigninSerializer(serializers.Serializer):
     username = serializers.CharField(required = True)
     password = serializers.CharField(required = True)
-
 
 # class CoopSpreadsheetSerializer(serializers.ModelSerializer):
 #     types = CoopTypeSerializer(many=True, allow_empty=False)
@@ -629,44 +438,3 @@ class UserSigninSerializer(serializers.Serializer):
 #     def update_coords(address):
 #         svc = LocationService()
 #         svc.save_coords(address)
-
-# class PersonWithCoopSerializer(serializers.ModelSerializer):
-#     coops = CoopSerializer(many=True, read_only=True)
-#     contact_methods = ContactMethodField(many=True)
-
-#     class Meta:
-#         model = Person
-#         fields = ['id', 'first_name', 'last_name', 'coops', 'contact_methods', 'is_public']
-
-#     def to_representation(self, instance):
-#         rep = super().to_representation(instance)
-#         rep['coops'] = CoopSerializer(instance.coops.all(), many=True).data
-#         rep['contact_methods'] = ContactMethodSerializer(instance.contact_methods.all(), many=True).data
-#         return rep
-
-#     def create(self, validated_data):
-#         #"""
-#         #Create and return a new `Snippet` instance, given the validated data.
-#         #"""
-#         instance = super().create(validated_data)
-#         return instance
-
-#     def update(self, instance, validated_data):
-#         """
-#         Update and return an existing `Coop` instance, given the validated data.
-#         """
-#         instance.first_name = validated_data.get('first_name', instance.first_name)
-#         instance.last_name = validated_data.get('last_name', instance.last_name)
-#         coops = validated_data.pop('coops', {})
-#         for coop in coops:
-#             coop_obj = Coop.objects.get(pk=coop)
-#             instance.coops.add(coop)
-#         contact_methods = validated_data.pop('contact_methods', {})
-#         instance.contact_methods.clear()
-#         for contact_method in contact_methods:
-#             print("contact method:",contact_method)
-#             print("email:",contact_method.email)
-#             contact_method_obj = ContactMethod.objects.create(**contact_method)
-#             instance.contact_methods.add(contact_method)
-#         instance.save()
-#         return instance

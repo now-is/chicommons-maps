@@ -21,78 +21,71 @@ class ContactMethod(models.Model):
     phone = PhoneNumberField(null=True)
     email = models.EmailField(null=True)
 
-class CoopTypeManager(models.Manager):
-
-    def get_by_natural_key(self, name):
-        return self.get_or_create(name=name)[0]
-
 class CoopType(models.Model):
-    name = models.CharField(max_length=200, null=False)
-
-    objects = CoopTypeManager()
+    name = models.CharField(max_length=200, null=False) 
 
     class Meta:
         # Creates a new unique constraint with the `name` field
         constraints = [models.UniqueConstraint(fields=['name'], name='coop_type_unq')]
 
-class CoopManager(models.Manager):
-    # Look up by coop type
-    def get_by_type(self, type):
-        qset = Coop.objects.filter(types__name=type,
-                                   enabled=True)
-        return qset
+# class CoopManager(models.Manager):
+#     # Look up by coop type
+#     def get_by_type(self, type):
+#         qset = Coop.objects.filter(types__name=type,
+#                                    enabled=True)
+#         return qset
 
-    def find(
-        self,
-        partial_name,
-        types_arr=None,
-        enabled=None,
-        city=None,
-        zip=None,
-        street=None,
-        state_abbrev=None
-    ):
-        """
-        Lookup coops by varying criteria.
-        """
-        q = Q()
-        if partial_name:
-            q &= Q(name__icontains=partial_name)
-        if enabled != None:
-            q &= Q(enabled=enabled)
-        if types_arr != None:
-            filter = Q(
-                *[('types__name', type) for type in types_arr],
-                _connector=Q.OR
-            )
-            q &= filter
-        if street != None:
-            q &= Q(addresses__raw__icontains=street)
-        if city != None:
-            q &= Q(addresses__locality__name__iexact=city)
-        if zip != None:
-            q &= Q(addresses__locality__postal_code=zip)
-        if state_abbrev != None:
-            q &= Q(addresses__locality__state__code=state_abbrev)
-            q &= Q(addresses__locality__state__country__code="US")
+#     def find(
+#         self,
+#         partial_name,
+#         types_arr=None,
+#         enabled=None,
+#         city=None,
+#         zip=None,
+#         street=None,
+#         state_abbrev=None
+#     ):
+#         """
+#         Lookup coops by varying criteria.
+#         """
+#         q = Q()
+#         if partial_name:
+#             q &= Q(name__icontains=partial_name)
+#         if enabled != None:
+#             q &= Q(enabled=enabled)
+#         if types_arr != None:
+#             filter = Q(
+#                 *[('types__name', type) for type in types_arr],
+#                 _connector=Q.OR
+#             )
+#             q &= filter
+#         if street != None:
+#             q &= Q(addresses__raw__icontains=street)
+#         if city != None:
+#             q &= Q(addresses__locality__name__iexact=city)
+#         if zip != None:
+#             q &= Q(addresses__locality__postal_code=zip)
+#         if state_abbrev != None:
+#             q &= Q(addresses__locality__state__code=state_abbrev)
+#             q &= Q(addresses__locality__state__country__code="US")
 
-        addressTagsPrefetcher = Prefetch('coopaddresstags_set', queryset=CoopAddressTags.objects.select_related('address', 'address__locality', 'address__locality__state', 'address__locality__state__country'))
-        queryset = Coop.objects.filter(q).prefetch_related(addressTagsPrefetcher, 'types')
+#         addressTagsPrefetcher = Prefetch('coopaddresstags_set', queryset=CoopAddressTags.objects.select_related('address', 'address__locality', 'address__locality__state', 'address__locality__state__country'))
+#         queryset = Coop.objects.filter(q).prefetch_related(addressTagsPrefetcher, 'types')
         
-        phonePrefetcher = Prefetch('phone', queryset=ContactMethod.objects.all())
-        emailPrefetcher = Prefetch('email', queryset=ContactMethod.objects.all())
-        queryset = queryset.prefetch_related(phonePrefetcher).prefetch_related(emailPrefetcher)
-        print(queryset.query)
-        return queryset
+#         phonePrefetcher = Prefetch('phone', queryset=ContactMethod.objects.all())
+#         emailPrefetcher = Prefetch('email', queryset=ContactMethod.objects.all())
+#         queryset = queryset.prefetch_related(phonePrefetcher).prefetch_related(emailPrefetcher)
+#         print(queryset.query)
+#         return queryset
 
-    # Meant to look up coops case-insensitively by part of a type
-    def contains_type(self, types_arr):
-        filter = Q(
-            *[('types__name__icontains', type) for type in types_arr],
-            _connector=Q.OR
-        )
-        queryset = Coop.objects.filter(filter, enabled=True)
-        return queryset
+#     # Meant to look up coops case-insensitively by part of a type
+#     def contains_type(self, types_arr):
+#         filter = Q(
+#             *[('types__name__icontains', type) for type in types_arr],
+#             _connector=Q.OR
+#         )
+#         queryset = Coop.objects.filter(filter, enabled=True)
+#         return queryset
 
 class CoopAddressTags(models.Model):
     coop = models.ForeignKey('Coop', related_name='coop_address_tags', on_delete=models.SET_NULL, null=True)
@@ -100,7 +93,7 @@ class CoopAddressTags(models.Model):
     is_public = models.BooleanField(default=True, null=False)
 
 class Coop(models.Model):
-    objects = CoopManager()
+    #objects = CoopManager()
     name = models.CharField(max_length=250, null=False)
     types = models.ManyToManyField(CoopType, blank=False)
     enabled = models.BooleanField(default=True, null=False)
@@ -132,26 +125,3 @@ class Person(models.Model):
     coops = models.ManyToManyField(Coop, related_name='people')
     contact_methods = models.ManyToManyField(ContactMethod)
     is_public = models.BooleanField(default=True, null=False)
-
-
-def country_get_by_natural_key(self, name):
-    return self.get_or_create(name=name)[0]
-
-Country.add_to_class("get_by_natural_key", country_get_by_natural_key)
-
-def state_get_by_natural_key(self, code, country):
-  country = Country.objects.get_or_create(name=country)[0]
-  return State.objects.get_or_create(code=code, country=country)[0]
-
-class StateCustomManager(models.Manager):
-    def get_by_natural_key(self, code, country):
-        country = Country.objects.get_or_create(name=country)[0]
-        return State.objects.get_or_create(code=code, country=country)[0]
-
-State.add_to_class('objects', StateCustomManager())
-
-class LocalityCustomManager(models.Manager):
-    def get_by_natural_key(self, city, postal_code, state):
-        return Locality.objects.get_or_create(name=city, postal_code=postal_code, state=state)[0]
-
-#setattr(Locality._meta, 'default_manager', LocalityCustomManager())

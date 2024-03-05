@@ -1,0 +1,13 @@
+# TODO List
+- [ ] Create User (views)
+- [ ] Search Coops (views, models)
+- [ ] Coop.patch Proposed Changes (views)
+- [ ] Person get filter from set of coops (views )
+- [ ] Add coordinates to Coop (serializer)
+- [ ] Get by natural key aka name [states, countries, and Cooptype] (if needed)
+- [ ] Fix constraint in people create for coop (see PeopleCreateTest.test_create_undefined_coops)
+- [ ] General review of all constraints for models
+- [ ] What is monkey_patching.py?
+- [ ] CoopAddressTag update (serializer)
+- [ ] CoopAddressTag test cases
+- [ ] What to do about spreadsheet?
