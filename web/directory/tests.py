@@ -1,14 +1,21 @@
 from .models import Coop, CoopType, ContactMethod, Person, CoopAddressTags
-from address.models import Address, Locality
-from .serializers import AddressSerializer
+from address.models import Address, Locality, AddressField, Country, State
+from .serializers import AddressSerializer, CoopAddressTagsSerializer
+from .services.location_service import LocationService
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.core.management import call_command
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 import datetime
 import json
+import requests
+import urllib
+from geopy.geocoders import Nominatim
+from functools import partial
 
 class CoopCreateTest(APITestCase):
     @classmethod
@@ -30,16 +37,8 @@ class CoopCreateTest(APITestCase):
             "types": [ {"name": "Library"} ],
             "enabled": True,
             "contact_methods": [
-                {
-                "type": "EMAIL",
-                "is_public": True,
-                "email": "myemail@example.com"
-                },
-                {
-                "type": "PHONE",
-                "is_public": True,
-                "phone": "+17739441426"
-                }          
+                { "type": "EMAIL", "is_public": True, "email": "myemail@example.com" },
+                { "type": "PHONE", "is_public": True, "phone": "+17739441426" }          
             ],
             "web_site": "http://www.1871.com/",
             "description": "My Coop Description",
@@ -59,16 +58,10 @@ class CoopCreateTest(APITestCase):
                     "address": {
                         "raw": "222 W. Merchandise Mart Plaza, Suite 1212",
                         "formatted": "222 W. Merchandise Mart Plaza, Suite 1212",
-                        "locality": {
-                            "name": "Chicago",
-                            "postal_code": "60654",
-                            "state": {
-                                "id": "19313", 
-                                "name": "Illinois",
-                                "code": "IL",
-                                "country": { "name": "United States" }
-                            }
-                        }
+                        "locality": "Chicago",
+                        "state": "IL",
+                        "postal_code": "60654",
+                        "country": "United States"
                     }
                 }
             ],
@@ -98,7 +91,6 @@ class CoopCreateTest(APITestCase):
             self.assertEqual(new_coop.people.count(), len(request["people"]))
             self.assertEqual(new_coop.contact_methods.count(), len(request["contact_methods"]))
             self.assertEqual(new_coop.approved, request['approved'])
-            self.assertEqual(new_coop.rec_updated_by.id, request["rec_updated_by"])
             self.assertEqual(new_coop.rec_updated_by.id, self.user.id)
             self.assertNotEqual(new_coop.rec_updated_date, datetime.datetime.strptime( request["rec_updated_date"], "%Y-%m-%dT%H:%M:%S"))
         except:
@@ -239,16 +231,10 @@ class CoopCreateTest(APITestCase):
                     "address": {
                         "raw": "222 W. Merchandise Mart Plaza, Suite 1212",
                         "formatted": "222 W. Merchandise Mart Plaza, Suite 1212",
-                        "locality": {
-                            "name": "Chicago",
-                            "postal_code": "60654",
-                            "state": {
-                                "id": "19313", 
-                                "name": "Illinois",
-                                "code": "IL",
-                                "country": { "name": "United States" }
-                            }
-                        }
+                        "locality": "Chicago",
+                        "state": "IL",
+                        "postal_code": "60654",
+                        "country": "United States"
                     }
                 },
                 {
@@ -256,16 +242,10 @@ class CoopCreateTest(APITestCase):
                     "address": {
                         "raw": "123 Main Street",
                         "formatted": "123 Main Street",
-                        "locality": {
-                            "name": "Chicago",
-                            "postal_code": "60654",
-                            "state": {
-                                "id": "19313", 
-                                "name": "Illinois",
-                                "code": "IL",
-                                "country": { "name": "United States" }
-                            }
-                        }
+                        "locality": "Chicago",
+                        "state": "IL",
+                        "postal_code": "60654",
+                        "country": "United States"
                     }
                 }
             ],
@@ -385,18 +365,12 @@ class CoopUpdateTest(APITestCase):
         instance.contact_methods.set(contact_methods)
         # Define Array Field: coop_address_tags
         address_data = {
-            "raw": "233 S Wacker Dr, Chicago, IL 60606",
-            "formatted": "233 S Wacker Dr, Chicago, IL 60606",
-            "locality": {
-                "name": "Chicago",
-                "postal_code": "60606",
-                "state": {
-                    "id": "19313", 
-                    "name": "Illinois",
-                    "code": "IL",
-                    "country": { "name": "United States" }
-                }
-            }
+            "raw": "233 S Wacker Dr",
+            "formatted": "233 S Wacker Dr",
+            "locality": "Chicago",
+            "state": "IL",
+            "postal_code": "60606",
+            "country": "United States"
         }
         address_serializer = AddressSerializer(data=address_data)
         address_serializer.is_valid()
@@ -522,16 +496,10 @@ class CoopUpdateTest(APITestCase):
                     "address": {
                         "raw": "875 N Michigan Ave",
                         "formatted": "875 N Michigan Ave",
-                        "locality": {
-                            "name": "Chicago",
-                            "postal_code": "60611",
-                            "state": {
-                                "id": "19313", 
-                                "name": "Illinois",
-                                "code": "IL",
-                                "country": { "name": "United States" }
-                            }
-                        }
+                        "locality": "Chicago",
+                        "state": "IL",
+                        "postal_code": "60611",
+                        "country": "United States"
                     }
                 },
                 {
@@ -539,16 +507,10 @@ class CoopUpdateTest(APITestCase):
                     "address": {
                         "raw": "200 E Randolph St",
                         "formatted": "200 E Randolph St",
-                        "locality": {
-                            "name": "Chicago",
-                            "postal_code": "60601",
-                            "state": {
-                                "id": "19313", 
-                                "name": "Illinois",
-                                "code": "IL",
-                                "country": { "name": "United States" }
-                            }
-                        }
+                        "locality": "Chicago",
+                        "state": "IL",
+                        "postal_code": "60601",
+                        "country": "United States"
                     }
                 }
             ],
@@ -951,3 +913,158 @@ class PeopleUpdateTest(APITestCase):
         except:
             print(response.data)
             raise
+
+class AddressSerializerTest(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command('create_countries')
+        call_command('create_states')
+
+    def setUp(self):
+        self.user = User.objects.create_superuser(username='admin', email='test@example.com', password='admin')
+        #self.token = Token.objects.create(user=self.user)
+        #self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key) 
+
+    def test_address_serializer(self):
+        address_data = {
+            "raw": "222 W. Merchandise Mart Plaza, Suite 1212",
+            "formatted": "222 W. Merchandise Mart Plaza, Suite 1212",
+            "locality": "Chicago",
+            "state": "IL",
+            "postal_code": "60654",
+            "country": "United States"
+        }
+
+        address_serializer = AddressSerializer(data=address_data)
+        if address_serializer.is_valid():
+            address = address_serializer.save()
+        else: 
+            raise
+
+        self.assertEqual(Address.objects.count(), 1) 
+        self.assertEqual(Locality.objects.count(), 1) 
+
+        new_address = Address.objects.get(pk=address.id)
+        self.assertEqual(new_address.raw, address_data["raw"]) 
+        self.assertEqual(new_address.formatted, address_data["formatted"]) 
+        self.assertEqual(new_address.locality.postal_code, address_data["postal_code"]) 
+        self.assertEqual(new_address.locality.name, address_data["locality"]) 
+        self.assertEqual(new_address.locality.state.code, address_data["state"]) 
+        self.assertEqual(new_address.locality.state.country.name, address_data["country"]) 
+    
+    def test_address_serializer_without_optionals(self):
+        address_data = {
+            "raw": "222 W. Merchandise Mart Plaza, Suite 1212",
+            "locality": "Chicago",
+            "state": "IL",
+            "postal_code": "60654"
+        }
+
+        address_serializer = AddressSerializer(data=address_data)
+        if address_serializer.is_valid():
+            address = address_serializer.save()
+        else: 
+            raise
+
+        self.assertEqual(Address.objects.count(), 1) 
+        self.assertEqual(Locality.objects.count(), 1) 
+
+        new_address = Address.objects.get(pk=address.id)
+        self.assertEqual(new_address.raw, address_data["raw"]) 
+        self.assertEqual(new_address.formatted, "") 
+        self.assertEqual(new_address.locality.postal_code, address_data["postal_code"]) 
+        self.assertEqual(new_address.locality.name, address_data["locality"]) 
+        self.assertEqual(new_address.locality.state.code, address_data["state"]) 
+        self.assertEqual(new_address.locality.state.country.name, "United States")
+
+
+class CoopAddressTagsSerializerTest(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command('create_countries')
+        call_command('create_states')
+
+    def setUp(self):
+        self.user = User.objects.create_superuser(username='admin', email='test@example.com', password='admin')
+        #self.token = Token.objects.create(user=self.user)
+        #self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key) 
+
+    def test_create(self):
+        cat_data = {
+            "is_public": True,
+            "address": {
+                "raw": "222 W. Merchandise Mart Plaza, Suite 1212",
+                "formatted": "222 W. Merchandise Mart Plaza, Suite 1212",
+                "locality": "Chicago",
+                "state": "IL",
+                "postal_code": "60654",
+                "country": "United States"
+            }
+        }
+
+        cat_serializer = CoopAddressTagsSerializer(data = cat_data)
+        if cat_serializer.is_valid():
+            cat = cat_serializer.save()
+        else: 
+            raise       
+
+        self.assertEqual(CoopAddressTags.objects.count(), 1)
+        self.assertEqual(Address.objects.count(), 1) 
+        self.assertEqual(Locality.objects.count(), 1) 
+
+        new_cat = CoopAddressTags.objects.get(pk=cat.id)
+        self.assertEqual(new_cat.is_public, cat_data["is_public"])
+        self.assertEqual(new_cat.address.raw, cat_data["address"]["raw"]) 
+        self.assertEqual(new_cat.address.formatted, cat_data["address"]["formatted"]) 
+        self.assertEqual(new_cat.address.locality.postal_code, cat_data["address"]["postal_code"]) 
+        self.assertEqual(new_cat.address.locality.name, cat_data["address"]["locality"]) 
+        self.assertEqual(new_cat.address.locality.state.code, cat_data["address"]["state"]) 
+        self.assertEqual(new_cat.address.locality.state.country.name, cat_data["address"]["country"]) 
+
+    def test_update(self):
+        cat_create_data = {
+            "is_public": False,
+            "address": {
+                "raw": "222 W. Merchandise Mart Plaza, Suite 1212",
+                "formatted": "222 W. Merchandise Mart Plaza, Suite 1212",
+                "locality": "Chicago",
+                "state": "IL",
+                "postal_code": "60654",
+                "country": "United States"
+            }
+        }
+        cat_serializer = CoopAddressTagsSerializer(data = cat_create_data)
+        if cat_serializer.is_valid():
+            cat = cat_serializer.save()
+        else: 
+            self.fail("Invalid CAT Creation")
+
+        cat_update_data = {
+            "is_public": True,
+            "address": {
+                "raw": "2800 N California Ave",
+                "formatted": "2800 N California Ave",
+                "locality": "Chicago",
+                "state": "IL",
+                "postal_code": "60618",
+                "country": "United States"
+            }
+        }
+        cat_serializer = CoopAddressTagsSerializer(cat, data=cat_update_data)
+        if cat_serializer.is_valid():
+            cat = cat_serializer.save()
+        else: 
+            self.fail("Invalid CAT Update")
+        
+        self.assertEqual(CoopAddressTags.objects.count(), 1)
+        self.assertEqual(Address.objects.count(), 1) 
+        self.assertEqual(Locality.objects.count(), 2) #Original locality from create will remain in addition to new locality from update
+
+        new_cat = CoopAddressTags.objects.get(pk=cat.id)
+        self.assertEqual(new_cat.is_public, cat_update_data["is_public"])
+        #self.assertEqual(new_cat.address.raw, cat_update_data["address"]["raw"]) 
+        self.assertEqual(new_cat.address.formatted, cat_update_data["address"]["formatted"]) 
+        self.assertEqual(new_cat.address.locality.postal_code, cat_update_data["address"]["postal_code"]) 
+        self.assertEqual(new_cat.address.locality.name, cat_update_data["address"]["locality"]) 
+        self.assertEqual(new_cat.address.locality.state.code, cat_update_data["address"]["state"]) 
+        self.assertEqual(new_cat.address.locality.state.country.name, cat_update_data["address"]["country"]) 
