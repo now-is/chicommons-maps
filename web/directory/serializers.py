@@ -4,8 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework import serializers
-from directory.models import Coop, CoopType, ContactMethod, Person, CoopAddressTags
-from address.models import Address, Locality, State, Country
+from directory.models import Coop, CoopType, ContactMethod, Person, CoopAddressTags, Address
 from .services.location_service import LocationService
 import re
 from django.utils.timezone import now
@@ -34,79 +33,11 @@ class ContactMethodSerializer(serializers.ModelSerializer):
         elif data.get('email') and data.get('phone'):
             raise serializers.ValidationError("Either an email or a phone number must be provided.")
         return data
-
-class CountrySerializer(serializers.ModelSerializer):
-    name = serializers.CharField()
-
-    class Meta:
-        model = Country
-        fields = ['id', 'name', 'code']
-
-class StateSerializer(serializers.ModelSerializer):
-    country = CountrySerializer()
-
-    class Meta:
-        model = State
-        fields = ['id', 'code', 'name', 'country']
-
-class LocalitySerializer(serializers.ModelSerializer):
-    state = StateSerializer()
     
-    class Meta:
-        model = Locality
-        fields = ['id', 'name', 'postal_code', 'state']
-
 class AddressSerializer(serializers.ModelSerializer):
-    raw = serializers.CharField(write_only=True)
-    formatted = serializers.CharField(write_only=True, required=False)
-    locality = serializers.CharField(write_only=True)
-    state = serializers.CharField(write_only=True)
-    postal_code = serializers.CharField(write_only=True)
-    country = serializers.CharField(write_only=True, required=False, default="United States")
-
     class Meta:
         model = Address
-        fields = '__all__'
-
-    def validate_country(self, country_name):
-        try: 
-            country = Country.objects.get(name=country_name)
-            return country_name
-        except ObjectDoesNotExist:
-            raise serializers.ValidationError("Country not found.")
-        
-    def validate(self, data):
-        country_name = data.get('country') # class 'str'        
-        country = Country.objects.get(name=country_name)
-        state_code = data.pop("state", None) # class 'str'
-        if state_code:
-            try:
-                state = State.objects.get(code=state_code, country=country)
-                data['state'] = state_code
-            except ObjectDoesNotExist:
-                raise serializers.ValidationError({"state": "State not found for the given country."})
-        return data
-    
-    def create(self, validated_data):
-        country_name = validated_data.pop('country')
-        country = Country.objects.get(name=country_name)
-
-        state_code = validated_data.pop("state", None)
-        state = State.objects.get(code=state_code, country=country)
-        
-        locality_name_data = validated_data.pop("locality", "")
-        postal_code_data = validated_data.pop("postal_code", "")
-        
-        locality_data = {
-            'state': state,
-            'name': locality_name_data,
-            'postal_code': postal_code_data
-        }
-        locality, _ = Locality.objects.get_or_create(**locality_data)
-
-        validated_data['locality'] = locality
-        address_instance = Address.objects.create(**validated_data)
-        return address_instance
+        fields = ['id', 'street_address', 'city', 'state', 'postal_code', 'country', 'latitude', 'longitude']
   
 class CoopAddressTagsSerializer(serializers.ModelSerializer):
     address = AddressSerializer(read_only=False)
@@ -120,8 +51,7 @@ class CoopAddressTagsSerializer(serializers.ModelSerializer):
         instance = CoopAddressTags.objects.create(**validated_data)
         address_serializer = AddressSerializer(data=address_data)
         if address_serializer.is_valid(raise_exception=True):
-            address_instance = address_serializer.save()
-            instance.address = address_instance
+            instance.address = address_serializer.save()
         instance.save()
         return instance
     
@@ -133,8 +63,7 @@ class CoopAddressTagsSerializer(serializers.ModelSerializer):
             address_data = validated_data.pop('address')
             address_serializer = AddressSerializer(data=address_data)
             if address_serializer.is_valid(raise_exception=True):
-                address = address_serializer.save()
-                instance.address = address
+                instance.address = address_serializer.save()
         instance.save()
         return instance
 

@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
-from address.models import Address, State, Country, Locality
 from django.contrib.auth.models import User
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import Prefetch
@@ -86,6 +85,18 @@ class CoopType(models.Model):
 #         )
 #         queryset = Coop.objects.filter(filter, enabled=True)
 #         return queryset
+        
+class Address(models.Model):
+    street_address = models.CharField(max_length=120)
+    city = models.CharField(max_length=165)
+    state = models.CharField(max_length=8)
+    postal_code = models.CharField(max_length=10)
+    country = models.CharField(max_length=2, default="US")
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "Addresses"
 
 class CoopAddressTags(models.Model):
     coop = models.ForeignKey('Coop', related_name='coop_address_tags', on_delete=models.SET_NULL, null=True)
