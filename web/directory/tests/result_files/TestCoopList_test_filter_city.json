@@ -1,0 +1,260 @@
+[
+    {
+        "approved": true,
+        "contact_methods": [
+            {
+                "email": "myemail@example.com",
+                "is_public": true,
+                "phone": null,
+                "type": "EMAIL"
+            },
+            {
+                "email": null,
+                "is_public": true,
+                "phone": "+17739441426",
+                "type": "PHONE"
+            }
+        ],
+        "coop_address_tags": [
+            {
+                "address": {
+                    "city": "Chicago",
+                    "country": "US",
+                    "latitude": null,
+                    "longitude": null,
+                    "postal_code": "60654",
+                    "state": "IL",
+                    "street_address": "222 W. Merchandise Mart Plaza, Suite 1212"
+                },
+                "is_public": true
+            }
+        ],
+        "coop_public": false,
+        "description": "My Coop Description",
+        "enabled": true,
+        "name": "Test Coop 1 Apple",
+        "people": [
+            {
+                "contact_methods": [],
+                "first_name": "John",
+                "is_public": false,
+                "last_name": "Doe"
+            },
+            {
+                "contact_methods": [
+                    {
+                        "email": "stevesmith@example.com",
+                        "is_public": true,
+                        "phone": null,
+                        "type": "EMAIL"
+                    }
+                ],
+                "first_name": "Steve",
+                "is_public": false,
+                "last_name": "Smith"
+            }
+        ],
+        "proposed_changes": {
+            "description": "Testing testing testing."
+        },
+        "rec_source": "Testing",
+        "rec_updated_by": "admin",
+        "reject_reason": "This is sample data.",
+        "scope": "Testing",
+        "status": "Testing",
+        "tags": "tag1, tag2, tag3",
+        "types": [
+            {
+                "name": "Library"
+            }
+        ],
+        "web_site": "http://www.example.com/"
+    },
+    {
+        "approved": true,
+        "contact_methods": [
+            {
+                "email": "myemail@example2.com",
+                "is_public": true,
+                "phone": null,
+                "type": "EMAIL"
+            },
+            {
+                "email": "hello@example2.com",
+                "is_public": true,
+                "phone": null,
+                "type": "EMAIL"
+            },
+            {
+                "email": null,
+                "is_public": true,
+                "phone": "+13122222222",
+                "type": "PHONE"
+            }
+        ],
+        "coop_address_tags": [
+            {
+                "address": {
+                    "city": "Chicago",
+                    "country": "US",
+                    "latitude": null,
+                    "longitude": null,
+                    "postal_code": "60601",
+                    "state": "IL",
+                    "street_address": "225 N Columbus Dr"
+                },
+                "is_public": true
+            },
+            {
+                "address": {
+                    "city": "Chicago",
+                    "country": "US",
+                    "latitude": null,
+                    "longitude": null,
+                    "postal_code": "60611",
+                    "state": "IL",
+                    "street_address": "400 N Michigan Ave"
+                },
+                "is_public": true
+            }
+        ],
+        "coop_public": false,
+        "description": "My Coop Description",
+        "enabled": true,
+        "name": "Test Coop 2 Banana",
+        "people": [
+            {
+                "contact_methods": [
+                    {
+                        "email": "ellison@example2.com",
+                        "is_public": true,
+                        "phone": null,
+                        "type": "EMAIL"
+                    },
+                    {
+                        "email": "ellison_spam@example2.com",
+                        "is_public": true,
+                        "phone": null,
+                        "type": "EMAIL"
+                    }
+                ],
+                "first_name": "Cameron",
+                "is_public": false,
+                "last_name": "Ellison"
+            },
+            {
+                "contact_methods": [
+                    {
+                        "email": "underwood@example2.com",
+                        "is_public": true,
+                        "phone": null,
+                        "type": "EMAIL"
+                    },
+                    {
+                        "email": null,
+                        "is_public": true,
+                        "phone": "+13122222223",
+                        "type": "PHONE"
+                    }
+                ],
+                "first_name": "Harry",
+                "is_public": false,
+                "last_name": "Underwood"
+            }
+        ],
+        "proposed_changes": {
+            "description": "Testing testing testing."
+        },
+        "rec_source": "Testing",
+        "rec_updated_by": "admin",
+        "reject_reason": "This is sample data.",
+        "scope": "Testing",
+        "status": "Testing",
+        "tags": "tag1, tag2, tag3",
+        "types": [
+            {
+                "name": "Museum"
+            },
+            {
+                "name": "Laboratory"
+            }
+        ],
+        "web_site": "http://www.example2.com/"
+    },
+    {
+        "approved": true,
+        "contact_methods": [],
+        "coop_address_tags": [
+            {
+                "address": {
+                    "city": "Chicago",
+                    "country": "US",
+                    "latitude": null,
+                    "longitude": null,
+                    "postal_code": "60611",
+                    "state": "IL",
+                    "street_address": "300 E Ontario St"
+                },
+                "is_public": true
+            }
+        ],
+        "coop_public": false,
+        "description": "My Coop Description",
+        "enabled": true,
+        "name": "Test Coop 3 Apple",
+        "people": [],
+        "proposed_changes": {
+            "description": "Testing testing testing."
+        },
+        "rec_source": "Testing",
+        "rec_updated_by": "admin",
+        "reject_reason": "This is sample data.",
+        "scope": "Testing",
+        "status": "Testing",
+        "tags": "tag1, tag2, tag3",
+        "types": [
+            {
+                "name": "Museum"
+            }
+        ],
+        "web_site": "http://www.example3.com/"
+    },
+    {
+        "approved": true,
+        "contact_methods": [],
+        "coop_address_tags": [
+            {
+                "address": {
+                    "city": "Chicago",
+                    "country": "US",
+                    "latitude": null,
+                    "longitude": null,
+                    "postal_code": "60654",
+                    "state": "IL",
+                    "street_address": "400 N State St"
+                },
+                "is_public": true
+            }
+        ],
+        "coop_public": false,
+        "description": "My Coop Description",
+        "enabled": true,
+        "name": "Test Coop 4 Banana",
+        "people": [],
+        "proposed_changes": {
+            "description": "Testing testing testing."
+        },
+        "rec_source": "Testing",
+        "rec_updated_by": "admin",
+        "reject_reason": "This is sample data.",
+        "scope": "Testing",
+        "status": "Testing",
+        "tags": "tag1, tag2, tag3",
+        "types": [
+            {
+                "name": "Arboretum"
+            }
+        ],
+        "web_site": "http://www.example4.com/"
+    }
+]

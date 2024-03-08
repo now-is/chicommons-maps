@@ -1,9 +1,11 @@
 # TODO List
-- [~] LocationService: Add coordinates to Address (serializer)
+- [x] *Simplify CoopAddressTag Serializer Object Structure
 - [x] CoopAddressTag update (serializer)
 - [x] Add more Coop -> CoopAddressTag test cases
+- [x] Search Coops (views, models)
+- [x] Simplify Address Data Structure.
+- [~] LocationService: Add coordinates to Address (serializer)
 - [ ] Create User (views)
-- [ ] Search Coops (views, models)
 - [ ] Coop.patch Proposed Changes (views)
 - [ ] Person get filter from set of coops (views)
 - [ ] Get by natural key aka name [states, countries, and Cooptype] (if needed)
@@ -11,6 +13,5 @@
 - [ ] General review of all constraints for models
 - [ ] What is monkey_patching.py?
 - [ ] What to do about spreadsheet?
-- [x] *Simplify CoopAddressTag Serializer Object Structure
 - [ ] *Routes for other objects
 - [ ] Zip to State Mismatch
