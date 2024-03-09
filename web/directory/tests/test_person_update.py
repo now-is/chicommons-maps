@@ -3,18 +3,15 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+from . import helpers
 
-class TestPeopleUpdate(APITestCase):
+class TestPersonUpdate(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        # call_command('create_countries')
-        # call_command('create_states')
         pass
 
     def setUp(self):
-        self.user = User.objects.create_superuser(username='admin', email='test@example.com', password='admin')
-        #self.token = Token.objects.create(user=self.user)
-        #self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key) 
+        self.creating_user = User.objects.create_superuser(username='admin', email='test@example.com', password='admin')
 
         test_coop_1 = Coop.objects.create(
             name = "Test People Update 1",
@@ -22,7 +19,7 @@ class TestPeopleUpdate(APITestCase):
             web_site = "http://example.com",
             description = "This is a description",
             approved = False,
-            rec_updated_by = self.user
+            rec_updated_by = self.creating_user
         )
         test_coop_1.save()
         self.test_coop_1_id = test_coop_1.id
@@ -33,7 +30,7 @@ class TestPeopleUpdate(APITestCase):
             web_site = "http://example.com",
             description = "This is a description",
             approved = False,
-            rec_updated_by = self.user
+            rec_updated_by = self.creating_user
         )
         test_coop_2.save()
         self.test_coop_2_id = test_coop_2.id
@@ -47,8 +44,12 @@ class TestPeopleUpdate(APITestCase):
         test_person.save()
         self.test_person_id = test_person.id
 
+        # Authenticating as admin user for all tests in class
+        self.modifying_user = User.objects.create_superuser(username='testuser', email='test2@example.com', password='password')
+        self.token = helpers.obtain_jwt_token("testuser", "password")
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token}')
+
     def test_update_basic(self):
-        self.client.login(username='admin', password='admin')
         before_person_count = Person.objects.count()
         before_coop_count = Coop.objects.count()
         before_contactmethod_count = ContactMethod.objects.count()
@@ -66,6 +67,8 @@ class TestPeopleUpdate(APITestCase):
         try:
             # Validate successful HTTP response
             self.assertEqual(response.status_code, status.HTTP_200_OK)
+            # Validate acting as modifying_user
+            self.assertEquals(self.client._credentials['HTTP_AUTHORIZATION'], f'Bearer {self.token}')
             # Validate number of instances
             self.assertEqual(Person.objects.count(), before_person_count)
             self.assertEqual(Coop.objects.count(), before_coop_count)
@@ -81,7 +84,6 @@ class TestPeopleUpdate(APITestCase):
             raise
     
     def test_update_without_contactmethods(self):
-        self.client.login(username='admin', password='admin')
         before_person_count = Person.objects.count()
         before_coop_count = Coop.objects.count()
         before_contactmethod_count = ContactMethod.objects.count()
@@ -100,6 +102,8 @@ class TestPeopleUpdate(APITestCase):
         try:
             # Validate successful HTTP response
             self.assertEqual(response.status_code, status.HTTP_200_OK)
+            # Validate acting as modifying_user
+            self.assertEquals(self.client._credentials['HTTP_AUTHORIZATION'], f'Bearer {self.token}')
             # Validate number of instances
             self.assertEqual(Person.objects.count(), before_person_count)
             self.assertEqual(Coop.objects.count(), before_coop_count)
@@ -115,7 +119,6 @@ class TestPeopleUpdate(APITestCase):
             raise
 
     def test_update_with_contactmethods(self):
-        self.client.login(username='admin', password='admin')
         before_person_count = Person.objects.count()
         before_coop_count = Coop.objects.count()
         before_contactmethod_count = ContactMethod.objects.count()
@@ -139,6 +142,8 @@ class TestPeopleUpdate(APITestCase):
         try:
             # Validate successful HTTP response
             self.assertEqual(response.status_code, status.HTTP_200_OK)
+            # Validate acting as modifying_user
+            self.assertEquals(self.client._credentials['HTTP_AUTHORIZATION'], f'Bearer {self.token}')
             # Validate number of instances
             self.assertEqual(Person.objects.count(), before_person_count)
             self.assertEqual(Coop.objects.count(), before_coop_count)
@@ -158,7 +163,6 @@ class TestPeopleUpdate(APITestCase):
             raise
     
     def test_update_without_coops(self):
-        self.client.login(username='admin', password='admin')
         before_person_count = Person.objects.count()
         before_coop_count = Coop.objects.count()
         before_contactmethod_count = ContactMethod.objects.count()
@@ -177,6 +181,8 @@ class TestPeopleUpdate(APITestCase):
         try:
             # Validate successful HTTP response
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+            # Validate acting as modifying_user
+            self.assertEquals(self.client._credentials['HTTP_AUTHORIZATION'], f'Bearer {self.token}')
             # Validate that no instances were created
             self.assertEqual(Person.objects.count(), before_person_count)
             self.assertEqual(Coop.objects.count(), before_coop_count)
@@ -186,15 +192,12 @@ class TestPeopleUpdate(APITestCase):
             raise
     
     def test_update_with_coops(self):
-        self.client.login(username='admin', password='admin')
         before_person_count = Person.objects.count()
         before_coop_count = Coop.objects.count()
         before_contactmethod_count = ContactMethod.objects.count()
         instance = Person.objects.get(pk=self.test_person_id)
 
         url = reverse('person-detail', args=[self.test_person_id])
-        print("test_coop_2_id: %s" % self.test_coop_2_id)
-        print("type test_coop_2_id: %s" % type(self.test_coop_2_id))
         request = {
             "first_name": "James",
             "last_name": "Doe-Smith",
@@ -207,6 +210,8 @@ class TestPeopleUpdate(APITestCase):
         try:
             # Validate successful HTTP response
             self.assertEqual(response.status_code, status.HTTP_200_OK)
+            # Validate acting as modifying_user
+            self.assertEquals(self.client._credentials['HTTP_AUTHORIZATION'], f'Bearer {self.token}')
             # Validate number of instances
             self.assertEqual(Person.objects.count(), before_person_count)
             self.assertEqual(Coop.objects.count(), before_coop_count)

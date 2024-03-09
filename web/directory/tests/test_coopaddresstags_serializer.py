@@ -6,14 +6,10 @@ from rest_framework.test import APITestCase
 class TestCoopAddressTagsSerializer(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        # call_command('create_countries')
-        # call_command('create_states')
         pass
 
     def setUp(self):
-        self.user = User.objects.create_superuser(username='admin', email='test@example.com', password='admin')
-        #self.token = Token.objects.create(user=self.user)
-        #self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key) 
+        pass
 
     def test_create(self):
         cat_data = {

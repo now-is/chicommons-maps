@@ -1,30 +1,22 @@
 import csv
-import json
-import socket
 
-from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordResetView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
 from django.db.models.functions import Lower
-from django.http import Http404, HttpResponse
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import status, mixins, generics, permissions, viewsets
+from rest_framework import status, generics
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.generics import CreateAPIView
-from rest_framework.parsers import JSONParser
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.decorators import api_view
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 from rest_framework.views import APIView
-from django.utils.decorators import method_decorator
 
-from directory.authentication import expires_in
 from directory.models import Coop, CoopType
 from directory.serializers import *
 from directory.settings import EMAIL_HOST, EMAIL_PORT, SECRET_KEY
@@ -32,55 +24,16 @@ from directory.settings import EMAIL_HOST, EMAIL_PORT, SECRET_KEY
 from .authentication import expires_in, token_expire_handler
 from .serializers import UserSigninSerializer
 from django.contrib.auth.forms import PasswordResetForm
-from django.http import HttpRequest
 from pycountry import countries, subdivisions
 
 @api_view(['GET'])
 def api_root(request, format=None):
     return Response({
         'coops': reverse('coop-list', request=request, format=format),
-        'coop_type': reverse('coop-type-list', request=request, format=format),
+        'coop_type': reverse('cooptypes-list', request=request, format=format),
         'users': reverse('user-list', request=request, format=format),
         'countries': reverse('country-list', request=request, format=format)
     })
-
-# @api_view(["POST"])
-# @permission_classes((AllowAny,))  # here we specify permission by default we set IsAuthenticated
-# def signin(request):
-#     signin_serializer = UserSigninSerializer(data = request.data)
-#     if not signin_serializer.is_valid():
-#         return Response(signin_serializer.errors, status = HTTP_400_BAD_REQUEST)
-
-#     user = authenticate(
-#             username = signin_serializer.data['username'],
-#             password = signin_serializer.data['password'] 
-#         )
-    
-#     if not user:
-#         return Response({'detail': 'Invalid Credentials or activate account'}, status=HTTP_404_NOT_FOUND)
-        
-#     #TOKEN STUFF
-#     token, _ = Token.objects.get_or_create(user = user)
-    
-#     #token_expire_handler will check, if the token is expired it will generate new one
-#     is_expired, token = token_expire_handler(token)     # The implementation will be described further
-#     user_serialized = UserSerializer(user)
-
-#     return Response({
-#         'user': user_serialized.data, 
-#         'expires_in': expires_in(token),
-#         'token': token.key
-#     }, status=HTTP_200_OK)
-
-# @api_view(["GET"])
-# @permission_classes((IsAuthenticated,))
-# def signout(request):
-#     user = request.user
-#     print("user: %s" % user)
-#     Token.objects.filter(user=user).delete() 
-#     # Remove header
-#     return Response({}, status=HTTP_200_OK)
-
 
 # @api_view(["GET"])
 # @permission_classes((IsAuthenticated,))
@@ -90,12 +43,10 @@ def api_root(request, format=None):
 #         'expires_in': expires_in(request.auth)
 #     }, status=HTTP_200_OK)
 
-
 # def data(request):
 #     # Create the HttpResponse object with the appropriate CSV header.
 #     response = HttpResponse(content_type='text/csv')
 #     response['Content-Disposition'] = 'attachment; filename="data.csv"'
-
 #     writer = csv.writer(response, quoting=csv.QUOTE_ALL)
 #     writer.writerow(['name','address','city','postal code','type','website','lon','lat'])
 #     type = request.GET.get("type", "")
@@ -104,7 +55,6 @@ def api_root(request, format=None):
 #         coops = Coop.objects.get_by_type(type)
 #     elif contains:
 #         coops = Coop.objects.contains_type(contains.split(","))
-
 #     for coop in coops.order_by(Lower('name')):
 #         for address in coop.addresses.all():
 #             postal_code = address.locality.postal_code
@@ -112,30 +62,18 @@ def api_root(request, format=None):
 #             coop_types = ', '.join([type.name for type in coop.types.all()])
 #             if address.longitude and address.latitude:
 #                 writer.writerow([coop.name, address.formatted, city, postal_code, coop_types, coop.web_site, address.longitude, address.latitude])
-
 #     return response
     
-class CoopsNoCoords(generics.ListAPIView):
-    queryset = Coop.objects.exclude(coop_address_tags__isnull=True).prefetch_related(
-        'coop_address_tags', 
-        'coop_address_tags__address'
-    ).filter(
-        Q(coop_address_tags__address__latitude__isnull=True) | Q(coop_address_tags__address__longitude__isnull=True)
-    )
-    serializer_class = CoopSerializer
-
-class CoopsUnapproved(generics.ListAPIView):
-    queryset = Coop.objects.filter(approved=False)
-    serializer_class = CoopSerializer
-
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
 
 class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
+    permission_classes = [IsAdminUser]
+    #TODO - Implement Owner Level Permissions
 
 # class CreateUserView(CreateAPIView):
 
@@ -147,7 +85,6 @@ class UserDetail(generics.RetrieveAPIView):
     
 class CoopList(generics.ListCreateAPIView):
     serializer_class = CoopSerializer
-    permission_classes = [ IsAuthenticated ]
 
     def perform_create(self, serializer):
         serializer.save(rec_updated_by=self.request.user)
@@ -178,6 +115,13 @@ class CoopList(generics.ListCreateAPIView):
             queryset = queryset.filter(filter)
 
         return queryset
+    
+    def get_permissions(self):
+        if self.request.method == 'GET': #LIST
+            self.permission_classes = [AllowAny]
+        elif self.request.method == 'POST': #CREATE
+            self.permission_classes = [IsAuthenticated]
+        return [permission() for permission in self.permission_classes]
 
 # class CoopListAll(APIView):
 #     """
@@ -223,10 +167,17 @@ class CoopList(generics.ListCreateAPIView):
 class CoopDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Coop.objects.all()
     serializer_class = CoopSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_update(self, serializer):
         serializer.save(rec_updated_by=self.request.user)
+
+    def get_permissions(self):
+        if self.request.method == 'GET': #RETRIEVE
+            self.permission_classes = [AllowAny]
+        elif self.request.method in ['PUT', 'PATCH', 'DELETE']: #UPDATE (put, patch) DESTROY (delete)
+            self.permission_classes = [IsAdminUser]
+            #TODO - Implement owner level permssions 
+        return [permission() for permission in self.permission_classes]
 
 # class CoopDetail(APIView):
 #     """
@@ -237,20 +188,7 @@ class CoopDetail(generics.RetrieveUpdateDestroyAPIView):
 #             return Coop.objects.get(pk=pk)
 #         except Coop.DoesNotExist:
 #             raise Http404
-
-#     def get(self, request, pk, format=None):
-#         coop = self.get_object(pk)
-#         serializer = CoopSerializer(coop)
-#         return Response(serializer.data)
-
-#     def put(self, request, pk, format=None):
-#         coop = self.get_object(pk)
-#         serializer = CoopSerializer(coop, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+#
 #     def patch(self, request, pk, format=None):
 #         coop = self.get_object(pk)
 #         serializer = CoopProposedChangeSerializer(coop, data=request.data)
@@ -258,50 +196,109 @@ class CoopDetail(generics.RetrieveUpdateDestroyAPIView):
 #             serializer.save()
 #             return Response(serializer.data)
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+class CoopsNoCoords(generics.ListAPIView):
+    queryset = Coop.objects.exclude(coop_address_tags__isnull=True).prefetch_related(
+        'coop_address_tags', 
+        'coop_address_tags__address'
+    ).filter(
+        Q(coop_address_tags__address__latitude__isnull=True) | Q(coop_address_tags__address__longitude__isnull=True)
+    )
+    serializer_class = CoopSerializer
+    permission_classes = [IsAdminUser]
 
-#     def delete(self, request, pk, format=None):
-#         coop = self.get_object(pk)
-#         coop.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
+class CoopsUnapproved(generics.ListAPIView):
+    queryset = Coop.objects.filter(approved=False)
+    serializer_class = CoopSerializer
+    permission_classes = [IsAdminUser]
 
-class PersonList(generics.ListCreateAPIView):
+class PersonList(generics.ListAPIView):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
-
-# class PersonWithCoopList(APIView):
-#     """
-#     List all people, or create a new person.
-#     """
-#     def get(self, request, format=None):
-#         coop = request.GET.get("coop", "")
-#         if coop:
-#             people = Person.objects.filter(coops__in=[coop])
-#         else:
-#             people = Person.objects.all()
-#         serializer = PersonWithCoopSerializer(people, many=True)
-#         return Response(serializer.data)
-
-#     def post(self, request, format=None):
-#         serializer = PersonWithCoopSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    permission_classes = [AllowAny]
+    
 class PersonDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    def get_permissions(self):
+        if self.request.method == 'GET': #RETRIEVE
+            self.permission_classes = [AllowAny]
+        elif self.request.method in ['PUT', 'PATCH', 'DELETE']: #UPDATE (put, patch) DESTROY (delete)
+            self.permission_classes = [IsAdminUser]
+            #TODO - Implement owner level permssions 
+        return [permission() for permission in self.permission_classes]
+    
 class CoopTypeList(generics.ListAPIView):
     queryset = CoopType.objects.all().order_by(Lower('name'))
     serializer_class = CoopTypeSerializer
+    permission_classes = [AllowAny]
 
-class CoopTypeDetail(generics.RetrieveAPIView):
+class CoopTypeDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = CoopType.objects.all()
     serializer_class = CoopTypeSerializer
 
-class CountryList(APIView):    
+    def get_permissions(self):
+        if self.request.method == 'GET': #RETRIEVE
+            self.permission_classes = [AllowAny]
+        elif self.request.method in ['PUT', 'PATCH', 'DELETE']: #UPDATE (put, patch) DESTROY (delete)
+            self.permission_classes = [IsAdminUser]
+        return [permission() for permission in self.permission_classes]
+    
+class CoopAddressTagsList(generics.ListAPIView):
+    queryset = CoopAddressTags.objects.all()
+    serializer_class = CoopAddressTagsSerializer
+    permission_classes = [AllowAny]
+
+class CoopAddressTagsDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CoopAddressTags.objects.all()
+    serializer_class = CoopAddressTagsSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'GET': #RETRIEVE
+            self.permission_classes = [AllowAny]
+        elif self.request.method in ['PUT', 'PATCH', 'DELETE']: #UPDATE (put, patch) DESTROY (delete)
+            self.permission_classes = [IsAdminUser]
+            #TODO - Implement owner level permssions 
+        return [permission() for permission in self.permission_classes]
+    
+class AddressList(generics.ListAPIView):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+    permission_classes = [AllowAny]
+
+class AddressDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'GET': #RETRIEVE
+            self.permission_classes = [AllowAny]
+        elif self.request.method in ['PUT', 'PATCH', 'DELETE']: #UPDATE (put, patch) DESTROY (delete)
+            self.permission_classes = [IsAdminUser]
+            #TODO - Implement owner level permssions 
+        return [permission() for permission in self.permission_classes]
+    
+class ContactMethodList(generics.ListAPIView):
+    queryset = ContactMethod.objects.all()
+    serializer_class = ContactMethodSerializer
+    permission_classes = [AllowAny]
+
+class ContactMethodDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ContactMethod.objects.all()
+    serializer_class = ContactMethodSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'GET': #RETRIEVE
+            self.permission_classes = [AllowAny]
+        elif self.request.method in ['PUT', 'PATCH', 'DELETE']: #UPDATE (put, patch) DESTROY (delete)
+            self.permission_classes = [IsAdminUser]
+            #TODO - Implement owner level permssions 
+        return [permission() for permission in self.permission_classes]
+
+class CountryList(APIView):
+    permission_classes = [IsAdminUser]
+
     def get(self, request, *args, **kwargs):   
         countries_data = [
             {
@@ -312,6 +309,8 @@ class CountryList(APIView):
         return Response(countries_data, status.HTTP_200_OK)
     
 class StateList(APIView):
+    permission_classes = [IsAdminUser]
+
     def get(self, request, *args, **kwargs):
         input_country_code = self.kwargs['country_code']
         states_data = {'US': [{'name': 'Alaska', 'code': 'AK', 'country': 'US'}, {'name': 'Alabama', 'code': 'AL', 'country': 'US'}, {'name': 'Arkansas', 'code': 'AR', 'country': 'US'}, {'name': 'American Samoa', 'code': 'AS', 'country': 'US'}, {'name': 'Arizona', 'code': 'AZ', 'country': 'US'}, {'name': 'California', 'code': 'CA', 'country': 'US'}, {'name': 'Colorado', 'code': 'CO', 'country': 'US'}, {'name': 'Connecticut', 'code': 'CT', 'country': 'US'}, {'name': 'District of Columbia', 'code': 'DC', 'country': 'US'}, {'name': 'Delaware', 'code': 'DE', 'country': 'US'}, {'name': 'Florida', 'code': 'FL', 'country': 'US'}, {'name': 'Georgia', 'code': 'GA', 'country': 'US'}, {'name': 'Guam', 'code': 'GU', 'country': 'US'}, {'name': 'Hawaii', 'code': 'HI', 'country': 'US'}, {'name': 'Iowa', 'code': 'IA', 'country': 'US'}, {'name': 'Idaho', 'code': 'ID', 'country': 'US'}, {'name': 'Illinois', 'code': 'IL', 'country': 'US'}, {'name': 'Indiana', 'code': 'IN', 'country': 'US'}, {'name': 'Kansas', 'code': 'KS', 'country': 'US'}, {'name': 'Kentucky', 'code': 'KY', 'country': 'US'}, {'name': 'Louisiana', 'code': 'LA', 'country': 'US'}, {'name': 'Massachusetts', 'code': 'MA', 'country': 'US'}, {'name': 'Maryland', 'code': 'MD', 'country': 'US'}, {'name': 'Maine', 'code': 'ME', 'country': 'US'}, {'name': 'Michigan', 'code': 'MI', 'country': 'US'}, {'name': 'Minnesota', 'code': 'MN', 'country': 'US'}, {'name': 'Missouri', 'code': 'MO', 'country': 'US'}, {'name': 'Northern Mariana Islands', 'code': 'MP', 'country': 'US'}, {'name': 'Mississippi', 'code': 'MS', 'country': 'US'}, {'name': 'Montana', 'code': 'MT', 'country': 'US'}, {'name': 'North Carolina', 'code': 'NC', 'country': 'US'}, {'name': 'North Dakota', 'code': 'ND', 'country': 'US'}, {'name': 'Nebraska', 'code': 'NE', 'country': 'US'}, {'name': 'New Hampshire', 'code': 'NH', 'country': 'US'}, {'name': 'New Jersey', 'code': 'NJ', 'country': 'US'}, {'name': 'New Mexico', 'code': 'NM', 'country': 'US'}, {'name': 'Nevada', 'code': 'NV', 'country': 'US'}, {'name': 'New York', 'code': 'NY', 'country': 'US'}, {'name': 'Ohio', 'code': 'OH', 'country': 'US'}, {'name': 'Oklahoma', 'code': 'OK', 'country': 'US'}, {'name': 'Oregon', 'code': 'OR', 'country': 'US'}, {'name': 'Pennsylvania', 'code': 'PA', 'country': 'US'}, {'name': 'Puerto Rico', 'code': 'PR', 'country': 'US'}, {'name': 'Rhode Island', 'code': 'RI', 'country': 'US'}, {'name': 'South Carolina', 'code': 'SC', 'country': 'US'}, {'name': 'South Dakota', 'code': 'SD', 'country': 'US'}, {'name': 'Tennessee', 'code': 'TN', 'country': 'US'}, {'name': 'Texas', 'code': 'TX', 'country': 'US'}, {'name': 'United States Minor Outlying Islands', 'code': 'UM', 'country': 'US'}, {'name': 'Utah', 'code': 'UT', 'country': 'US'}, {'name': 'Virginia', 'code': 'VA', 'country': 'US'}, {'name': 'Virgin Islands', 'code': 'VI', 'country': 'US'}, {'name': 'Vermont', 'code': 'VT', 'country': 'US'}, {'name': 'Washington', 'code': 'WA', 'country': 'US'}, {'name': 'Wisconsin', 'code': 'WI', 'country': 'US'}, {'name': 'West Virginia', 'code': 'WV', 'country': 'US'}, {'name': 'Wyoming', 'code': 'WY', 'country': 'US'}]}

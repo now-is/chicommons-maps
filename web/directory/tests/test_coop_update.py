@@ -5,19 +5,15 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 import datetime
+from . import helpers
 
 class TestCoopUpdate(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        # call_command('create_countries')
-        # call_command('create_states')
         pass
 
     def setUp(self):
-        self.user = User.objects.create_superuser(username='admin', email='test@example.com', password='admin')
-        self.modifying_user = User.objects.create_superuser(username='chicommons', email='test2@example.com', password='chicommons')
-        #self.token = Token.objects.create(user=self.user)
-        #self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        self.creating_user = User.objects.create_superuser(username='admin', email='test@example.com', password='admin')
 
         # Create new Coop instance. Define Basic Fields.
         instance = Coop.objects.create(
@@ -26,7 +22,7 @@ class TestCoopUpdate(APITestCase):
             web_site = "http://example.com",
             description = "This is a description",
             approved = False,
-            rec_updated_by = self.user
+            rec_updated_by = self.creating_user
         )
         # Define Array Field: types
         coop_types = [CoopType.objects.create( name = "Disco" )]
@@ -63,8 +59,12 @@ class TestCoopUpdate(APITestCase):
         instance.save()
         self.instance_id = instance.id
 
+        # Authenticating as admin user for all tests in class
+        self.modifying_user = User.objects.create_superuser(username='testuser', email='test2@example.com', password='password')
+        self.token = helpers.obtain_jwt_token("testuser", "password")
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token}')
+
     def test_update_basic(self):
-        self.client.login(username='chicommons', password='chicommons')
         instance = Coop.objects.get(pk=self.instance_id)
         before_model_count = Coop.objects.count()
         before_rec_updated_date = instance.rec_updated_date
@@ -90,7 +90,11 @@ class TestCoopUpdate(APITestCase):
         response = self.client.patch(url, request, format='json')
 
         try:
+            # Validate successful HTTP response
             self.assertEqual(response.status_code, status.HTTP_200_OK)
+            # Validate acting as modifying_user
+            self.assertEquals(self.client._credentials['HTTP_AUTHORIZATION'], f'Bearer {self.token}')
+            # Validate number of instances
             self.assertEqual(Coop.objects.count(), before_model_count)
             coop = Coop.objects.get(pk=self.instance_id)
             self.assertEqual(coop.name, request["name"])
@@ -118,7 +122,6 @@ class TestCoopUpdate(APITestCase):
             raise
 
     def test_update_with_empty_arrays(self):
-        self.client.login(username='admin', password='admin')
         instance = Coop.objects.get(pk=self.instance_id)
         before_model_count = Coop.objects.count()
 
@@ -132,7 +135,11 @@ class TestCoopUpdate(APITestCase):
         response = self.client.patch(url, request, format='json')
 
         try:
+            # Validate successful HTTP response
             self.assertEqual(response.status_code, status.HTTP_200_OK)
+            # Validate acting as modifying_user
+            self.assertEquals(self.client._credentials['HTTP_AUTHORIZATION'], f'Bearer {self.token}')
+            # Validate number of instances
             self.assertEqual(Coop.objects.count(), before_model_count)
             coop = Coop.objects.get(pk=self.instance_id)
             self.assertEqual(coop.types.count(), 0)
@@ -144,7 +151,6 @@ class TestCoopUpdate(APITestCase):
             raise
     
     def test_update_with_loaded_arrays(self):
-        self.client.login(username='admin', password='admin')
         instance = Coop.objects.get(pk=self.instance_id)
         before_model_count = Coop.objects.count()
 
@@ -191,7 +197,11 @@ class TestCoopUpdate(APITestCase):
         }
         response = self.client.patch(url, request, format='json')
         try:
+            # Validate successful HTTP response
             self.assertEqual(response.status_code, status.HTTP_200_OK)
+            # Validate acting as modifying_user
+            self.assertEquals(self.client._credentials['HTTP_AUTHORIZATION'], f'Bearer {self.token}')
+            # Validate number of instances
             self.assertEqual(Coop.objects.count(), before_model_count)
 
             coop = Coop.objects.get(pk=self.instance_id)

@@ -4,21 +4,20 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 import datetime
+from . import helpers
 
 class TestCoopCreate(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        # call_command('create_countries')
-        # call_command('create_states')
         pass
 
     def setUp(self):
-        self.user = User.objects.create_superuser(username='admin', email='test@example.com', password='admin')
-        #self.token = Token.objects.create(user=self.user)
-        #self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        # Authenticating as regular user for all tests in class
+        self.user = User.objects.create_user(username='testuser', password='password')
+        self.token = helpers.obtain_jwt_token("testuser", "password")
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token}')
 
     def test_create_full(self):
-        self.client.login(username='admin', password='admin')
         before_model_count = Coop.objects.count()
         url = reverse('coop-list')
         request = {
@@ -70,6 +69,7 @@ class TestCoopCreate(APITestCase):
         new_model_count = before_model_count + 1
         try:
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertEquals(self.client._credentials['HTTP_AUTHORIZATION'], f'Bearer {self.token}')
             self.assertEqual(Coop.objects.count(), new_model_count) 
 
             new_coop = Coop.objects.get(pk=response.data['id'])
@@ -86,7 +86,6 @@ class TestCoopCreate(APITestCase):
             raise
 
     def test_create_minimum(self):
-        self.client.login(username='admin', password='admin')
         before_model_count = Coop.objects.count()
         url = reverse('coop-list')
         request = {
@@ -101,6 +100,7 @@ class TestCoopCreate(APITestCase):
         new_model_count = before_model_count + 1
         try:
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertEquals(self.client._credentials['HTTP_AUTHORIZATION'], f'Bearer {self.token}')
             self.assertEqual(Coop.objects.count(), new_model_count) 
             new_coop = Coop.objects.get(pk=response.data['id'])
             self.assertEqual(new_coop.name, request['name'])
@@ -119,7 +119,6 @@ class TestCoopCreate(APITestCase):
             raise
             
     def test_create_empty(self):
-        self.client.login(username='admin', password='admin')
         before_model_count = Coop.objects.count()
         url = reverse('coop-list')
         request = {
@@ -138,6 +137,7 @@ class TestCoopCreate(APITestCase):
         new_model_count = before_model_count + 1
         try:
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertEquals(self.client._credentials['HTTP_AUTHORIZATION'], f'Bearer {self.token}')
             self.assertEqual(Coop.objects.count(), new_model_count) 
             new_coop = Coop.objects.get(pk=response.data['id'])
             self.assertEqual(new_coop.name, request['name'])
@@ -156,7 +156,6 @@ class TestCoopCreate(APITestCase):
             raise
     
     def test_create_with_contactmethod(self):
-        self.client.login(username='admin', password='admin')
         before_model_count = Coop.objects.count()
         url = reverse('coop-list')
         request = {
@@ -186,6 +185,7 @@ class TestCoopCreate(APITestCase):
         new_model_count = before_model_count + 1
         try:
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertEquals(self.client._credentials['HTTP_AUTHORIZATION'], f'Bearer {self.token}')
             self.assertEqual(Coop.objects.count(), new_model_count) 
             new_coop = Coop.objects.get(pk=response.data['id'])
             self.assertEqual(new_coop.name, request['name'])
@@ -204,7 +204,6 @@ class TestCoopCreate(APITestCase):
             raise
 
     def test_create_with_address(self):
-        self.client.login(username='admin', password='admin')
         before_model_count = Coop.objects.count()
         url = reverse('coop-list')
         request = {
@@ -244,6 +243,7 @@ class TestCoopCreate(APITestCase):
         new_model_count = before_model_count + 1 
         try:
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertEquals(self.client._credentials['HTTP_AUTHORIZATION'], f'Bearer {self.token}')
             self.assertEqual(Coop.objects.count(), new_model_count) 
             new_coop = Coop.objects.get(pk=response.data['id'])
             self.assertEqual(new_coop.name, request['name'])
@@ -262,7 +262,6 @@ class TestCoopCreate(APITestCase):
             raise
     
     def test_create_with_people(self):
-        self.client.login(username='admin', password='admin')
         before_model_count = Coop.objects.count()
         url = reverse('coop-list')
         request = {
@@ -300,6 +299,7 @@ class TestCoopCreate(APITestCase):
         new_model_count = before_model_count + 1
         try:
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            self.assertEquals(self.client._credentials['HTTP_AUTHORIZATION'], f'Bearer {self.token}')
             self.assertEqual(Coop.objects.count(), new_model_count) 
             new_coop = Coop.objects.get(pk=response.data['id'])
             self.assertEqual(new_coop.name, request['name'])
