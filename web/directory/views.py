@@ -16,13 +16,12 @@ from rest_framework.reverse import reverse
 from rest_framework.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from directory.models import Coop, CoopType
 from directory.serializers import *
 from directory.settings import EMAIL_HOST, EMAIL_PORT, SECRET_KEY
 
-from .authentication import expires_in, token_expire_handler
-from .serializers import UserSigninSerializer
 from django.contrib.auth.forms import PasswordResetForm
 from pycountry import countries, subdivisions
 
@@ -75,13 +74,19 @@ class UserDetail(generics.RetrieveAPIView):
     permission_classes = [IsAdminUser]
     #TODO - Implement Owner Level Permissions
 
-# class CreateUserView(CreateAPIView):
+class CreateUserView(APIView):
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            if user:
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#     model = User
-#     permission_classes = [
-#         IsAuthenticated
-#     ]
-#     serializer_class = UserSerializer
     
 class CoopList(generics.ListCreateAPIView):
     serializer_class = CoopSerializer
@@ -318,7 +323,6 @@ class StateList(APIView):
             return Response(states_data[input_country_code], status.HTTP_200_OK)
         else:
             return Response("Country not found.", status.HTTP_404_NOT_FOUND)
-
 
 # class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
 #     reset_password_template_name = 'templates/users/password_reset.html'

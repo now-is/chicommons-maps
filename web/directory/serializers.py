@@ -1,13 +1,11 @@
-from geopy.geocoders import Nominatim
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from rest_framework import serializers
-from rest_framework import serializers
 from directory.models import Coop, CoopType, ContactMethod, Person, CoopAddressTags, Address
-from .services.location_service import LocationService
-import re
 from django.utils.timezone import now
+
+User = get_user_model()
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     coops = serializers.HyperlinkedRelatedField(many=True, view_name='coop-detail', read_only=True)
@@ -233,6 +231,22 @@ class CoopSerializer(serializers.HyperlinkedModelSerializer):
 
         return instance
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password', 'first_name', 'last_name')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password'],
+            first_name=validated_data.get('first_name', ''),
+            last_name=validated_data.get('last_name', ''),
+        )
+        return user
+
 # class CoopProposedChangeSerializer(serializers.ModelSerializer):
 #     """
 #     This Coop serializer handles proposed changes to a coop.
@@ -270,10 +284,6 @@ class CoopSerializer(serializers.HyperlinkedModelSerializer):
 #         rep['phone'] = ContactMethodSerializer(instance.phone.all(), many=True).data
 #         rep['email'] = ContactMethodSerializer(instance.email.all(), many=True).data
 #         return rep
-
-class UserSigninSerializer(serializers.Serializer):
-    username = serializers.CharField(required = True)
-    password = serializers.CharField(required = True)
 
 # class CoopSpreadsheetSerializer(serializers.ModelSerializer):
 #     types = CoopTypeSerializer(many=True, allow_empty=False)

@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from . import helpers
 
-class TestPeopleUpdate(APITestCase):
+class TestUserAuth(APITestCase):
     @classmethod
     def setUpTestData(cls):
         pass
@@ -54,3 +54,18 @@ class TestPeopleUpdate(APITestCase):
         response = client.get(url, data={}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+class TestUserRegistration(APITestCase):
+    def test_user_registration(self):
+        url = reverse('register')
+        request = {
+            'username': 'testuser',
+            'email': 'testuser@example.com',
+            'password': 'password'
+        }
+        response = self.client.post(url, request, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(User.objects.filter(username='testuser').exists())
+        self.assertTrue('access' in response.data)
+        self.assertTrue('refresh' in response.data)
