@@ -4,14 +4,22 @@
 - [x] Add more Coop -> CoopAddressTag test cases
 - [x] Search Coops (views, models)
 - [x] Simplify Address Data Structure.
+- [x] *Routes for other objects
+- [x] Turn on new authentication method (JWT Tokens)
+- [x] Create User (views)
+- [x] Create User Test cases
+- [x] Change Password Workflow
+
+- [ ] Enabled filter in coop list (views)
+
 - [~] LocationService: Add coordinates to Address (serializer)
-- [ ] Create User (views)
+- [ ] Zip to State Mismatch
+
 - [ ] Coop.patch Proposed Changes (views)
+
+- [ ] What should be shown on is_public vs not?
 - [ ] Person get filter from set of coops (views)
 - [ ] Get by natural key aka name [states, countries, and Cooptype] (if needed)
-- [ ] Fix constraint in people create for coop (see PeopleCreateTest.test_create_undefined_coops)
 - [ ] General review of all constraints for models
 - [ ] What is monkey_patching.py?
 - [ ] What to do about spreadsheet?
-- [ ] *Routes for other objects
-- [ ] Zip to State Mismatch

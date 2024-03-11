@@ -1,29 +1,22 @@
-import csv
-
+from django.core.mail import send_mail
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth.models import User
-from django.contrib.auth.views import PasswordResetView
-from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Q
 from django.db.models.functions import Lower
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status, generics
-from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
-                                   HTTP_404_NOT_FOUND)
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from directory.models import Coop, CoopType
 from directory.serializers import *
-from directory.settings import EMAIL_HOST, EMAIL_PORT, SECRET_KEY
-
-from django.contrib.auth.forms import PasswordResetForm
-from pycountry import countries, subdivisions
 
 @api_view(['GET'])
 def api_root(request, format=None):
@@ -323,44 +316,37 @@ class StateList(APIView):
             return Response(states_data[input_country_code], status.HTTP_200_OK)
         else:
             return Response("Country not found.", status.HTTP_404_NOT_FOUND)
+        
+class PasswordResetRequestView(APIView):
+    def post(self, request):
+        email = request.data.get("email")
+        user = User.objects.filter(email=email).first()
+        if user:
+            token_generator = PasswordResetTokenGenerator()
+            token = token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            link = request.build_absolute_uri(reverse('password-reset-confirm', args=[uid, token]))
+            send_mail(
+                "Password Reset Request",
+                f'Please go to the following link to reset your password: {link}',
+                'from@example.com',
+                [email],
+                fail_silently=False,
+            )
+            return Response({"message": "Password reset link has been sent to your email."}, status=status.HTTP_200_OK)
+        return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
-# class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
-#     reset_password_template_name = 'templates/users/password_reset.html'
-#     email_template_name = 'users/password_reset_email.html'
-#     subject_template_name = 'users/password_reset_subject'
-#     success_message = "We've emailed you instructions for setting your password, " \
-#                       "if an account exists with the email you entered. You should receive them shortly." \
-#                       " If you don't receive an email, " \
-#                       "please make sure you've entered the address you registered with, and check your spam folder."
-#     success_url = reverse_lazy('users-home')
-
-#     @method_decorator(csrf_exempt)
-#     def dispatch(self, request, *args, **kwargs):
-#         request.csrf_processing_done = True
-#         return super().dispatch(request, *args, **kwargs)
-
-#     def post(self, request, *args, **kwargs):
-#         email = json.loads(request.body).get('username')
-#         print("email: %s" % email)
-#         #try:
-#         if 1 > 0:
-#             if User.objects.get(email=email).is_active:
-#                 form = PasswordResetForm({'email': email})
-#                 print("form valid? %s" % form.is_valid())
-#                 if form.is_valid():
-#                     request = HttpRequest()
-#                     request.META['SERVER_NAME'] = socket.gethostbyname('localhost') #'127.0.0.1'
-#                     request.META['SERVER_PORT'] = 8000
-#                     # calling save() sends the email
-#                     # check the form in the source code for the signature and defaults
-#                     form.save(request=request,
-#                         use_https=False,
-#                         from_email="laredotornado@yahoo.com",
-#                         email_template_name='../templates/users/password_reset_email.html')
-#                 print("email: %s " % email)
-#                 return super(ResetPasswordView, self).post(request, *args, **kwargs)
-#         #except Exception as e:
-#         #    print("\n\nerror ...\n\n")
-#         #    print(e)
-#         #    # this for if the email is not in the db of the system
-#         #    return super(ResetPasswordView, self).post(request, *args, **kwargs)
+class PasswordResetConfirmView(APIView):
+    def post(self, request, uidb64, token):
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User.objects.get(pk=uid)
+        except:
+            user = None
+        token_generator = PasswordResetTokenGenerator()
+        if user is not None and token_generator.check_token(user, token):
+            new_password = request.data.get("password")
+            user.set_password(new_password)
+            user.save()
+            return Response({"message": "Password has been reset successfully."}, status=status.HTTP_200_OK)
+        return Response({"error": "Invalid token or user ID."}, status=status.HTTP_400_BAD_REQUEST)

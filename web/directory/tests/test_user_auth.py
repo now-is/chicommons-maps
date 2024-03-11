@@ -1,6 +1,8 @@
-from directory.models import Coop, ContactMethod, Person
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.urls import reverse
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from . import helpers
@@ -69,3 +71,31 @@ class TestUserRegistration(APITestCase):
         self.assertTrue(User.objects.filter(username='testuser').exists())
         self.assertTrue('access' in response.data)
         self.assertTrue('refresh' in response.data)
+
+class PasswordResetRequestViewTest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='old_password')
+        self.url = reverse('password-reset-request')
+
+    def test_password_reset_request(self):
+        response = self.client.post(self.url, {'email': 'test@example.com'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('Password reset link has been sent to your email.', response.data['message'])
+
+class PasswordResetConfirmViewTest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='old_password')
+        self.token_generator = PasswordResetTokenGenerator()
+        self.token = self.token_generator.make_token(self.user)
+        self.uid = urlsafe_base64_encode(force_bytes(self.user.pk))  # Ensure this matches how your UID is generated/decoded in your views
+        self.url = reverse('password-reset-confirm', args=[self.uid, self.token])
+
+    def test_password_reset_confirm(self):
+        new_password = 'new_password123'
+        response = self.client.post(self.url, {'password': new_password})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('Password has been reset successfully.', response.data['message'])
+
+        # Verify the password was actually changed
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(new_password))

@@ -1,7 +1,6 @@
 from django.urls import path
 from rest_framework.urlpatterns import format_suffix_patterns
 from directory import views
-from rest_framework.authtoken.views import obtain_auth_token
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -33,12 +32,7 @@ urlpatterns = format_suffix_patterns([
     path('users/', views.UserList.as_view(), name='user-list'),
     path('users/<int:pk>/', views.UserDetail.as_view(), name='user-detail'),
     path('register/', views.CreateUserView.as_view(), name='register'),
+    path('password_reset/', views.PasswordResetRequestView.as_view(), name='password-reset-request'),
+    path('password-reset-confirm/<uidb64>/<token>/', views.PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
     #     path('user_info', views.user_info),
-    #     path('reset_password', views.ResetPasswordView.as_view(template_name='../templates/users/password_reset.html'), name='reset_password'),
-    #     path('password-reset-confirm/<uidb64>/<token>/',
-    #          auth_views.PasswordResetConfirmView.as_view(template_name='users/password_reset_confirm.html'),
-    #          name='password_reset_confirm'),
-    #     path('password-reset-complete/',
-    #          auth_views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'),
-    #          name='password_reset_complete'),
 ])
