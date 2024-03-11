@@ -266,25 +266,6 @@ class UserSerializer(serializers.ModelSerializer):
 #     #    rep['addresses'] = AddressSerializer(instance.addresses.all(), many=True).data
 #     #    return rep
 
-
-# class CoopSearchSerializer(serializers.ModelSerializer):
-#     """
-#     This Coop serializer contains a scaled down version of the model to streamline
-#     bandwidth used and processing.
-#     """
-#     types = CoopTypeSerializer(many=True, allow_empty=False)
-
-#     class Meta:
-#         model = Coop
-#         fields = 'id', 'name', 'approved', 'coopaddresstags_set', 'phone', 'email', 'web_site', 'types'
-
-#     def to_representation(self, instance):
-#         rep = super().to_representation(instance)
-#         rep['coopaddresstags_set'] = CoopAddressTagsSerializer(instance.coopaddresstags_set.all(), many=True).data
-#         rep['phone'] = ContactMethodSerializer(instance.phone.all(), many=True).data
-#         rep['email'] = ContactMethodSerializer(instance.email.all(), many=True).data
-#         return rep
-
 # class CoopSpreadsheetSerializer(serializers.ModelSerializer):
 #     types = CoopTypeSerializer(many=True, allow_empty=False)
 #     coopaddresstags_set = CoopAddressTagsSerializer(many=True)

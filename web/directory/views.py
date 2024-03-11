@@ -90,12 +90,19 @@ class CoopList(generics.ListCreateAPIView):
     def get_queryset(self):
         queryset = Coop.objects.all()
 
+        enabled = self.request.GET.get("enabled", None)
+        if enabled is not None:
+            enabled = enabled.lower() == "true"
         name = self.request.query_params.get('name', None)
         street = self.request.query_params.get('street', None)
         city = self.request.query_params.get('city', None)
         zip = self.request.query_params.get('zip', None)
         types_data = self.request.query_params.get('types', None)
 
+        #TODO- if address.is_public=False, should we be showing it in results?
+
+        if enabled is not None:
+            queryset = queryset.filter(enabled=enabled)
         if name:
             queryset = queryset.filter(name__icontains=name)
         if street:
@@ -121,47 +128,6 @@ class CoopList(generics.ListCreateAPIView):
             self.permission_classes = [IsAuthenticated]
         return [permission() for permission in self.permission_classes]
 
-# class CoopListAll(APIView):
-#     """
-#     List all coops, or create a new coop. Includes details omitted in CoopList
-#     """
-#     def get(self, request, format=None):
-#         contains = request.GET.get("contains", "")
-#         if contains:
-#             coops = Coop.objects.find(
-#                 partial_name=contains,
-#                 enabled=True
-#             )
-#         else:
-#             partial_name = request.GET.get("name", "")
-#             enabled_req_param = request.GET.get("enabled", None)
-#             enabled = enabled_req_param.lower() == "true" if enabled_req_param else None
-#             city = request.GET.get("city", None)
-#             zip = request.GET.get("zip", None)
-#             street = request.GET.get("street", None)
-#             state = request.GET.get("state", None)
-#             coop_types = request.GET.get("coop_type", None)
-#             types_arr = coop_types.split(",") if coop_types else None
-
-#             coops = Coop.objects.find(
-#                 partial_name=partial_name,
-#                 enabled=enabled,
-#                 street=street,
-#                 city=city,
-#                 zip=zip,
-#                 state_abbrev=state,
-#                 types_arr=types_arr
-#             )
-#         serializer = CoopSpreadsheetSerializer(coops, many=True)
-#         return Response(serializer.data)
-
-#     def post(self, request, format=None):
-#         serializer = CoopSpreadsheetSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 class CoopDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Coop.objects.all()
     serializer_class = CoopSerializer
@@ -178,15 +144,6 @@ class CoopDetail(generics.RetrieveUpdateDestroyAPIView):
         return [permission() for permission in self.permission_classes]
 
 # class CoopDetail(APIView):
-#     """
-#     Retrieve, update or delete a coop instance.
-#     """
-#     def get_object(self, pk):
-#         try:
-#             return Coop.objects.get(pk=pk)
-#         except Coop.DoesNotExist:
-#             raise Http404
-#
 #     def patch(self, request, pk, format=None):
 #         coop = self.get_object(pk)
 #         serializer = CoopProposedChangeSerializer(coop, data=request.data)

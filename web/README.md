@@ -9,8 +9,7 @@
 - [x] Create User (views)
 - [x] Create User Test cases
 - [x] Change Password Workflow
-
-- [ ] Enabled filter in coop list (views)
+- [x] Enabled filter in coop list (views)
 
 - [~] LocationService: Add coordinates to Address (serializer)
 - [ ] Zip to State Mismatch

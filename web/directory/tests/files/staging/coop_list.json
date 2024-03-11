@@ -302,5 +302,71 @@
             }
         ],
         "people": []
+    },
+    {
+        "name": "Test Coop 7 Grapes",
+        "types": [
+            {"name": "Office"}
+        ],
+        "enabled": false,
+        "contact_methods": [],
+        "web_site": "http://www.example7.com/",
+        "description": "My Coop Description",
+        "approved": true,
+        "proposed_changes": {
+            "description": "Testing testing testing."
+        },
+        "reject_reason": "This is sample data.",
+        "coop_public": false,
+        "status": "Testing",
+        "scope": "Testing",
+        "tags": "tag1, tag2, tag3",
+        "rec_source": "Testing",
+        "coop_address_tags": [
+            {
+                "is_public": true,
+                "address": {
+                    "street_address": "123 Main St",
+                    "city": "Skokie",
+                    "state": "IL",
+                    "postal_code": "60076",
+                    "country": "US"
+                }
+            }
+        ],
+        "people": []
+    },
+    {
+        "name": "Test Coop 8 Grapes",
+        "types": [
+            {"name": "Office"}
+        ],
+        "enabled": false,
+        "contact_methods": [],
+        "web_site": "http://www.example8.com/",
+        "description": "My Coop Description",
+        "approved": true,
+        "proposed_changes": {
+            "description": "Testing testing testing."
+        },
+        "reject_reason": "This is sample data.",
+        "coop_public": false,
+        "status": "Testing",
+        "scope": "Testing",
+        "tags": "tag1, tag2, tag3",
+        "rec_source": "Testing",
+        "coop_address_tags": [
+            {
+                "is_public": true,
+                "address": {
+                    "street_address": "125 Main St",
+                    "city": "Skokie",
+                    "state": "IL",
+                    "postal_code": "60076",
+                    "country": "US"
+                }
+            }
+        ],
+        "people": []
     }
 ]

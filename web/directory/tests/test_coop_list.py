@@ -54,8 +54,35 @@ class TestCoopList(APITestCase):
         self.maxDiff = None
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 6) 
+        self.assertEqual(Coop.objects.count(), 8) 
         self.assertEqual(response_data, expected_data)
+
+    def test_filter_enabled(self):
+        # Acting as unauthorized user
+        results_filename = "TestCoopList_test_filter_enabled.json"
+        results_filepath = (self.testcases_dir_path / results_filename).resolve()
+        
+        url = reverse('coop-list')
+        request = {
+            'enabled': 'false'
+        }
+        response = self.client.get(url, data=request, format='json')
+        response_data = helpers.sanitize_response(response)
+
+        # # When the structure of the result or test dataset changes, uncomment this
+        # #    section and run to update results files. Recomment when running test cases. 
+        # with open(results_filepath, 'w') as file:
+        #     file.write(response_data)
+
+        with open(results_filepath, "r") as file:
+            expected_data = file.read()
+
+        self.maxDiff = None
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
+        self.assertEqual(Coop.objects.count(), 8)
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response_data, expected_data)        
     
     def test_filter_name(self):
         # Acting as unauthorized user
@@ -80,7 +107,7 @@ class TestCoopList(APITestCase):
         self.maxDiff = None
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 6)
+        self.assertEqual(Coop.objects.count(), 8)
         self.assertEqual(len(response.data), 3)
         self.assertEqual(response_data, expected_data)        
     
@@ -107,7 +134,7 @@ class TestCoopList(APITestCase):
         self.maxDiff = None
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 6)
+        self.assertEqual(Coop.objects.count(), 8)
         self.assertEqual(len(response.data), 2)
         self.assertEqual(response_data, expected_data)
     
@@ -134,7 +161,7 @@ class TestCoopList(APITestCase):
         self.maxDiff = None
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 6)
+        self.assertEqual(Coop.objects.count(), 8)
         self.assertEqual(len(response.data), 4)
         self.assertEqual(response_data, expected_data)  
     
@@ -161,7 +188,7 @@ class TestCoopList(APITestCase):
         self.maxDiff = None
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 6)
+        self.assertEqual(Coop.objects.count(), 8)
         self.assertEqual(len(response.data), 2)
         self.assertEqual(response_data, expected_data) 
 
@@ -188,7 +215,7 @@ class TestCoopList(APITestCase):
         self.maxDiff = None
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 6)
+        self.assertEqual(Coop.objects.count(), 8)
         self.assertEqual(len(response.data), 5)
         self.assertEqual(response_data, expected_data) 
     
@@ -200,6 +227,7 @@ class TestCoopList(APITestCase):
         url = reverse('coop-list')
         request = {
             # find Coop #2
+            'enabled': 'true', #returns 1,2,3,4,5,6
             'types': 'Library,Laboratory,Arboretum', #returns 1,2,4,5,6
             'city': 'chicago', #returns 1,2,3,4
             'name': 'banana', #returns 2,4,6
@@ -221,6 +249,6 @@ class TestCoopList(APITestCase):
         self.maxDiff = None
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 6)
+        self.assertEqual(Coop.objects.count(), 8)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response_data, expected_data) 
