@@ -10,9 +10,10 @@
 - [x] Create User Test cases
 - [x] Change Password Workflow
 - [x] Enabled filter in coop list (views)
+- [x] LocationService: Add coordinates to Address (serializer)
+- [x] LocationService: Ratelimit and retry for api.
 
-- [~] LocationService: Add coordinates to Address (serializer)
-- [ ] Zip to State Mismatch
+- [ ] Use Zip to lookup and apply city, state, county
 
 - [ ] Coop.patch Proposed Changes (views)
 

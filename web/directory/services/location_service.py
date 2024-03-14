@@ -1,6 +1,9 @@
 from directory.models import Address, AddressCache
 from django.core.exceptions import ObjectDoesNotExist
+from geopy.exc import GeocoderQuotaExceeded, GeocoderQueryError
 from geopy.geocoders import Nominatim
+from ratelimit import limits, RateLimitException
+from backoff import on_exception, expo
 import re
 import json
 
@@ -16,25 +19,38 @@ class LocationService(object):
         self.geo_response = None
         self._fetch_geo_response()
 
+    @on_exception(expo, RateLimitException, max_tries=8, jitter=None) # If RateLimitException is thrown, wait with exponential backoff(expo) and retry. Maximum of 8 times.
+    @limits(calls=1, period=1) # 1 Call per 1 second. Throws RateLimitException if exceeded.
+    def _call_geocoder_api(self):
+        street_address_cleaned = preprocess_street_address(self.address.street_address)
+        self.query = "%s, %s %s %s" % (street_address_cleaned, self.address.city, self.address.state, self.address.postal_code)
+    
+        service = Nominatim(user_agent="chicommons")
+        try:
+            geocode = service.geocode(query=self.query, exactly_one=True, addressdetails=True, language='en', country_codes='US', timeout=30)
+            return geocode.raw
+        except GeocoderQuotaExceeded:
+            raise RateLimitException("Rate limit exceeded", period_remaining=60)
+        except RateLimitException:
+            raise RateLimitException("Rate limit exceeded", period_remaining=60)
+        except GeocoderQueryError:
+            raise Exception("Invalid LocationService query: '%s' %s" %(self.address))
+        except:
+            raise Exception("Address could not be geocoded: %s" %(self.address))
+
     def _fetch_geo_response(self):
         street_address_cleaned = preprocess_street_address(self.address.street_address)
-        query = "%s, %s %s %s" % (street_address_cleaned, self.address.city, self.address.state, self.address.postal_code)
+        self.query = "%s, %s %s %s" % (street_address_cleaned, self.address.city, self.address.state, self.address.postal_code)
 
         try:
-            cached_address = AddressCache.objects.get(query=query)
+            cached_address = AddressCache.objects.get(query=self.query)
+            self.geo_response = json.loads(cached_address.response)
         except ObjectDoesNotExist as e:
             cached_address = None
-
-        if cached_address:
-            self.geo_response = json.loads(cached_address.response)
-        else:
-            service = Nominatim(user_agent="chicommons")
-            geocode = service.geocode(query=query, exactly_one=True, addressdetails=True, language='en', country_codes='US', timeout=30)
-            if not geocode:
-                raise Exception("Address could not be geocoded: %s" %(self.address))
-            self.geo_response = geocode.raw
+            geocode = self._call_geocoder_api()
+            self.geo_response = geocode
             response_json = json.dumps(self.geo_response, indent=4, sort_keys=True)
-            AddressCache.objects.create( query=query, response=response_json, place_id=self.geo_response["place_id"])
+            AddressCache.objects.create( query=self.query, response=response_json, place_id=self.geo_response["place_id"])
 
     def get_coords(self) -> tuple[float, float]:
         if self.geo_response == None:

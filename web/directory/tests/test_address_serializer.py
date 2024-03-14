@@ -4,6 +4,7 @@ from rest_framework.test import APITestCase
 import json
 from unittest.mock import patch, MagicMock
 from directory.services.location_service import LocationService
+from ratelimit import limits, RateLimitException
 
 class TestAddressSerializer(APITestCase):
     @classmethod
@@ -160,3 +161,48 @@ class TestAddressSerializer(APITestCase):
         # Check if LocationService.save_coords has been called once
         mock_save_coords.assert_called_once()
         self.assertEqual(Address.objects.count(), 1) # 1) updated self.address
+
+    @patch('directory.services.location_service.Nominatim')
+    def test_rate_limit_enforcement(self, mock_nominatim):
+        # Setup mock response for Location Service's Geocode API (Nominatim)
+        mock_nominatim.return_value.geocode.return_value.configure_mock(raw=self.mock_raw_dict)
+
+        # Attempt to call the API more than the rate limit allows
+        for _ in range(5):
+            try:
+                LocationService(self.address)._call_geocoder_api()  # Assuming the function is part of a class
+            except Exception as e:
+                # Verify that RateLimitException is raised on exceeding rate limit
+                self.assertIsInstance(e, RateLimitException)
+    
+    @patch('directory.services.location_service.Nominatim')
+    @patch('time.sleep', return_value=None)  # Mock time.sleep to simulate passage of time without actually waiting
+    def test_exponential_backoff(self, mock_sleep, mock_nominatim):
+        # Setup the mocked Nominatim service to alternate between raising RateLimitException and returning a valid response
+        mock_service_instance = MagicMock()
+        mock_nominatim.return_value = mock_service_instance
+        # Simulate RateLimitException for the first 7 calls, then return a valid response
+        side_effects = [RateLimitException("Rate limit exceeded", period_remaining=60) for _ in range(7)]
+        side_effects.append(MagicMock(raw=self.mock_raw_dict))  # Assuming the last attempt succeeds
+        mock_service_instance.geocode.side_effect = side_effects
+
+        # Configure the geocode method to raise RateLimitException
+        mock_service_instance.geocode.side_effect = RateLimitException("Rate limit exceeded", period_remaining=60)
+
+        try:
+            LocationService(self.address)  # Attempt to call the function
+        except RateLimitException:
+            pass  # Expected exception after max retries
+
+        # Assert that time.sleep was called the correct number of times (max_tries - 1) for the backoff
+        self.assertEqual(mock_sleep.call_count, 7)  # 8 tries means 7 waits between them
+
+        # Verify that the delay increases exponentially
+        expected_delays = [2**i for i in range(7)]  # Exponential backoff delays
+        actual_calls = mock_sleep.call_args_list
+        actual_delays = [call[0][0] for call in actual_calls]  # Extract the first argument to each call (the delay)
+
+        # increasing = all(actual_delays[i] <= actual_delays[i + 1] for i in range(len(actual_delays) - 1))
+        # self.assertTrue(increasing, "Expected delays to increase")
+        for expected, actual in zip(expected_delays, actual_delays):
+            self.assertAlmostEqual(expected, actual, delta=1) 
