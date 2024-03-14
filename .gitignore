@@ -120,3 +120,5 @@ web/credentials.json
 web/.vscode
 
 .DS_Store
+*.env
+.vscode

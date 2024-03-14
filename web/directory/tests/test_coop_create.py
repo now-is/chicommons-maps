@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 import datetime
 from . import helpers
+from unittest.mock import patch, MagicMock
 
 class TestCoopCreate(APITestCase):
     @classmethod
@@ -16,8 +17,13 @@ class TestCoopCreate(APITestCase):
         self.user = User.objects.create_user(username='testuser', password='password')
         self.token = helpers.obtain_jwt_token("testuser", "password")
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token}')
+        self.mock_raw_dict = {'lat': 37.4221, 'lon': -122.0841, 'place_id': 'XXXYYYYZZZ'}
 
-    def test_create_full(self):
+    @patch('directory.services.location_service.Nominatim')
+    def test_create_full(self, mock_nominatim):
+        # Setup mock response for Location Service's Geocode API (Nominatim)
+        mock_nominatim.return_value.geocode.return_value.configure_mock(raw=self.mock_raw_dict)
+
         before_model_count = Coop.objects.count()
         url = reverse('coop-list')
         request = {
@@ -202,8 +208,12 @@ class TestCoopCreate(APITestCase):
         except:
             print(response.data)
             raise
+    
+    @patch('directory.services.location_service.Nominatim')
+    def test_create_with_address(self, mock_nominatim):
+        # Setup mock response for Location Service's Geocode API (Nominatim)
+        mock_nominatim.return_value.geocode.return_value.configure_mock(raw=self.mock_raw_dict)
 
-    def test_create_with_address(self):
         before_model_count = Coop.objects.count()
         url = reverse('coop-list')
         request = {

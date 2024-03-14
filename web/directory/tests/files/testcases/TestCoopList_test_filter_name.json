@@ -26,8 +26,8 @@
                 "address": {
                     "city": "Chicago",
                     "country": "US",
-                    "latitude": null,
-                    "longitude": null,
+                    "latitude": 37.4221,
+                    "longitude": -122.0841,
                     "postal_code": "60601",
                     "state": "IL",
                     "street_address": "225 N Columbus Dr"
@@ -38,8 +38,8 @@
                 "address": {
                     "city": "Chicago",
                     "country": "US",
-                    "latitude": null,
-                    "longitude": null,
+                    "latitude": 37.4221,
+                    "longitude": -122.0841,
                     "postal_code": "60611",
                     "state": "IL",
                     "street_address": "400 N Michigan Ave"
@@ -118,8 +118,8 @@
                 "address": {
                     "city": "Chicago",
                     "country": "US",
-                    "latitude": null,
-                    "longitude": null,
+                    "latitude": 37.4221,
+                    "longitude": -122.0841,
                     "postal_code": "60654",
                     "state": "IL",
                     "street_address": "400 N State St"
@@ -156,8 +156,8 @@
                 "address": {
                     "city": "Evanston",
                     "country": "US",
-                    "latitude": null,
-                    "longitude": null,
+                    "latitude": 37.4221,
+                    "longitude": -122.0841,
                     "postal_code": "60202",
                     "state": "IL",
                     "street_address": "800 Michigan Ave"

@@ -6,13 +6,20 @@ from rest_framework.test import APITestCase, APIClient
 from . import helpers
 import json
 import pathlib
+from unittest.mock import patch, MagicMock
 
 class TestCoopList(APITestCase):
     @classmethod
     def setUpTestData(cls):
         pass
-        
-    def setUp(self):
+
+    @patch('directory.services.location_service.Nominatim')    
+    def setUp(self, mock_nominatim):
+        self.mock_raw_dict = {'lat': 37.4221, 'lon': -122.0841, 'place_id': 'XXXYYYYZZZ'}
+
+        # Setup mock response for Location Service's Geocode API (Nominatim)
+        mock_nominatim.return_value.geocode.return_value.configure_mock(raw=self.mock_raw_dict)
+
         # Creating Coops as Superuser
         self.user = User.objects.create_superuser(username='admin', email='test@example.com', password='admin')
         client = APIClient()

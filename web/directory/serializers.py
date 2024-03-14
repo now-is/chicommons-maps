@@ -4,6 +4,7 @@ from django.db import transaction
 from rest_framework import serializers
 from directory.models import Coop, CoopType, ContactMethod, Person, CoopAddressTags, Address
 from django.utils.timezone import now
+from directory.services.location_service import LocationService
 
 User = get_user_model()
 
@@ -36,6 +37,29 @@ class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
         fields = ['id', 'street_address', 'city', 'state', 'postal_code', 'country', 'latitude', 'longitude']
+    
+    def create(self, validated_data):
+        instance = Address.objects.create(**validated_data)
+        LocationService(instance).save_coords()
+        return instance
+
+    def update(self, instance, validated_data):
+        update_geocode = any(
+            getattr(instance, field) != validated_data[field] 
+            for field in ['street_address', 'city', 'state', 'postal_code', 'country']
+        )
+
+        instance.street_address = validated_data.get('street_address', instance.street_address)
+        instance.city = validated_data.get('city', instance.city)
+        instance.state = validated_data.get('state', instance.state)
+        instance.postal_code = validated_data.get('postal_code', instance.postal_code)
+        instance.country = validated_data.get('country', instance.country)
+        instance.save()
+
+        if update_geocode:
+            LocationService(instance).save_coords()
+
+        return instance
   
 class CoopAddressTagsSerializer(serializers.ModelSerializer):
     address = AddressSerializer(read_only=False)

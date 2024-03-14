@@ -98,6 +98,17 @@ class Address(models.Model):
     class Meta:
         verbose_name_plural = "Addresses"
 
+    def __str__(self):
+        if self.latitude and self.longitude:
+            return "%s, %s %s %s, %s (%s, %s)" % (self.street_address, self.city, self.state, self.postal_code, self.country, self.latitude, self.longitude) 
+        else:
+            return "%s, %s %s %s, %s" % (self.street_address, self.city, self.state, self.postal_code, self.country) 
+
+class AddressCache(models.Model):
+    query = models.CharField(max_length=320)
+    response = models.JSONField()
+    place_id = models.CharField(max_length=50)
+
 class CoopAddressTags(models.Model):
     coop = models.ForeignKey('Coop', related_name='coop_address_tags', on_delete=models.SET_NULL, null=True)
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
