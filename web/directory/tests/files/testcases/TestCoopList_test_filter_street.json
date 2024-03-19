@@ -26,6 +26,7 @@
                 "address": {
                     "city": "Chicago",
                     "country": "US",
+                    "county": "Testing County",
                     "latitude": 37.4221,
                     "longitude": -122.0841,
                     "postal_code": "60601",
@@ -38,6 +39,7 @@
                 "address": {
                     "city": "Chicago",
                     "country": "US",
+                    "county": "Testing County",
                     "latitude": 37.4221,
                     "longitude": -122.0841,
                     "postal_code": "60611",
@@ -118,6 +120,7 @@
                 "address": {
                     "city": "Evanston",
                     "country": "US",
+                    "county": "Testing County",
                     "latitude": 37.4221,
                     "longitude": -122.0841,
                     "postal_code": "60202",

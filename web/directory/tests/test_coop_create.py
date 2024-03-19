@@ -17,7 +17,7 @@ class TestCoopCreate(APITestCase):
         self.user = User.objects.create_user(username='testuser', password='password')
         self.token = helpers.obtain_jwt_token("testuser", "password")
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token}')
-        self.mock_raw_dict = {'lat': 37.4221, 'lon': -122.0841, 'place_id': 'XXXYYYYZZZ'}
+        self.mock_raw_dict = {'lat': 37.4221, 'lon': -122.0841, 'place_id': 'XXXYYYYZZZ', 'address': {'county': 'Testing County'}}
 
     @patch('directory.services.location_service.Nominatim')
     def test_create_full(self, mock_nominatim):

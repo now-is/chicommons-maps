@@ -9,9 +9,11 @@ def sanitize_response(response):
     but will not be identical. This function sanitizes the response to make them
     comparable to previous runs to aid in test cases. 
     """
+    # Sort coop response list by the "name" key to ensure consistent ordering between tests.
+    sorted_data = sorted(response.json(), key=lambda x: x["name"])
     # Responses should be identical except for rec_updated_date (depends on time it is run),
     #    and id (depends on order of tests). Removes those fields from response.
-    modified_data = remove_keys_from_dict(response.json(), ['rec_updated_date', 'id']) 
+    modified_data = remove_keys_from_dict(sorted_data, ['rec_updated_date', 'id']) 
     # Structures response as JSON with sorted keys in a pretty-printed format.
     response_data = json.dumps(modified_data, indent=4, sort_keys=True)
     return response_data

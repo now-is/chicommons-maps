@@ -73,3 +73,24 @@ class LocationService(object):
             self.address.save()
         else:
             raise Exception("save_coords failed")
+    
+    def get_county(self) -> str:
+        if self.geo_response == None:
+            self._fetch_geo_response()
+        
+        if self.geo_response["address"]["county"]:
+            return self.geo_response["address"]["county"]
+        else:
+            raise Exception("Unexpected response format for geocode_task: %s" %(self.geo_response))
+    
+    def save_county(self):
+        if self.geo_response == None:
+            self._fetch_geo_response()
+        
+        county = self.get_county()
+
+        if county:
+            self.address.county = county
+            self.address.save()
+        else:
+            raise Exception("save_county failed")

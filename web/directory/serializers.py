@@ -36,24 +36,34 @@ class ContactMethodSerializer(serializers.ModelSerializer):
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = ['id', 'street_address', 'city', 'state', 'postal_code', 'country', 'latitude', 'longitude']
+        fields = ['id', 'street_address', 'city', 'county', 'state', 'postal_code', 'country', 'latitude', 'longitude']
     
     def create(self, validated_data):
         instance = Address.objects.create(**validated_data)
-        if not instance.latitude or not instance.longitude:
-            LocationService(instance).save_coords()
+        if not instance.latitude or not instance.longitude or not instance.county:
+            loc_svc = LocationService(instance)
+            if not instance.latitude or not instance.longitude:
+                loc_svc.save_coords()
+            if not instance.county:
+                loc_svc.save_county()
         return instance
 
     def update(self, instance, validated_data):
-        if validated_data.get('latitude') and validated_data.get('longitude'):
-            update_geocode = False
+        address_change = any(
+            getattr(instance, field) != validated_data[field] 
+            for field in ['street_address', 'city', 'state', 'postal_code', 'country']
+        )
+
+        override_county = validated_data.get('county')
+        if override_county:
+            instance.county = validated_data.get('county')
+
+        override_coords = validated_data.get('latitude') and validated_data.get('longitude')
+        if override_coords:
             instance.latitude = validated_data.get('latitude')
             instance.longitude = validated_data.get('longitude')
-        else:
-            update_geocode = any(
-                getattr(instance, field) != validated_data[field] 
-                for field in ['street_address', 'city', 'state', 'postal_code', 'country']
-            )
+        
+        update_geocode = address_change and not ( override_county and override_coords )
 
         instance.street_address = validated_data.get('street_address', instance.street_address)
         instance.city = validated_data.get('city', instance.city)
@@ -63,7 +73,11 @@ class AddressSerializer(serializers.ModelSerializer):
         instance.save()
 
         if update_geocode:
-            LocationService(instance).save_coords()
+            loc_svc = LocationService(instance)
+            if not override_county:
+                loc_svc.save_county()
+            if not override_coords:
+                loc_svc.save_coords()
 
         return instance
   

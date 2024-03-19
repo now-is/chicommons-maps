@@ -34,7 +34,7 @@ class TestAddressSerializer(APITestCase):
             'country': 'US'
         }
         self.query = f"{self.address.street_address}, {self.address.city} {self.address.state} {self.address.postal_code}"
-        self.mock_raw_dict = {'lat': 37.4221, 'lon': -122.0841, 'place_id': 'XXXYYYYZZZ'}
+        self.mock_raw_dict = {'lat': 37.4221, 'lon': -122.0841, 'place_id': 'XXXYYYYZZZ', 'address': {'county': 'Testing County'}}
  
     
     @patch('directory.services.location_service.Nominatim')
@@ -51,13 +51,16 @@ class TestAddressSerializer(APITestCase):
 
         # Assertions
         self.assertEqual(Address.objects.count(), 2) 
+        # Assert values coming from address_data
         self.assertEqual(address.street_address, self.address_data["street_address"]) 
         self.assertEqual(address.city, self.address_data["city"]) 
         self.assertEqual(address.state, self.address_data["state"]) 
         self.assertEqual(address.postal_code, self.address_data["postal_code"]) 
         self.assertEqual(address.country, self.address_data["country"])
+        # Assert values coming from geocode
         self.assertEqual(address.latitude, self.mock_raw_dict['lat'])
         self.assertEqual(address.longitude, self.mock_raw_dict['lon'])
+        self.assertEqual(address.county, self.mock_raw_dict['address']['county'] )
 
     @patch('directory.services.location_service.Nominatim')
     def test_addressserializer_update(self, mock_nominatim):
@@ -74,13 +77,16 @@ class TestAddressSerializer(APITestCase):
         
         # Assertions
         self.assertEqual(Address.objects.count(), 1) 
+        # Assert values coming from address_data
         self.assertEqual(address.street_address, self.update_data["street_address"]) 
         self.assertEqual(address.city, self.update_data["city"]) 
         self.assertEqual(address.state, self.update_data["state"]) 
         self.assertEqual(address.postal_code, self.update_data["postal_code"]) 
         self.assertEqual(address.country, self.update_data["country"])
+        # Assert values coming from geocode
         self.assertEqual(address.latitude, self.mock_raw_dict['lat'])
         self.assertEqual(address.longitude, self.mock_raw_dict['lon'])
+        self.assertEqual(address.county, self.mock_raw_dict['address']['county'] )
 
     @patch('directory.services.location_service.Nominatim')
     def test_addresscache_hit(self, mock_nominatim):
@@ -121,7 +127,7 @@ class TestAddressSerializer(APITestCase):
 
     @patch('directory.services.location_service.Nominatim')
     @patch('directory.services.location_service.LocationService.save_coords')
-    def test_save_coords_triggered_on_address_creation(self, mock_save_coords, mock_nominatim):
+    def test_save_coords_triggered_on_address_create(self, mock_save_coords, mock_nominatim):
         # Setup mock response for Location Service's Geocode API (Nominatim)
         mock_nominatim.return_value.geocode.return_value.configure_mock(raw=self.mock_raw_dict)
 
@@ -160,6 +166,49 @@ class TestAddressSerializer(APITestCase):
 
         # Check if LocationService.save_coords has been called once
         mock_save_coords.assert_called_once()
+        self.assertEqual(Address.objects.count(), 1) # 1) updated self.address
+    
+    @patch('directory.services.location_service.Nominatim')
+    @patch('directory.services.location_service.LocationService.save_county')
+    def test_save_county_triggered_on_address_create(self, mock_save_county, mock_nominatim):
+        # Setup mock response for Location Service's Geocode API (Nominatim)
+        mock_nominatim.return_value.geocode.return_value.configure_mock(raw=self.mock_raw_dict)
+
+        # Create an address instance using the serializer
+        serializer = AddressSerializer(data=self.address_data)
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            self.fail(serializer.errors)  # Ensure the test fails if the data is invalid
+        
+        # Check if LocationService.save_county has been called once
+        mock_save_county.assert_called_once()
+        self.assertEqual(Address.objects.count(), 2) # 1) self.address, 2) new address created here
+
+    @patch('directory.services.location_service.Nominatim')
+    @patch('directory.services.location_service.LocationService.save_coords')
+    def test_save_county_triggered_on_address_update(self, mock_save_county, mock_nominatim):
+        # Setup mock response for Location Service's Geocode API (Nominatim)
+        mock_nominatim.return_value.geocode.return_value.configure_mock(raw=self.mock_raw_dict)
+
+        update_data = {
+            'street_address': '200 Updated Avenue',  # Change that should trigger geocoding
+            'city': 'Faketown',
+            'state': 'FS',
+            'postal_code': '12345',
+            'country': 'US'
+        }
+
+        # Load the existing address into the serializer along with the new data for update
+        serializer = AddressSerializer(instance=self.address, data=update_data, partial=False)
+        
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            self.fail(serializer.errors)  # Ensure the test fails if the data is invalid
+
+        # Check if LocationService.mock_save_county has been called once
+        mock_save_county.assert_called_once()
         self.assertEqual(Address.objects.count(), 1) # 1) updated self.address
 
     @patch('directory.services.location_service.Nominatim')

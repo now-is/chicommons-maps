@@ -12,10 +12,12 @@
 - [x] Enabled filter in coop list (views)
 - [x] LocationService: Add coordinates to Address (serializer)
 - [x] LocationService: Ratelimit and retry for api.
-
-- [ ] Use Zip to lookup and apply city, state, county
+- [x] Add county to model. Look up and apply from geocode. 
 
 - [ ] Coop.patch Proposed Changes (views)
+
+- [ ] Use Zip to lookup and apply city, state
+
 
 - [ ] What should be shown on is_public vs not?
 - [ ] Person get filter from set of coops (views)
