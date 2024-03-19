@@ -40,14 +40,20 @@ class AddressSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         instance = Address.objects.create(**validated_data)
-        LocationService(instance).save_coords()
+        if not instance.latitude or not instance.longitude:
+            LocationService(instance).save_coords()
         return instance
 
     def update(self, instance, validated_data):
-        update_geocode = any(
-            getattr(instance, field) != validated_data[field] 
-            for field in ['street_address', 'city', 'state', 'postal_code', 'country']
-        )
+        if validated_data.get('latitude') and validated_data.get('longitude'):
+            update_geocode = False
+            instance.latitude = validated_data.get('latitude')
+            instance.longitude = validated_data.get('longitude')
+        else:
+            update_geocode = any(
+                getattr(instance, field) != validated_data[field] 
+                for field in ['street_address', 'city', 'state', 'postal_code', 'country']
+            )
 
         instance.street_address = validated_data.get('street_address', instance.street_address)
         instance.city = validated_data.get('city', instance.city)
