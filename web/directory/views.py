@@ -15,7 +15,7 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from directory.models import Coop, CoopType
+from directory.models import *
 from directory.serializers import *
 
 @api_view(['GET'])
@@ -79,7 +79,6 @@ class CreateUserView(APIView):
                     'access': str(refresh.access_token),
                 }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     
 class CoopList(generics.ListCreateAPIView):
     serializer_class = CoopSerializer
@@ -307,3 +306,24 @@ class PasswordResetConfirmView(APIView):
             user.save()
             return Response({"message": "Password has been reset successfully."}, status=status.HTTP_200_OK)
         return Response({"error": "Invalid token or user ID."}, status=status.HTTP_400_BAD_REQUEST)
+    
+#============================================================================
+    
+class CoopPublicList(generics.ListAPIView):
+    queryset = CoopPublic.objects.all()
+    serializer_class = CoopPublicListSerializer
+
+class CoopProposalList(generics.ListAPIView):
+    queryset = CoopProposal.objects.all()
+    serializer_class = CoopProposalListSerializer
+    
+class CoopProposalToCreate(generics.CreateAPIView):
+    serializer_class = CoopProposalToCreateSerializer
+
+class CoopProposalToUpdate(generics.CreateAPIView):
+    queryset = CoopProposal.objects.all()
+    serializer_class = CoopProposalToUpdateSerializer
+
+class CoopProposalReview(generics.UpdateAPIView):
+    queryset = CoopProposal.objects.all()
+    serializer_class = CoopProposalReviewSerializer

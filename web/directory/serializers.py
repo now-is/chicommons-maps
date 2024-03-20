@@ -1,10 +1,10 @@
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from rest_framework import serializers
-from directory.models import Coop, CoopType, ContactMethod, Person, CoopAddressTags, Address
+from rest_framework import serializers, exceptions
+from directory.models import Coop, CoopType, ContactMethod, Person, CoopAddressTags, Address, CoopProposal, CoopPublic
 from django.utils.timezone import now
 from directory.services.location_service import LocationService
+import json
 
 User = get_user_model()
 
@@ -291,25 +291,6 @@ class UserSerializer(serializers.ModelSerializer):
         )
         return user
 
-# class CoopProposedChangeSerializer(serializers.ModelSerializer):
-#     """
-#     This Coop serializer handles proposed changes to a coop.
-#     """
-#     class Meta:
-#         model = Coop
-#         fields = ['id', 'proposed_changes']
-
-#     def to_representation(self, instance):
-#         rep = super().to_representation(instance)
-#         #rep['types'] = CoopTypeSerializer(instance.types.all(), many=True).data
-#         #rep['coopaddresstags_set'] = CoopAddressTagsSerializer(instance.coopaddresstags_set.all(), many=True).data
-#         return rep
-
-#     #def to_representation(self, instance):
-#     #    rep = super().to_representation(instance)
-#     #    rep['addresses'] = AddressSerializer(instance.addresses.all(), many=True).data
-#     #    return rep
-
 # class CoopSpreadsheetSerializer(serializers.ModelSerializer):
 #     types = CoopTypeSerializer(many=True, allow_empty=False)
 #     coopaddresstags_set = CoopAddressTagsSerializer(many=True)
@@ -363,3 +344,105 @@ class UserSerializer(serializers.ModelSerializer):
 #             result = addr_tag.save()
 #             instance.coopaddresstags_set.add(addr_tag)
 #         return instance
+    
+#============================================================================
+
+class CoopPublicListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CoopPublic
+        fields = ['id', 'name', 'web_site', 'description', 'is_public', 'status', 'scope', 'tags', 'request_datetime', 'review_datetime' ]
+
+class CoopProposalListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CoopProposal
+        fields = ['id', 'name', 'web_site', 'description', 'is_public', 'scope', 'tags', 
+                  'status', 'operation', 'change_summary', 'review_notes']
+        
+class CoopProposalToCreateSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = CoopProposal
+        fields = ['id', 'name', 'web_site', 'description', 'is_public', 'scope', 'tags']
+        extra_kwargs = {'name': {'required': True}}
+
+    def create(self, validated_data):
+        validated_data["status"] = "PENDING"
+        validated_data["operation"] = "CREATE"
+        validated_data["request_datetime"] = now()
+        validated_data["change_summary"] = json.dumps(validated_data, default=str)
+        instance = CoopProposal.objects.create(**validated_data)
+        return instance
+
+class CoopProposalToUpdateSerializer(serializers.ModelSerializer):
+    coop_public_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = CoopProposal
+        fields = ['id', 'coop_public_id', 'name', 'web_site', 'description', 'is_public', 'scope', 'tags']
+    
+    def create(self, validated_data):
+        validated_data["status"] = "PENDING"
+        validated_data["operation"] = "UPDATE"
+        validated_data["request_datetime"] = now()
+        validated_data["change_summary"] = json.dumps(validated_data, default=str)
+        validated_data["coop_public"] = CoopPublic.objects.get(id=validated_data["coop_public_id"])
+        instance = CoopProposal.objects.create(**validated_data)
+        return instance
+    
+class CoopProposalReviewSerializer(serializers.ModelSerializer):
+    status = serializers.ChoiceField(choices=[('APPROVED','Approved'), ('REJECTED', 'Rejected')])
+    coop_public_id = serializers.IntegerField(read_only=True, required=False)
+
+    class Meta:
+        model = CoopProposal
+        fields = ['id', 'status', 'review_notes', 'coop_public_id']
+    
+    def validate(self, attrs):
+        if self.instance and (self.instance.status != CoopProposal.ProposalStatus.PENDING):
+            raise exceptions.ValidationError("Only proposals with a 'PENDING' status can be modified.")
+        return super().validate(attrs)
+    
+    def update(self, coop_proposal:CoopProposal, validated_data):
+        # Update Coop Proposal with Metadata
+        coop_proposal.review_datetime = now()
+        coop_proposal.status = validated_data.get('status')
+        coop_proposal.review_notes = validated_data.get('review_notes', "")
+
+        # If proposal is rejected, save metadata and exit.
+        if coop_proposal.status == "REJECTED":
+            coop_proposal.save()
+            return coop_proposal
+ 
+        # Get Approved Coop where Proposal will be applied. Either create a new one, or fetch an existing one.
+        if coop_proposal.operation == "CREATE":
+            coop_public = CoopPublic()
+        elif coop_proposal.operation == "UPDATE":
+            try:
+                coop_public = CoopPublic.objects.get(id=coop_proposal.coop_public.id)
+            except CoopPublic.DoesNotExist as e:
+                raise
+        
+        # Identify all fields in the proposal that could be set on the approved coop.
+        proposed_fields = { field.name for field in coop_proposal._meta.fields }
+        approved_fields = { field.name for field in CoopPublic._meta.fields }
+        common_fields = proposed_fields.intersection(approved_fields) - {'id'}
+
+        # Set the common fields in the approved coop with values from the proposal. 
+        for field_name in common_fields:
+            if getattr(coop_proposal, field_name):
+                setattr(coop_public, field_name, getattr(coop_proposal, field_name))
+        coop_public.save()
+
+        # Link the approved coop to the proposal
+        coop_proposal.coop_public = coop_public
+
+        # Save and exit.
+        coop_proposal.save()
+        return coop_proposal
+    
+    def to_representation(self, instance):
+        # We want to return to the user the id of the approved coop without requiring them to navigate the coop_public object.
+        # Meta.Fields determines which fields get returned. The coop_public_id field is not part of CoopProposal model which this serializer manipulates.
+        # Below, after the serializer finishes its validation of CoopProposal we add a new field to the APIs response to the user.
+        ret = super(CoopProposalReviewSerializer, self).to_representation(instance)
+        ret['coop_public_id'] = instance.coop_public.id #if instance.coop_public else None
+        return ret

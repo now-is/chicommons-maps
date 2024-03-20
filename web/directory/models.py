@@ -74,17 +74,51 @@ class Coop(models.Model):
     rec_updated_by = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     rec_updated_date = models.DateTimeField(default=now, blank=True)
 
-    # def apply_proposed_changes(self):
-    #     proposed = self.proposed_changes
-    #     self.name = proposed.get('name')
-    #     self.web_site = proposed.get('web_site')
-    #     for type in proposed.get('types'):
-    #         self.types.add(CoopType.objects.get(name=type))
-    #     self.save()
-
 class Person(models.Model):
     first_name = models.CharField(max_length=250, null=False)
     last_name = models.CharField(max_length=250, null=False)
     coops = models.ManyToManyField(Coop, related_name='people')
     contact_methods = models.ManyToManyField(ContactMethod)
     is_public = models.BooleanField(default=True, null=False)
+
+#============================================================================
+
+class CoopX(models.Model):
+    name = models.CharField(max_length=250, null=True)
+    web_site = models.TextField(null=True)
+    description = models.TextField(null=True)
+    is_public = models.BooleanField(default=True, null=False)
+    scope = models.TextField(null=True)
+    tags = models.TextField(null=True)
+    #requester 
+    request_datetime = models.DateTimeField()
+    #reviewer
+    review_datetime = models.DateTimeField(null=True)
+    #types = models.ManyToManyField(CoopType, blank=False)
+    #contact_methods = models.ManyToManyField(ContactMethod)
+
+    class Meta:
+        abstract = True
+
+class CoopPublic(CoopX):
+    class Meta(CoopX.Meta):
+        db_table = 'directory_coop_public'
+
+class CoopProposal(CoopX):
+    class ProposalStatus(models.TextChoices):
+        PENDING = 'PENDING', _('Pending')
+        APPROVED = 'APPROVED', _('Approved')
+        REJECTED = 'REJECTED', _('Rejected') 
+    status = models.CharField( null=False, max_length=8, choices=ProposalStatus.choices )
+    class OperationTypes(models.TextChoices):
+        CREATE = 'CREATE', _('Create')
+        UPDATE = 'UPDATE', _('Update')
+        DELETE = 'DELETE', _('Delete')
+    operation = models.CharField( null=False, max_length=6, choices=OperationTypes.choices )
+    change_summary = models.JSONField("Change Summary")
+    review_notes = models.TextField(null=True, blank=True)
+    coop_public = models.ForeignKey(CoopPublic, on_delete=models.DO_NOTHING, null=True)
+
+    class Meta(CoopX.Meta):
+        db_table = 'directory_coop_proposal'  
+
