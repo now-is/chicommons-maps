@@ -75,7 +75,9 @@ access_token=$( echo "$login_response" | jq -r '.access' )  # Extract "access" v
 update_coop_req_json=$(cat << EOF
 {
   "coop_public_id" : $coop_approved_id,
-  "name": "TESTING"
+  "coop": {
+    "name": "TESTING"
+  }
 }
 EOF
 )

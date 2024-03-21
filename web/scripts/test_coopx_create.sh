@@ -63,12 +63,14 @@ access_token=$( echo "$login_response" | jq -r '.access' )  # Extract "access" v
 # API CALL 2: SEND CREATE PROPOSAL
 create_coop_req_json=$(cat << EOF
 {
-  "name": "Test Max 9999",
-  "web_site": "http://www.1871.com/",
-  "description": "My Coop Description",
-  "is_public": true, 
-  "scope": "Testing", 
-  "tags": "tag1, tag2, tag3"
+  "coop": {
+    "name": "Test Max 9999",
+    "web_site": "http://www.1871.com/",
+    "description": "My Coop Description",
+    "is_public": true, 
+    "scope": "Testing", 
+    "tags": "tag1, tag2, tag3"
+  }
 }
 EOF
 )

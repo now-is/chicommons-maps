@@ -87,30 +87,24 @@ class CoopX(models.Model):
     name = models.CharField(max_length=250, null=True)
     web_site = models.TextField(null=True)
     description = models.TextField(null=True)
-    class Status(models.TextChoices):
-        ACTIVE = 'ACTIVE', _('Active')
-        HIDDEN = 'HIDDEN', _('Hidden')
-        REMOVED = 'REMOVED', _('Removed')
-    status = models.CharField( null=False, max_length=8, choices=Status.choices, default="ACTIVE" )
     is_public = models.BooleanField(default=True, null=False)
     scope = models.TextField(null=True)
     tags = models.TextField(null=True)
     #types = models.ManyToManyField(CoopType, blank=False)
     #contact_methods = models.ManyToManyField(ContactMethod)
 
-    class Meta:
-        abstract = True
-
-class CoopPublic(CoopX):
+class CoopPublic(models.Model):
+    class Status(models.TextChoices):
+        ACTIVE = 'ACTIVE', _('Active')
+        REMOVED = 'REMOVED', _('Removed')
+    status = models.CharField( null=False, max_length=8, choices=Status.choices, default="ACTIVE" )
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, related_name="created")
     created_datetime = models.DateTimeField(null=True)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, related_name="last_modified")
     last_modified_datetime = models.DateTimeField(null=True)
+    coop = models.ForeignKey(CoopX, on_delete=models.DO_NOTHING, null=True)
 
-    class Meta(CoopX.Meta):
-        db_table = 'directory_coop_public'
-
-class CoopProposal(CoopX):
+class CoopProposal(models.Model):
     class ProposalStatus(models.TextChoices):
         PENDING = 'PENDING', _('Pending')
         APPROVED = 'APPROVED', _('Approved')
@@ -128,7 +122,5 @@ class CoopProposal(CoopX):
     requested_datetime = models.DateTimeField()
     reviewed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, related_name="reviewed")
     reviewed_datetime = models.DateTimeField(null=True)
-
-    class Meta(CoopX.Meta):
-        db_table = 'directory_coop_proposal'  
+    coop = models.ForeignKey(CoopX, on_delete=models.DO_NOTHING, null=True)
 

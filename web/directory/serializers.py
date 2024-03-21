@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import serializers, exceptions
-from directory.models import Coop, CoopType, ContactMethod, Person, CoopAddressTags, Address, CoopProposal, CoopPublic
+from directory.models import Coop, CoopType, ContactMethod, Person, CoopAddressTags, Address, CoopProposal, CoopPublic, CoopX
 from django.utils.timezone import now
 from directory.services.location_service import LocationService
 import json
@@ -358,38 +358,68 @@ class CoopProposalListSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'web_site', 'description', 'is_public', 'scope', 'tags', 
                   'proposal_status', 'operation', 'change_summary', 'review_notes']
         
+class CoopXSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CoopX
+        fields = "__all__"
+
+    def create(self, validated_data):
+        instance = CoopX.objects.create(**validated_data)
+        return instance
+    
+        
 class CoopProposalToCreateSerializer(serializers.ModelSerializer):
     requested_by = serializers.ReadOnlyField(source='requested_by.username')
+    coop = CoopXSerializer(many=False, read_only=False, required=True)
 
     class Meta: 
         model = CoopProposal
-        fields = ['id', 'name', 'web_site', 'description', 'is_public', 'scope', 'tags', 'requested_by']
-        extra_kwargs = {'name': {'required': True}}
+        fields = ['id', 'requested_by', 'coop']
 
     def create(self, validated_data):
+        coop_data = validated_data.pop('coop', {})
+
         validated_data["proposal_status"] = "PENDING"
         validated_data["operation"] = "CREATE"
         validated_data["requested_datetime"] = now()
         validated_data["change_summary"] = json.dumps(validated_data, default=str)
-        instance = CoopProposal.objects.create(**validated_data)
-        return instance
+
+        coop_proposal = CoopProposal.objects.create(**validated_data)
+        coopx_serializer = CoopXSerializer(data=coop_data)
+        if coopx_serializer.is_valid():
+            coop_proposal.coop = coopx_serializer.save()
+            coop_proposal.save()
+        return coop_proposal
 
 class CoopProposalToUpdateSerializer(serializers.ModelSerializer):
     requested_by = serializers.ReadOnlyField(source='requested_by.username')
     coop_public_id = serializers.IntegerField(write_only=True)
+    coop = CoopXSerializer(many=False, read_only=False, required=True)
 
     class Meta:
         model = CoopProposal
-        fields = ['id', 'coop_public_id', 'name', 'web_site', 'description', 'is_public', 'scope', 'tags', 'requested_by']
+        fields = ['id', 'coop_public_id', 'requested_by', 'coop']
     
     def create(self, validated_data):
+        coop_data = validated_data.pop('coop', {})
+
         validated_data["proposal_status"] = "PENDING"
         validated_data["operation"] = "UPDATE"
         validated_data["requested_datetime"] = now()
         validated_data["change_summary"] = json.dumps(validated_data, default=str)
         validated_data["coop_public"] = CoopPublic.objects.get(id=validated_data["coop_public_id"])
-        instance = CoopProposal.objects.create(**validated_data)
-        return instance
+
+        copied_coop = CoopX.objects.get(id=validated_data["coop_public"].coop.id)
+        copied_coop.pk = None # Setting 'pk' to None creates a new instance when saved
+        copied_coop.save()
+
+        coop_proposal = CoopProposal.objects.create(**validated_data)
+        coopx_serializer = CoopXSerializer(copied_coop, data=coop_data)
+        if coopx_serializer.is_valid():
+            coop_proposal.coop = coopx_serializer.save()
+            coop_proposal.save()
+
+        return coop_proposal
     
 class CoopProposalToDeleteSerializer(serializers.ModelSerializer):
     requested_by = serializers.ReadOnlyField(source='requested_by.username')
@@ -405,9 +435,9 @@ class CoopProposalToDeleteSerializer(serializers.ModelSerializer):
         validated_data["requested_datetime"] = now()
         validated_data["change_summary"] = json.dumps(validated_data, default=str)
         validated_data["coop_public"] = CoopPublic.objects.get(id=validated_data["coop_public_id"])
-        validated_data["status"] = "REMOVED"
-        instance = CoopProposal.objects.create(**validated_data)
-        return instance
+
+        coop_proposal = CoopProposal.objects.create(**validated_data)
+        return coop_proposal
 
 class CoopProposalReviewSerializer(serializers.ModelSerializer):
     proposal_status = serializers.ChoiceField(choices=[('APPROVED','Approved'), ('REJECTED', 'Rejected')])
@@ -424,41 +454,32 @@ class CoopProposalReviewSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
     
     def update(self, coop_proposal:CoopProposal, validated_data):
-        self._update_proposal_metadata(coop_proposal, validated_data)
+        self._update_coop_proposal(coop_proposal, validated_data)
 
         if coop_proposal.proposal_status == "REJECTED":
             coop_proposal.save()
             return coop_proposal
         
-        coop_public = self._manage_coop_public(coop_proposal)
-        self._update_coop_public_from_proposal(coop_proposal, coop_public)
+        coop_public = self._fetch_coop_public(coop_proposal)
+        self._update_coop_public(coop_proposal, coop_public)
         coop_proposal.coop_public = coop_public
         coop_proposal.save()
 
         return coop_proposal
 
-    def _update_proposal_metadata(self, coop_proposal, validated_data):
+    def _update_coop_proposal(self, coop_proposal, validated_data):
         coop_proposal.proposal_status = validated_data.get('proposal_status')
         coop_proposal.review_notes = validated_data.get('review_notes', "")
         coop_proposal.reviewed_by = validated_data.get('reviewed_by')
         coop_proposal.reviewed_datetime = now()
 
-    def _manage_coop_public(self, coop_proposal):
-        if coop_proposal.operation == "DELETE":
-            return self._mark_coop_public_as_removed(coop_proposal)
-        elif coop_proposal.operation == "CREATE":
+    def _fetch_coop_public(self, coop_proposal):
+        if coop_proposal.operation == "CREATE":
             return CoopPublic()
         elif coop_proposal.operation == "UPDATE":
             return self._get_or_raise_coop_public(coop_proposal)
-        
-    def _mark_coop_public_as_removed(self, coop_proposal):
-        try:
-            coop_public = CoopPublic.objects.get(id=coop_proposal.coop_public.id)
-            coop_public.status = "REMOVED"
-            coop_public.save()
-            return coop_public
-        except CoopPublic.DoesNotExist:
-            raise
+        elif coop_proposal.operation == "DELETE":
+            return self._get_or_raise_coop_public(coop_proposal)
 
     def _get_or_raise_coop_public(self, coop_proposal):
         try:
@@ -466,27 +487,19 @@ class CoopProposalReviewSerializer(serializers.ModelSerializer):
         except CoopPublic.DoesNotExist:
             raise
 
-    def _update_coop_public_from_proposal(self, coop_proposal, coop_public):
-        if not coop_public:
-            return
-        
-        # Update Coop Public Metadata
-        if coop_proposal.operation == "CREATE":
-            coop_public.created_by = coop_proposal.requested_by
-            coop_public.created_datetime = coop_proposal.reviewed_datetime
+    def _update_coop_public(self, coop_proposal, coop_public):
         coop_public.last_modified_by = coop_proposal.requested_by
         coop_public.last_modified_datetime = coop_proposal.reviewed_datetime
-
-        # Update Coop Public with values from Coop Proposed
-        proposed_fields = { field.name for field in coop_proposal._meta.fields }
-        approved_fields = { field.name for field in CoopPublic._meta.fields }
-        common_fields = proposed_fields.intersection(approved_fields) - {'id'}     
-
-        for field_name in common_fields:
-            if getattr(coop_proposal, field_name):
-                setattr(coop_public, field_name, getattr(coop_proposal, field_name))
-        coop_public.save()       
-
+        if coop_proposal.operation == "CREATE":
+            coop_public.coop = coop_proposal.coop
+            coop_public.created_by = coop_proposal.requested_by
+            coop_public.created_datetime = coop_proposal.reviewed_datetime
+        elif coop_proposal.operation == "UPDATE":
+            coop_public.coop = coop_proposal.coop
+        elif coop_proposal.operation == "DELETE":
+            coop_public.coop = None
+            coop_public.status = "REMOVED"
+        coop_public.save()
     
     def to_representation(self, instance):
         # We want to return to the user the id of the approved coop without requiring them to navigate the coop_public object.

@@ -1,5 +1,5 @@
-from directory.models import CoopProposal, CoopPublic
-from directory.serializers import CoopProposalToCreateSerializer, CoopProposalReviewSerializer, CoopProposalToUpdateSerializer  
+from directory.models import CoopProposal, CoopPublic, CoopX
+from directory.serializers import CoopProposalToCreateSerializer, CoopProposalReviewSerializer, CoopProposalToUpdateSerializer
 from rest_framework.test import APITestCase
 import json
 from unittest.mock import patch, MagicMock
@@ -17,12 +17,14 @@ class TestCoopX(APITestCase):
 
     def test_coopx_CoopProposalcreateserializer(self):
         create_data = {
-            "name": "Test Dave 9999",
-            "web_site": "http://www.1871.com/",
-            "description": "My Coop Description",
-            "is_public": True, # TODO - Confirm biz logic. Should you be able to approve the Coop create in the same call you create it?
-            "scope": "Testing", #TODO - What are acceptable values?
-            "tags": "tag1, tag2, tag3" #TODO - What are acceptable values?
+            "coop": {
+                "name": "Test Dave 9999",
+                "web_site": "http://www.1871.com/",
+                "description": "My Coop Description",
+                "is_public": True, # TODO - Confirm biz logic. Should you be able to approve the Coop create in the same call you create it?
+                "scope": "Testing", #TODO - What are acceptable values?
+                "tags": "tag1, tag2, tag3" #TODO - What are acceptable values?
+            }
         }
         coop_proposal_to_create_serializer = CoopProposalToCreateSerializer(data=create_data)
         if coop_proposal_to_create_serializer.is_valid():
@@ -30,17 +32,16 @@ class TestCoopX(APITestCase):
         else: 
             self.fail(coop_proposal_to_create_serializer.errors)
 
-        print(coop_create_proposal)
-
         self.assertEqual(CoopProposal.objects.count(), 1)
         self.assertEqual(CoopPublic.objects.count(), 0)
+        self.assertEqual(CoopX.objects.count(), 1)
 
-        self.assertEqual(coop_create_proposal.name, create_data["name"])
-        self.assertEqual(coop_create_proposal.web_site, create_data["web_site"])
-        self.assertEqual(coop_create_proposal.description, create_data["description"])
-        self.assertEqual(coop_create_proposal.is_public, create_data["is_public"])
-        self.assertEqual(coop_create_proposal.scope, create_data["scope"])
-        self.assertEqual(coop_create_proposal.tags, create_data["tags"])
+        self.assertEqual(coop_create_proposal.coop.name, create_data["coop"]["name"])
+        self.assertEqual(coop_create_proposal.coop.web_site, create_data["coop"]["web_site"])
+        self.assertEqual(coop_create_proposal.coop.description, create_data["coop"]["description"])
+        self.assertEqual(coop_create_proposal.coop.is_public, create_data["coop"]["is_public"])
+        self.assertEqual(coop_create_proposal.coop.scope, create_data["coop"]["scope"])
+        self.assertEqual(coop_create_proposal.coop.tags, create_data["coop"]["tags"])
         self.assertIsNone(coop_create_proposal.coop_public)
 
         self.assertEqual(coop_create_proposal.operation, "CREATE")
@@ -63,12 +64,7 @@ class TestCoopX(APITestCase):
         self.assertEqual(CoopPublic.objects.count(), 1)
         
         coop_public = CoopPublic.objects.get(id=coop_create_proposal.coop_public.id)
-        self.assertEqual(coop_public.name, create_data["name"])
-        self.assertEqual(coop_public.web_site, create_data["web_site"])
-        self.assertEqual(coop_public.description, create_data["description"])
-        self.assertEqual(coop_public.is_public, create_data["is_public"])
-        self.assertEqual(coop_public.scope, create_data["scope"])
-        self.assertEqual(coop_public.tags, create_data["tags"])
+        self.assertEqual(coop_public.coop.id, coop_create_proposal.coop.id)
 
         coop_create_proposal.refresh_from_db()
         self.assertEqual(coop_create_proposal.operation, "CREATE")
@@ -79,7 +75,9 @@ class TestCoopX(APITestCase):
         # ************************************
         update_data = {
             "coop_public_id" : coop_public.id,
-            "name": "HELLO"
+            "coop": {
+                "name": "HELLO"
+            }
         }
 
         coop_update_serializer = CoopProposalToUpdateSerializer(data=update_data)
@@ -95,15 +93,15 @@ class TestCoopX(APITestCase):
         self.assertEqual(coop_update_proposal.operation, "UPDATE")
         print(coop_update_proposal.change_summary)
 
-        self.assertEqual(coop_update_proposal.name, update_data["name"])
-        self.assertEqual(coop_update_proposal.web_site, None)
-        self.assertEqual(coop_update_proposal.description, None)
-        self.assertEqual(coop_update_proposal.is_public, True)
-        self.assertEqual(coop_update_proposal.scope, None)
-        self.assertEqual(coop_update_proposal.tags, None)
+        self.assertEqual(coop_update_proposal.coop.name, update_data["coop"]["name"])
+        self.assertEqual(coop_update_proposal.coop.web_site, create_data["coop"]["web_site"])
+        self.assertEqual(coop_update_proposal.coop.description, create_data["coop"]["description"])
+        self.assertEqual(coop_update_proposal.coop.is_public, create_data["coop"]["is_public"])
+        self.assertEqual(coop_update_proposal.coop.scope, create_data["coop"]["scope"])
+        self.assertEqual(coop_update_proposal.coop.tags, create_data["coop"]["tags"])
         self.assertEqual(coop_update_proposal.coop_public.id, coop_public.id)
 
-        self.assertEqual(coop_public.name, create_data["name"])
+        self.assertEqual(coop_public.coop.name, create_data["coop"]["name"])
 
         # ************************************
         approval_data = {
@@ -121,12 +119,12 @@ class TestCoopX(APITestCase):
         self.assertEqual(CoopPublic.objects.count(), 1)
 
         coop_public = CoopPublic.objects.get(id=coop_update_proposal.coop_public.id)
-        self.assertEqual(coop_public.name, update_data["name"])
-        self.assertEqual(coop_public.web_site, create_data["web_site"])
-        self.assertEqual(coop_public.description, create_data["description"])
-        self.assertEqual(coop_public.is_public, create_data["is_public"])
-        self.assertEqual(coop_public.scope, create_data["scope"])
-        self.assertEqual(coop_public.tags, create_data["tags"])
+        self.assertEqual(coop_public.coop.name, update_data["coop"]["name"])
+        self.assertEqual(coop_public.coop.web_site, create_data["coop"]["web_site"])
+        self.assertEqual(coop_public.coop.description, create_data["coop"]["description"])
+        self.assertEqual(coop_public.coop.is_public, create_data["coop"]["is_public"])
+        self.assertEqual(coop_public.coop.scope, create_data["coop"]["scope"])
+        self.assertEqual(coop_public.coop.tags, create_data["coop"]["tags"])
 
         coop_update_proposal.refresh_from_db()
         self.assertEqual(coop_update_proposal.operation, "UPDATE")
