@@ -72,7 +72,7 @@ create_coop_req_json=$(cat << EOF
 }
 EOF
 )
-url="http://localhost:8000/coopx/create/"
+url="http://localhost:8000/coopx/proposal/create/"
 access_header="Authorization: Bearer "$access_token""
 create_coop_response=$( curl -s -X POST "$url" -H "$access_header" -H "Content-type: application/json" -d "$create_coop_req_json" )
 echo $create_coop_response

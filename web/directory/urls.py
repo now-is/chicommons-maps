@@ -36,8 +36,9 @@ urlpatterns = format_suffix_patterns([
     path('password-reset-confirm/<uidb64>/<token>/', views.PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
     path('coopx/', views.CoopPublicList.as_view()),
     path('coopx/proposal/', views.CoopProposalList.as_view()),
-    path('coopx/create/', views.CoopProposalToCreate.as_view()),
-    path('coopx/update/', views.CoopProposalToUpdate.as_view()),
-    path('coopx/review/<int:pk>/', views.CoopProposalReview.as_view()),
+    path('coopx/proposal/create/', views.CoopProposalToCreate.as_view()),
+    path('coopx/proposal/update/', views.CoopProposalToUpdate.as_view()),
+    path('coopx/proposal/delete/', views.CoopProposalToDelete.as_view()),
+    path('coopx/proposal/review/<int:pk>/', views.CoopProposalReview.as_view()),
     #     path('user_info', views.user_info),
 ])

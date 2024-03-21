@@ -320,10 +320,26 @@ class CoopProposalList(generics.ListAPIView):
 class CoopProposalToCreate(generics.CreateAPIView):
     serializer_class = CoopProposalToCreateSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(requested_by=self.request.user)
+
 class CoopProposalToUpdate(generics.CreateAPIView):
     queryset = CoopProposal.objects.all()
     serializer_class = CoopProposalToUpdateSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(requested_by=self.request.user)
+
+class CoopProposalToDelete(generics.CreateAPIView):
+    queryset = CoopProposal.objects.all()
+    serializer_class = CoopProposalToDeleteSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(requested_by=self.request.user)
+
 class CoopProposalReview(generics.UpdateAPIView):
     queryset = CoopProposal.objects.all()
     serializer_class = CoopProposalReviewSerializer
+
+    def perform_update(self, serializer):
+        serializer.save(reviewed_by=self.request.user)

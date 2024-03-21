@@ -350,94 +350,143 @@ class UserSerializer(serializers.ModelSerializer):
 class CoopPublicListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoopPublic
-        fields = ['id', 'name', 'web_site', 'description', 'is_public', 'status', 'scope', 'tags', 'request_datetime', 'review_datetime' ]
+        fields = ['id', 'name', 'web_site', 'description', 'is_public', 'status', 'scope', 'tags', 'requested_datetime', 'reviewed_datetime' ]
 
 class CoopProposalListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoopProposal
         fields = ['id', 'name', 'web_site', 'description', 'is_public', 'scope', 'tags', 
-                  'status', 'operation', 'change_summary', 'review_notes']
+                  'proposal_status', 'operation', 'change_summary', 'review_notes']
         
 class CoopProposalToCreateSerializer(serializers.ModelSerializer):
+    requested_by = serializers.ReadOnlyField(source='requested_by.username')
+
     class Meta: 
         model = CoopProposal
-        fields = ['id', 'name', 'web_site', 'description', 'is_public', 'scope', 'tags']
+        fields = ['id', 'name', 'web_site', 'description', 'is_public', 'scope', 'tags', 'requested_by']
         extra_kwargs = {'name': {'required': True}}
 
     def create(self, validated_data):
-        validated_data["status"] = "PENDING"
+        validated_data["proposal_status"] = "PENDING"
         validated_data["operation"] = "CREATE"
-        validated_data["request_datetime"] = now()
+        validated_data["requested_datetime"] = now()
         validated_data["change_summary"] = json.dumps(validated_data, default=str)
         instance = CoopProposal.objects.create(**validated_data)
         return instance
 
 class CoopProposalToUpdateSerializer(serializers.ModelSerializer):
+    requested_by = serializers.ReadOnlyField(source='requested_by.username')
     coop_public_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = CoopProposal
-        fields = ['id', 'coop_public_id', 'name', 'web_site', 'description', 'is_public', 'scope', 'tags']
+        fields = ['id', 'coop_public_id', 'name', 'web_site', 'description', 'is_public', 'scope', 'tags', 'requested_by']
     
     def create(self, validated_data):
-        validated_data["status"] = "PENDING"
+        validated_data["proposal_status"] = "PENDING"
         validated_data["operation"] = "UPDATE"
-        validated_data["request_datetime"] = now()
+        validated_data["requested_datetime"] = now()
         validated_data["change_summary"] = json.dumps(validated_data, default=str)
         validated_data["coop_public"] = CoopPublic.objects.get(id=validated_data["coop_public_id"])
         instance = CoopProposal.objects.create(**validated_data)
         return instance
     
+class CoopProposalToDeleteSerializer(serializers.ModelSerializer):
+    requested_by = serializers.ReadOnlyField(source='requested_by.username')
+    coop_public_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = CoopProposal
+        fields = ['id', 'coop_public_id', 'requested_by']
+
+    def create(self, validated_data):
+        validated_data["proposal_status"] = "PENDING"
+        validated_data["operation"] = "DELETE"
+        validated_data["requested_datetime"] = now()
+        validated_data["change_summary"] = json.dumps(validated_data, default=str)
+        validated_data["coop_public"] = CoopPublic.objects.get(id=validated_data["coop_public_id"])
+        validated_data["status"] = "REMOVED"
+        instance = CoopProposal.objects.create(**validated_data)
+        return instance
+
 class CoopProposalReviewSerializer(serializers.ModelSerializer):
-    status = serializers.ChoiceField(choices=[('APPROVED','Approved'), ('REJECTED', 'Rejected')])
+    proposal_status = serializers.ChoiceField(choices=[('APPROVED','Approved'), ('REJECTED', 'Rejected')])
+    reviewed_by = serializers.ReadOnlyField(source='reviewed_by.username')
     coop_public_id = serializers.IntegerField(read_only=True, required=False)
 
     class Meta:
         model = CoopProposal
-        fields = ['id', 'status', 'review_notes', 'coop_public_id']
+        fields = ['id', 'proposal_status', 'review_notes', 'coop_public_id', 'reviewed_by']
     
     def validate(self, attrs):
-        if self.instance and (self.instance.status != CoopProposal.ProposalStatus.PENDING):
-            raise exceptions.ValidationError("Only proposals with a 'PENDING' status can be modified.")
+        if self.instance and (self.instance.proposal_status != CoopProposal.ProposalStatus.PENDING):
+            raise exceptions.ValidationError("Only proposals with a 'PENDING' proposal_status can be reviewed and applied.")
         return super().validate(attrs)
     
     def update(self, coop_proposal:CoopProposal, validated_data):
-        # Update Coop Proposal with Metadata
-        coop_proposal.review_datetime = now()
-        coop_proposal.status = validated_data.get('status')
-        coop_proposal.review_notes = validated_data.get('review_notes', "")
+        self._update_proposal_metadata(coop_proposal, validated_data)
 
-        # If proposal is rejected, save metadata and exit.
-        if coop_proposal.status == "REJECTED":
+        if coop_proposal.proposal_status == "REJECTED":
             coop_proposal.save()
             return coop_proposal
- 
-        # Get Approved Coop where Proposal will be applied. Either create a new one, or fetch an existing one.
-        if coop_proposal.operation == "CREATE":
-            coop_public = CoopPublic()
-        elif coop_proposal.operation == "UPDATE":
-            try:
-                coop_public = CoopPublic.objects.get(id=coop_proposal.coop_public.id)
-            except CoopPublic.DoesNotExist as e:
-                raise
         
-        # Identify all fields in the proposal that could be set on the approved coop.
+        coop_public = self._manage_coop_public(coop_proposal)
+        self._update_coop_public_from_proposal(coop_proposal, coop_public)
+        coop_proposal.coop_public = coop_public
+        coop_proposal.save()
+
+        return coop_proposal
+
+    def _update_proposal_metadata(self, coop_proposal, validated_data):
+        coop_proposal.proposal_status = validated_data.get('proposal_status')
+        coop_proposal.review_notes = validated_data.get('review_notes', "")
+        coop_proposal.reviewed_by = validated_data.get('reviewed_by')
+        coop_proposal.reviewed_datetime = now()
+
+    def _manage_coop_public(self, coop_proposal):
+        if coop_proposal.operation == "DELETE":
+            return self._mark_coop_public_as_removed(coop_proposal)
+        elif coop_proposal.operation == "CREATE":
+            return CoopPublic()
+        elif coop_proposal.operation == "UPDATE":
+            return self._get_or_raise_coop_public(coop_proposal)
+        
+    def _mark_coop_public_as_removed(self, coop_proposal):
+        try:
+            coop_public = CoopPublic.objects.get(id=coop_proposal.coop_public.id)
+            coop_public.status = "REMOVED"
+            coop_public.save()
+            return coop_public
+        except CoopPublic.DoesNotExist:
+            raise
+
+    def _get_or_raise_coop_public(self, coop_proposal):
+        try:
+            return CoopPublic.objects.get(id=coop_proposal.coop_public.id)
+        except CoopPublic.DoesNotExist:
+            raise
+
+    def _update_coop_public_from_proposal(self, coop_proposal, coop_public):
+        if not coop_public:
+            return
+        
+        # Update Coop Public Metadata
+        if coop_proposal.operation == "CREATE":
+            coop_public.created_by = coop_proposal.requested_by
+            coop_public.created_datetime = coop_proposal.reviewed_datetime
+        coop_public.last_modified_by = coop_proposal.requested_by
+        coop_public.last_modified_datetime = coop_proposal.reviewed_datetime
+
+        # Update Coop Public with values from Coop Proposed
         proposed_fields = { field.name for field in coop_proposal._meta.fields }
         approved_fields = { field.name for field in CoopPublic._meta.fields }
-        common_fields = proposed_fields.intersection(approved_fields) - {'id'}
+        common_fields = proposed_fields.intersection(approved_fields) - {'id'}     
 
-        # Set the common fields in the approved coop with values from the proposal. 
         for field_name in common_fields:
             if getattr(coop_proposal, field_name):
                 setattr(coop_public, field_name, getattr(coop_proposal, field_name))
-        coop_public.save()
+        coop_public.save()       
 
-        # Link the approved coop to the proposal
-        coop_proposal.coop_public = coop_public
-
-        # Save and exit.
-        coop_proposal.save()
-        return coop_proposal
     
     def to_representation(self, instance):
         # We want to return to the user the id of the approved coop without requiring them to navigate the coop_public object.

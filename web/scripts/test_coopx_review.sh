@@ -82,12 +82,12 @@ access_token=$( echo "$login_response" | jq -r '.access' )  # Extract "access" v
 # API CALL 2: SEND REVIEW TO PROPOSAL
 review_coop_req_json=$(cat << EOF
 {
-  "status": "$review_status",
+  "proposal_status": "$review_status",
   "review_notes": "lgtm"
 }
 EOF
 )
-url="http://localhost:8000/coopx/review/$coop_proposed_id/"
+url="http://localhost:8000/coopx/proposal/review/$coop_proposed_id/"
 access_header="Authorization: Bearer "$access_token""
 review_coop_response=$( curl -s -X PATCH "$url" -H "$access_header" -H "Content-type: application/json" -d "$review_coop_req_json" )
 echo $review_coop_response

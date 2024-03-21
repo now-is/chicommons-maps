@@ -3,7 +3,7 @@
 # PREPARE HELP MESSAGE
 show_help() {
     echo
-    echo $0 - shows how to login to backend and send a coop update proposal.
+    echo $0 - shows how to login to backend and send a coop delete proposal.
     echo 
     echo "Usage: $0 -u USERNAME -p PASSWORD -i ID"
     echo
@@ -74,12 +74,11 @@ access_token=$( echo "$login_response" | jq -r '.access' )  # Extract "access" v
 # API CALL 2: SEND UPDATE PROPOSAL
 update_coop_req_json=$(cat << EOF
 {
-  "coop_public_id" : $coop_approved_id,
-  "name": "TESTING"
+  "coop_public_id" : $coop_approved_id
 }
 EOF
 )
-url="http://localhost:8000/coopx/proposal/update/"
+url="http://localhost:8000/coopx/proposal/delete/"
 access_header="Authorization: Bearer "$access_token""
 update_coop_response=$( curl -s -X POST "$url" -H "$access_header" -H "Content-type: application/json" -d "$update_coop_req_json" )
 echo $update_coop_response

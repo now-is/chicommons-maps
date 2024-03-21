@@ -44,13 +44,13 @@ class TestCoopX(APITestCase):
         self.assertIsNone(coop_create_proposal.coop_public)
 
         self.assertEqual(coop_create_proposal.operation, "CREATE")
-        self.assertEqual(coop_create_proposal.status, "PENDING")
-        print(coop_create_proposal.request_datetime)
+        self.assertEqual(coop_create_proposal.proposal_status, "PENDING")
+        print(coop_create_proposal.requested_datetime)
 
         # ************************************
         approval_data = {
             'id': coop_create_proposal.id,
-            'status': "APPROVED",
+            'proposal_status': "APPROVED",
             'review_notes': "lgtm"
         }
         review_serializer = CoopProposalReviewSerializer(coop_create_proposal, data=approval_data)
@@ -72,9 +72,9 @@ class TestCoopX(APITestCase):
 
         coop_create_proposal.refresh_from_db()
         self.assertEqual(coop_create_proposal.operation, "CREATE")
-        self.assertEqual(coop_create_proposal.status, "APPROVED")
+        self.assertEqual(coop_create_proposal.proposal_status, "APPROVED")
         self.assertEqual(coop_create_proposal.coop_public.id, coop_public.id)
-        print(coop_create_proposal.request_datetime)
+        print(coop_create_proposal.requested_datetime)
 
         # ************************************
         update_data = {
@@ -91,7 +91,7 @@ class TestCoopX(APITestCase):
         self.assertEqual(CoopProposal.objects.count(), 2)
         self.assertEqual(CoopPublic.objects.count(), 1)
 
-        self.assertEqual(coop_update_proposal.status, "PENDING")
+        self.assertEqual(coop_update_proposal.proposal_status, "PENDING")
         self.assertEqual(coop_update_proposal.operation, "UPDATE")
         print(coop_update_proposal.change_summary)
 
@@ -108,7 +108,7 @@ class TestCoopX(APITestCase):
         # ************************************
         approval_data = {
             'id': coop_update_proposal.id,
-            'status': "APPROVED",
+            'proposal_status': "APPROVED",
             'review_notes': "lgtm"
         }
         review_serializer = CoopProposalReviewSerializer(coop_update_proposal, data=approval_data)
@@ -130,6 +130,6 @@ class TestCoopX(APITestCase):
 
         coop_update_proposal.refresh_from_db()
         self.assertEqual(coop_update_proposal.operation, "UPDATE")
-        self.assertEqual(coop_update_proposal.status, "APPROVED")
+        self.assertEqual(coop_update_proposal.proposal_status, "APPROVED")
         self.assertEqual(coop_update_proposal.coop_public.id, coop_public.id)
-        print(coop_update_proposal.request_datetime)
+        print(coop_update_proposal.requested_datetime)
