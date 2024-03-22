@@ -62,9 +62,7 @@ class TestCoopCreate(APITestCase):
                 {"first_name": "John", "last_name": "Doe", "is_public": False, "contact_methods": []}, 
                 {"first_name": "Steve", "last_name": "Smith", "is_public": False, "contact_methods": [
                     { "type": "EMAIL", "is_public": True, "email": "stevesmith@example.com" }
-                ],
-                
-                }
+                ]}
             ]
         }
         # req_json = json.dumps(request)

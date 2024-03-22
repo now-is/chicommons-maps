@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import serializers, exceptions
-from directory.models import Coop, CoopType, ContactMethod, Person, CoopAddressTags, Address, CoopProposal, CoopPublic, CoopX
+from directory.models import Coop, CoopType, ContactMethod, Person, CoopAddressTags, Address, CoopProposal, CoopPublic, CoopX, PersonX, CoopAddressTagsX
 from django.utils.timezone import now
 from directory.services.location_service import LocationService
 import json
@@ -127,7 +127,7 @@ class PersonSerializer(serializers.ModelSerializer):
         for item in contact_methods_data:
             contact_method, created = ContactMethod.objects.get_or_create(**item)
             instance.contact_methods.add(contact_method)
-        if coops_data:
+        if coops_data: #TODO: Remove this
             for coop in coops_data:
                 instance.coops.add(coop)
         return instance
@@ -357,16 +357,160 @@ class CoopProposalListSerializer(serializers.ModelSerializer):
         model = CoopProposal
         fields = ['id', 'name', 'web_site', 'description', 'is_public', 'scope', 'tags', 
                   'proposal_status', 'operation', 'change_summary', 'review_notes']
+
+class PersonXSerializer(serializers.ModelSerializer):
+    contact_methods = ContactMethodSerializer(many=True)
+    
+    class Meta:
+        model = PersonX
+        fields = ['id', 'first_name', 'last_name', 'contact_methods', 'is_public']
+      
+    def create(self, validated_data):
+        contact_methods_data = validated_data.pop('contact_methods', [])
+
+        instance = PersonX.objects.create(**validated_data)
+
+        for item in contact_methods_data:
+            contact_method, _ = ContactMethod.objects.get_or_create(**item)
+            instance.contact_methods.add(contact_method)
+
+        return instance
+
+    def update(self, instance, validated_data):
+        contact_methods_data = validated_data.pop('contact_methods', [])
+
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.is_public = validated_data.get('is_public', instance.is_public)
+
+        instance.save()
+
+        if contact_methods_data:
+            instance.contact_methods.clear()
+            for item in contact_methods_data:
+                contact_method_serializer = ContactMethodSerializer(data=item)
+                if contact_method_serializer.is_valid():
+                    contact_method = contact_method_serializer.save()
+                    instance.contact_methods.add(contact_method)
+        
+        return instance
+
+class CoopAddressTagsXSerializer(serializers.ModelSerializer):
+    address = AddressSerializer(read_only=False)
+
+    class Meta:
+        model = CoopAddressTagsX
+        fields = ['id', 'address', 'is_public']
+    
+    def create(self, validated_data):
+        address_data = validated_data.pop('address', [])
+
+        instance = CoopAddressTagsX.objects.create(**validated_data)
+
+        address_serializer = AddressSerializer(data=address_data)
+        if address_serializer.is_valid(raise_exception=True):
+            address = address_serializer.save()
+            instance.address = address
+            
+        instance.save()
+        return instance
+    
+    def update(self, instance, validated_data):
+        address_data = validated_data.pop('address', [])
+
+        instance.is_public = validated_data.get('is_public', instance.is_public)
+
+        if address_data:
+            instance.address.delete()
+            address_serializer = AddressSerializer(data=address_data)
+            if address_serializer.is_valid(raise_exception=True):
+                address = address_serializer.save()
+                instance.address = address
+                
+        instance.save()
+        return instance
         
 class CoopXSerializer(serializers.ModelSerializer):
+    types = CoopTypeSerializer(many=True, read_only=False, required=False, allow_null=True)
+    contact_methods = ContactMethodSerializer(many=True, read_only=False, required=False, allow_null=True)
+    people = PersonXSerializer(many=True, read_only=False, required=False, allow_null=False)
+    addresses = CoopAddressTagsSerializer(many=True, read_only=False, required=False, allow_null=True)
+
     class Meta:
         model = CoopX
         fields = "__all__"
 
+    @transaction.atomic
     def create(self, validated_data):
+        types_data = validated_data.pop('types', [])
+        contact_methods_data = validated_data.pop('contact_methods', [])
+        people_data = validated_data.pop('people', [])
+        addresses_data = validated_data.pop('addresses',[])
+
         instance = CoopX.objects.create(**validated_data)
+
+        for item in types_data:
+            coop_type, _ = CoopType.objects.get_or_create(**item)
+            instance.types.add(coop_type)
+        
+        for item in contact_methods_data:
+            contact_method, _ = ContactMethod.objects.get_or_create(**item)
+            instance.contact_methods.add(contact_method)
+
+        for item in people_data:
+            person_serializer = PersonXSerializer(data=item)
+            if person_serializer.is_valid(raise_exception=True):
+                person = person_serializer.save()
+                instance.people.add(person)
+        
+        for item in addresses_data:
+            coop_address_tag_serializer = CoopAddressTagsXSerializer(data=item)
+            if coop_address_tag_serializer.is_valid(raise_exception=True):
+                address = coop_address_tag_serializer.save()
+                instance.addresses.add(address)
+
         return instance
     
+    def update(self, instance, validated_data):
+        types_data = validated_data.pop('types', [])
+        contact_methods_data = validated_data.pop('contact_methods', [])
+        people_data = validated_data.pop('people', [])
+        addresses_data = validated_data.pop('addresses',[])
+
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+
+        if types_data:
+            instance.types.clear()
+            for item in types_data:
+                coop_type, _ = CoopType.objects.get_or_create(**item)
+                instance.types.add(coop_type)
+        
+        if contact_methods_data:
+            instance.contact_methods.clear()#all().delete()
+            for item in contact_methods_data:
+                contact_method_serializer = ContactMethodSerializer(data=item)
+                if contact_method_serializer.is_valid():
+                    contact_method = contact_method_serializer.save()
+                    instance.contact_methods.add(contact_method)
+
+        if people_data:
+            instance.people.clear()
+            for person_data in people_data:
+                person_serializer = PersonXSerializer(data=person_data)
+                if person_serializer.is_valid(raise_exception=True):
+                    person = person_serializer.save()
+                    instance.people.add(person)
+
+        if addresses_data:
+            instance.addresses.clear()
+            for item in addresses_data:
+                coop_address_tag_serializer = CoopAddressTagsXSerializer(data=item)
+                if coop_address_tag_serializer.is_valid(raise_exception=True):
+                    address = coop_address_tag_serializer.save()
+                    instance.addresses.add(address)
+
+        return instance
         
 class CoopProposalToCreateSerializer(serializers.ModelSerializer):
     requested_by = serializers.ReadOnlyField(source='requested_by.username')

@@ -82,6 +82,15 @@ class Person(models.Model):
     is_public = models.BooleanField(default=True, null=False)
 
 #============================================================================
+class CoopAddressTagsX(models.Model):
+    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
+    is_public = models.BooleanField(default=True, null=False)
+
+class PersonX(models.Model):
+    first_name = models.CharField(max_length=250, null=False)
+    last_name = models.CharField(max_length=250, null=False)
+    contact_methods = models.ManyToManyField(ContactMethod)
+    is_public = models.BooleanField(default=True, null=False)
 
 class CoopX(models.Model):
     name = models.CharField(max_length=250, null=True)
@@ -90,8 +99,11 @@ class CoopX(models.Model):
     is_public = models.BooleanField(default=True, null=False)
     scope = models.TextField(null=True)
     tags = models.TextField(null=True)
-    #types = models.ManyToManyField(CoopType, blank=False)
-    #contact_methods = models.ManyToManyField(ContactMethod)
+
+    types = models.ManyToManyField(CoopType)
+    contact_methods = models.ManyToManyField(ContactMethod)
+    people = models.ManyToManyField(PersonX)
+    addresses = models.ManyToManyField(CoopAddressTagsX)
 
 class CoopPublic(models.Model):
     class Status(models.TextChoices):
