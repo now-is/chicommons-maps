@@ -317,22 +317,8 @@ class CoopProposalList(generics.ListAPIView):
     queryset = CoopProposal.objects.all()
     serializer_class = CoopProposalListSerializer
     
-class CoopProposalToCreate(generics.CreateAPIView):
-    serializer_class = CoopProposalToCreateSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(requested_by=self.request.user)
-
-class CoopProposalToUpdate(generics.CreateAPIView):
-    queryset = CoopProposal.objects.all()
-    serializer_class = CoopProposalToUpdateSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(requested_by=self.request.user)
-
-class CoopProposalToDelete(generics.CreateAPIView):
-    queryset = CoopProposal.objects.all()
-    serializer_class = CoopProposalToDeleteSerializer
+class CoopProposalCreate(generics.CreateAPIView):
+    serializer_class = CoopProposalCreateSerializer
 
     def perform_create(self, serializer):
         serializer.save(requested_by=self.request.user)

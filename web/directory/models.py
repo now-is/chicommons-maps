@@ -92,18 +92,7 @@ class PersonX(models.Model):
     contact_methods = models.ManyToManyField(ContactMethod)
     is_public = models.BooleanField(default=True, null=False)
 
-class CoopX(models.Model):
-    name = models.CharField(max_length=250, null=True)
-    web_site = models.TextField(null=True)
-    description = models.TextField(null=True)
-    is_public = models.BooleanField(default=True, null=False)
-    scope = models.TextField(null=True)
-    tags = models.TextField(null=True)
-
-    types = models.ManyToManyField(CoopType)
-    contact_methods = models.ManyToManyField(ContactMethod)
-    people = models.ManyToManyField(PersonX)
-    addresses = models.ManyToManyField(CoopAddressTagsX)
+#============================================================================
 
 class CoopPublic(models.Model):
     class Status(models.TextChoices):
@@ -114,7 +103,29 @@ class CoopPublic(models.Model):
     created_datetime = models.DateTimeField(null=True)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, related_name="last_modified")
     last_modified_datetime = models.DateTimeField(null=True)
-    coop = models.ForeignKey(CoopX, on_delete=models.DO_NOTHING, null=True)
+
+class CoopX(models.Model):
+    # Metadata Fields
+    class Status(models.TextChoices):
+        ACTIVE = 'ACTIVE', _('Active')
+        PROPOSAL = 'PROPOSAL', _('Proposal')
+        ARCHIVED = 'ARCHIVED', _('Archived')
+    status = models.CharField( null=False, max_length=8, choices=Status.choices, default="ACTIVE" )
+    coop_public = models.ForeignKey(CoopPublic, on_delete=models.DO_NOTHING, null=True)
+
+    # Simple Fields
+    name = models.CharField(max_length=250, null=True)
+    web_site = models.TextField(null=True)
+    description = models.TextField(null=True)
+    is_public = models.BooleanField(default=True, null=False)
+    scope = models.TextField(null=True)
+    tags = models.TextField(null=True)
+
+    # Object Fields
+    types = models.ManyToManyField(CoopType)
+    contact_methods = models.ManyToManyField(ContactMethod)
+    people = models.ManyToManyField(PersonX)
+    addresses = models.ManyToManyField(CoopAddressTagsX)
 
 class CoopProposal(models.Model):
     class ProposalStatus(models.TextChoices):

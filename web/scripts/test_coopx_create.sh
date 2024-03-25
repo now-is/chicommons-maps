@@ -63,6 +63,7 @@ access_token=$( echo "$login_response" | jq -r '.access' )  # Extract "access" v
 # API CALL 2: SEND CREATE PROPOSAL
 create_coop_req_json=$(cat << EOF
 {
+  "operation": "CREATE",
   "coop": {
     "name": "Test Max 9999",
     "web_site": "http://www.1871.com/",

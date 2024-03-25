@@ -74,6 +74,7 @@ access_token=$( echo "$login_response" | jq -r '.access' )  # Extract "access" v
 # API CALL 2: SEND UPDATE PROPOSAL
 update_coop_req_json=$(cat << EOF
 {
+  "operation": "UPDATE",
   "coop_public_id" : $coop_approved_id,
   "coop": {
     "name": "TESTING"
@@ -81,7 +82,7 @@ update_coop_req_json=$(cat << EOF
 }
 EOF
 )
-url="http://localhost:8000/coopx/proposal/update/"
+url="http://localhost:8000/coopx/proposal/create/"
 access_header="Authorization: Bearer "$access_token""
 update_coop_response=$( curl -s -X POST "$url" -H "$access_header" -H "Content-type: application/json" -d "$update_coop_req_json" )
 echo $update_coop_response
