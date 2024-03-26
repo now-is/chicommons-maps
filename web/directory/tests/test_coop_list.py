@@ -9,6 +9,8 @@ import pathlib
 from unittest.mock import patch, MagicMock
 
 class TestCoopList(APITestCase):
+    fixtures = ["testcooplist.json"]
+
     @classmethod
     def setUpTestData(cls):
         pass
@@ -29,16 +31,16 @@ class TestCoopList(APITestCase):
         self.staging_dir_path = (pathlib.Path(__file__).parent / 'files' / 'staging').resolve()
         self.testcases_dir_path = (pathlib.Path(__file__).parent / 'files' / 'testcases').resolve()
 
-        coop_list_filename = "coop_list.json"
-        coop_list_filepath = (self.staging_dir_path / coop_list_filename).resolve()
+        # coop_list_filename = "coop_list.json"
+        # coop_list_filepath = (self.staging_dir_path / coop_list_filename).resolve()
 
-        url = reverse('coop-list')
-        with open(coop_list_filepath, 'r') as file:
-            coops = json.load(file)
+        # url = reverse('coop-list')
+        # with open(coop_list_filepath, 'r') as file:
+        #     coops = json.load(file)
 
-        for request in coops:
-            response = client.post(url, request, format='json')
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # for request in coops:
+        #     response = client.post(url, request, format='json')
+        #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
     
     def test_list_all(self):
         # Acting as unauthorized user
@@ -61,17 +63,18 @@ class TestCoopList(APITestCase):
         self.maxDiff = None
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 8) 
+        self.assertEqual(Coop.objects.count(), 10)
+        self.assertEqual(len(response.data), 8)
         self.assertEqual(response_data, expected_data)
 
-    def test_filter_enabled(self):
+    def test_filter_is_public(self):
         # Acting as unauthorized user
-        results_filename = "TestCoopList_test_filter_enabled.json"
+        results_filename = "TestCoopList_test_filter_is_public.json"
         results_filepath = (self.testcases_dir_path / results_filename).resolve()
         
         url = reverse('coop-list')
         request = {
-            'enabled': 'false'
+            'is_public': 'false'
         }
         response = self.client.get(url, data=request, format='json')
         response_data = helpers.sanitize_response(response)
@@ -87,8 +90,8 @@ class TestCoopList(APITestCase):
         self.maxDiff = None
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 8)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(Coop.objects.count(), 10)
+        self.assertEqual(len(response.data), 1)
         self.assertEqual(response_data, expected_data)        
     
     def test_filter_name(self):
@@ -114,7 +117,7 @@ class TestCoopList(APITestCase):
         self.maxDiff = None
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 8)
+        self.assertEqual(Coop.objects.count(), 10)
         self.assertEqual(len(response.data), 3)
         self.assertEqual(response_data, expected_data)        
     
@@ -141,7 +144,7 @@ class TestCoopList(APITestCase):
         self.maxDiff = None
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 8)
+        self.assertEqual(Coop.objects.count(), 10)
         self.assertEqual(len(response.data), 2)
         self.assertEqual(response_data, expected_data)
     
@@ -168,7 +171,7 @@ class TestCoopList(APITestCase):
         self.maxDiff = None
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 8)
+        self.assertEqual(Coop.objects.count(), 10)
         self.assertEqual(len(response.data), 4)
         self.assertEqual(response_data, expected_data)  
     
@@ -195,7 +198,7 @@ class TestCoopList(APITestCase):
         self.maxDiff = None
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 8)
+        self.assertEqual(Coop.objects.count(), 10)
         self.assertEqual(len(response.data), 2)
         self.assertEqual(response_data, expected_data) 
 
@@ -222,7 +225,7 @@ class TestCoopList(APITestCase):
         self.maxDiff = None
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 8)
+        self.assertEqual(Coop.objects.count(), 10)
         self.assertEqual(len(response.data), 5)
         self.assertEqual(response_data, expected_data) 
     
@@ -256,6 +259,6 @@ class TestCoopList(APITestCase):
         self.maxDiff = None
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 8)
+        self.assertEqual(Coop.objects.count(), 10)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response_data, expected_data) 

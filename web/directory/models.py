@@ -52,41 +52,10 @@ class AddressCache(models.Model):
     place_id = models.CharField(max_length=50)
 
 class CoopAddressTags(models.Model):
-    coop = models.ForeignKey('Coop', related_name='coop_address_tags', on_delete=models.SET_NULL, null=True)
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
     is_public = models.BooleanField(default=True, null=False)
-
-class Coop(models.Model):
-    name = models.CharField(max_length=250, null=False)
-    types = models.ManyToManyField(CoopType, blank=False)
-    enabled = models.BooleanField(default=True, null=False)
-    contact_methods = models.ManyToManyField(ContactMethod)
-    web_site = models.TextField()
-    description = models.TextField(null=True)
-    approved = models.BooleanField(default=False, null=True)
-    proposed_changes = models.JSONField("Proposed Changes", null=True)
-    reject_reason = models.TextField(null=True)
-    coop_public = models.BooleanField(default=True, null=False)
-    status = models.TextField(null=True)
-    scope = models.TextField(null=True)
-    tags = models.TextField(null=True)
-    rec_source = models.TextField(null=True)
-    rec_updated_by = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
-    rec_updated_date = models.DateTimeField(default=now, blank=True)
 
 class Person(models.Model):
-    first_name = models.CharField(max_length=250, null=False)
-    last_name = models.CharField(max_length=250, null=False)
-    coops = models.ManyToManyField(Coop, related_name='people')
-    contact_methods = models.ManyToManyField(ContactMethod)
-    is_public = models.BooleanField(default=True, null=False)
-
-#============================================================================
-class CoopAddressTagsX(models.Model):
-    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
-    is_public = models.BooleanField(default=True, null=False)
-
-class PersonX(models.Model):
     first_name = models.CharField(max_length=250, null=False)
     last_name = models.CharField(max_length=250, null=False)
     contact_methods = models.ManyToManyField(ContactMethod)
@@ -104,7 +73,7 @@ class CoopPublic(models.Model):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, related_name="last_modified")
     last_modified_datetime = models.DateTimeField(null=True)
 
-class CoopX(models.Model):
+class Coop(models.Model):
     # Metadata Fields
     class Status(models.TextChoices):
         ACTIVE = 'ACTIVE', _('Active')
@@ -124,8 +93,8 @@ class CoopX(models.Model):
     # Object Fields
     types = models.ManyToManyField(CoopType)
     contact_methods = models.ManyToManyField(ContactMethod)
-    people = models.ManyToManyField(PersonX)
-    addresses = models.ManyToManyField(CoopAddressTagsX)
+    people = models.ManyToManyField(Person)
+    addresses = models.ManyToManyField(CoopAddressTags)
 
 class CoopProposal(models.Model):
     class ProposalStatus(models.TextChoices):
@@ -145,5 +114,5 @@ class CoopProposal(models.Model):
     requested_datetime = models.DateTimeField()
     reviewed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, related_name="reviewed")
     reviewed_datetime = models.DateTimeField(null=True)
-    coop = models.ForeignKey(CoopX, on_delete=models.DO_NOTHING, null=True)
+    coop = models.ForeignKey(Coop, on_delete=models.DO_NOTHING, null=True)
 

@@ -50,8 +50,8 @@ fi
 # API CALL 1: LOGIN
 login_req_json=$(cat << EOF
 {
-  "username": "maxgraziano",
-  "password": "password"
+  "username": "$username",
+  "password": "$password"
 }
 EOF
 )
@@ -65,13 +65,35 @@ create_coop_req_json=$(cat << EOF
 {
   "operation": "CREATE",
   "coop": {
-    "name": "Test Max 9999",
-    "web_site": "http://www.1871.com/",
-    "description": "My Coop Description",
-    "is_public": true, 
-    "scope": "Testing", 
-    "tags": "tag1, tag2, tag3"
-  }
+        "name": "Test Max 9999",
+        "web_site": "http://www.1871.com/",
+        "description": "My Coop Description",
+        "is_public": true,
+        "scope": "Testing",
+        "tags": "tag1, tag2, tag3",
+        "types": [ {"name": "Library"}, {"name": "Museum"} ],
+        "contact_methods": [
+        { "type": "EMAIL", "is_public": true, "email": "myemail@example.com" },
+        { "type": "PHONE", "is_public": true, "phone": "+17739441426" }          
+    ],
+        "people": [
+        {"first_name": "John", "last_name": "Doe", "is_public": false, "contact_methods": []}, 
+        {"first_name": "Steve", "last_name": "Smith", "is_public": false, "contact_methods": [
+            { "type": "EMAIL", "is_public": true, "email": "stevesmith@example.com" },
+            { "type": "PHONE", "is_public": true, "phone": "+13125555555" }
+        ]}
+    ],
+        "addresses": [
+            {
+                "is_public": true,
+                "address": { "street_address": "222 W. Merchandise Mart Plaza, Suite 1212", "city": "Chicago", "state": "IL", "postal_code": "60654", "country": "US" }
+        },
+        {
+            "is_public": true,
+            "address": {  "street_address": "400 W 76th Street", "city": "Chicago", "state": "IL", "postal_code": "60620", "country": "US" }
+            }
+        ]
+    }
 }
 EOF
 )

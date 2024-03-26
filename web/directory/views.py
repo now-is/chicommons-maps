@@ -15,25 +15,17 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from directory.models import *
+from directory.models import ContactMethod, CoopType, Address, AddressCache, CoopAddressTags, CoopPublic, Coop, CoopProposal, Person
 from directory.serializers import *
 
 @api_view(['GET'])
 def api_root(request, format=None):
     return Response({
         'coops': reverse('coop-list', request=request, format=format),
-        'coop_type': reverse('cooptypes-list', request=request, format=format),
+        'coop_type': reverse('cooptype-list', request=request, format=format),
         'users': reverse('user-list', request=request, format=format),
         'countries': reverse('country-list', request=request, format=format)
     })
-
-# @api_view(["GET"])
-# @permission_classes((IsAuthenticated,))
-# def user_info(request):
-#     return Response({
-#         'user': request.user.username,
-#         'expires_in': expires_in(request.auth)
-#     }, status=HTTP_200_OK)
 
 # def data(request):
 #     # Create the HttpResponse object with the appropriate CSV header.
@@ -80,18 +72,18 @@ class CreateUserView(APIView):
                 }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-class CoopList(generics.ListCreateAPIView):
-    serializer_class = CoopSerializer
+class CoopList(generics.ListAPIView):
+    serializer_class = CoopXSerializer
 
     def perform_create(self, serializer):
         serializer.save(rec_updated_by=self.request.user)
 
     def get_queryset(self):
-        queryset = Coop.objects.all()
+        queryset = Coop.objects.filter(status=Coop.Status.ACTIVE)
 
-        enabled = self.request.GET.get("enabled", None)
-        if enabled is not None:
-            enabled = enabled.lower() == "true"
+        is_public = self.request.GET.get("is_public", None)
+        if is_public is not None:
+            is_public = is_public.lower() == "true"
         name = self.request.query_params.get('name', None)
         street = self.request.query_params.get('street', None)
         city = self.request.query_params.get('city', None)
@@ -100,16 +92,16 @@ class CoopList(generics.ListCreateAPIView):
 
         #TODO- if address.is_public=False, should we be showing it in results?
 
-        if enabled is not None:
-            queryset = queryset.filter(enabled=enabled)
+        if is_public is not None:
+            queryset = queryset.filter(is_public=is_public)
         if name:
             queryset = queryset.filter(name__icontains=name)
         if street:
-            queryset = queryset.filter(coop_address_tags__address__street_address__icontains=street).distinct()
+            queryset = queryset.filter(addresses__address__street_address__icontains=street).distinct()
         if city:
-            queryset = queryset.filter(coop_address_tags__address__city__icontains=city).distinct()
+            queryset = queryset.filter(addresses__address__city__icontains=city).distinct()
         if zip:
-            queryset = queryset.filter(coop_address_tags__address__postal_code__icontains=zip).distinct()
+            queryset = queryset.filter(addresses__address__postal_code__icontains=zip).distinct()
         if types_data:
             types = types_data.split(",")
             filter = Q(
@@ -127,43 +119,24 @@ class CoopList(generics.ListCreateAPIView):
             self.permission_classes = [IsAuthenticated]
         return [permission() for permission in self.permission_classes]
 
-class CoopDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Coop.objects.all()
-    serializer_class = CoopSerializer
+class CoopDetail(generics.RetrieveAPIView):
+    queryset = Coop.objects.filter(status=Coop.Status.ACTIVE)
+    serializer_class = CoopXSerializer
+    permission_classes = [AllowAny]
 
     def perform_update(self, serializer):
         serializer.save(rec_updated_by=self.request.user)
-
-    def get_permissions(self):
-        if self.request.method == 'GET': #RETRIEVE
-            self.permission_classes = [AllowAny]
-        elif self.request.method in ['PUT', 'PATCH', 'DELETE']: #UPDATE (put, patch) DESTROY (delete)
-            self.permission_classes = [IsAdminUser]
-            #TODO - Implement owner level permssions 
-        return [permission() for permission in self.permission_classes]
-
-# class CoopDetail(APIView):
-#     def patch(self, request, pk, format=None):
-#         coop = self.get_object(pk)
-#         serializer = CoopProposedChangeSerializer(coop, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 class CoopsNoCoords(generics.ListAPIView):
-    queryset = Coop.objects.exclude(coop_address_tags__isnull=True).prefetch_related(
-        'coop_address_tags', 
-        'coop_address_tags__address'
-    ).filter(
-        Q(coop_address_tags__address__latitude__isnull=True) | Q(coop_address_tags__address__longitude__isnull=True)
-    )
-    serializer_class = CoopSerializer
+    queryset = Coop.objects.filter(status=Coop.Status.ACTIVE).exclude(addresses__isnull=True).filter(
+            Q(addresses__address__latitude__isnull=True) | Q(addresses__address__longitude__isnull=True)
+        )
+    serializer_class = CoopXSerializer
     permission_classes = [IsAdminUser]
 
 class CoopsUnapproved(generics.ListAPIView):
-    queryset = Coop.objects.filter(approved=False)
-    serializer_class = CoopSerializer
+    queryset = CoopProposal.objects.filter(proposal_status=CoopProposal.ProposalStatus.PENDING)
+    serializer_class = CoopXSerializer
     permission_classes = [IsAdminUser]
 
 class PersonList(generics.ListAPIView):
@@ -171,84 +144,50 @@ class PersonList(generics.ListAPIView):
     serializer_class = PersonSerializer
     permission_classes = [AllowAny]
     
-class PersonDetail(generics.RetrieveUpdateDestroyAPIView):
+class PersonDetail(generics.RetrieveAPIView):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
-
-    def get_permissions(self):
-        if self.request.method == 'GET': #RETRIEVE
-            self.permission_classes = [AllowAny]
-        elif self.request.method in ['PUT', 'PATCH', 'DELETE']: #UPDATE (put, patch) DESTROY (delete)
-            self.permission_classes = [IsAdminUser]
-            #TODO - Implement owner level permssions 
-        return [permission() for permission in self.permission_classes]
+    permission_classes = [AllowAny]
     
 class CoopTypeList(generics.ListAPIView):
     queryset = CoopType.objects.all().order_by(Lower('name'))
     serializer_class = CoopTypeSerializer
     permission_classes = [AllowAny]
 
-class CoopTypeDetail(generics.RetrieveUpdateDestroyAPIView):
+class CoopTypeDetail(generics.RetrieveAPIView):
     queryset = CoopType.objects.all()
     serializer_class = CoopTypeSerializer
-
-    def get_permissions(self):
-        if self.request.method == 'GET': #RETRIEVE
-            self.permission_classes = [AllowAny]
-        elif self.request.method in ['PUT', 'PATCH', 'DELETE']: #UPDATE (put, patch) DESTROY (delete)
-            self.permission_classes = [IsAdminUser]
-        return [permission() for permission in self.permission_classes]
+    permission_classes = [AllowAny]
     
 class CoopAddressTagsList(generics.ListAPIView):
     queryset = CoopAddressTags.objects.all()
     serializer_class = CoopAddressTagsSerializer
     permission_classes = [AllowAny]
 
-class CoopAddressTagsDetail(generics.RetrieveUpdateDestroyAPIView):
+class CoopAddressTagsDetail(generics.RetrieveAPIView):
     queryset = CoopAddressTags.objects.all()
     serializer_class = CoopAddressTagsSerializer
-
-    def get_permissions(self):
-        if self.request.method == 'GET': #RETRIEVE
-            self.permission_classes = [AllowAny]
-        elif self.request.method in ['PUT', 'PATCH', 'DELETE']: #UPDATE (put, patch) DESTROY (delete)
-            self.permission_classes = [IsAdminUser]
-            #TODO - Implement owner level permssions 
-        return [permission() for permission in self.permission_classes]
+    permission_classes = [AllowAny]
     
 class AddressList(generics.ListAPIView):
     queryset = Address.objects.all()
     serializer_class = AddressSerializer
     permission_classes = [AllowAny]
 
-class AddressDetail(generics.RetrieveUpdateDestroyAPIView):
+class AddressDetail(generics.RetrieveAPIView):
     queryset = Address.objects.all()
     serializer_class = AddressSerializer
-
-    def get_permissions(self):
-        if self.request.method == 'GET': #RETRIEVE
-            self.permission_classes = [AllowAny]
-        elif self.request.method in ['PUT', 'PATCH', 'DELETE']: #UPDATE (put, patch) DESTROY (delete)
-            self.permission_classes = [IsAdminUser]
-            #TODO - Implement owner level permssions 
-        return [permission() for permission in self.permission_classes]
+    permission_classes = [AllowAny]
     
 class ContactMethodList(generics.ListAPIView):
     queryset = ContactMethod.objects.all()
     serializer_class = ContactMethodSerializer
     permission_classes = [AllowAny]
 
-class ContactMethodDetail(generics.RetrieveUpdateDestroyAPIView):
+class ContactMethodDetail(generics.RetrieveAPIView):
     queryset = ContactMethod.objects.all()
     serializer_class = ContactMethodSerializer
-
-    def get_permissions(self):
-        if self.request.method == 'GET': #RETRIEVE
-            self.permission_classes = [AllowAny]
-        elif self.request.method in ['PUT', 'PATCH', 'DELETE']: #UPDATE (put, patch) DESTROY (delete)
-            self.permission_classes = [IsAdminUser]
-            #TODO - Implement owner level permssions 
-        return [permission() for permission in self.permission_classes]
+    permission_classes = [AllowAny]
 
 class CountryList(APIView):
     permission_classes = [IsAdminUser]

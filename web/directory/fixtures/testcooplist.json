@@ -1,0 +1,1792 @@
+[
+{
+  "model": "auth.permission",
+  "pk": 1,
+  "fields": {
+    "name": "Can add log entry",
+    "content_type": 1,
+    "codename": "add_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 2,
+  "fields": {
+    "name": "Can change log entry",
+    "content_type": 1,
+    "codename": "change_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 3,
+  "fields": {
+    "name": "Can delete log entry",
+    "content_type": 1,
+    "codename": "delete_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 4,
+  "fields": {
+    "name": "Can view log entry",
+    "content_type": 1,
+    "codename": "view_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 5,
+  "fields": {
+    "name": "Can add permission",
+    "content_type": 2,
+    "codename": "add_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 6,
+  "fields": {
+    "name": "Can change permission",
+    "content_type": 2,
+    "codename": "change_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 7,
+  "fields": {
+    "name": "Can delete permission",
+    "content_type": 2,
+    "codename": "delete_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 8,
+  "fields": {
+    "name": "Can view permission",
+    "content_type": 2,
+    "codename": "view_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 9,
+  "fields": {
+    "name": "Can add group",
+    "content_type": 3,
+    "codename": "add_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 10,
+  "fields": {
+    "name": "Can change group",
+    "content_type": 3,
+    "codename": "change_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 11,
+  "fields": {
+    "name": "Can delete group",
+    "content_type": 3,
+    "codename": "delete_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 12,
+  "fields": {
+    "name": "Can view group",
+    "content_type": 3,
+    "codename": "view_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 13,
+  "fields": {
+    "name": "Can add user",
+    "content_type": 4,
+    "codename": "add_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 14,
+  "fields": {
+    "name": "Can change user",
+    "content_type": 4,
+    "codename": "change_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 15,
+  "fields": {
+    "name": "Can delete user",
+    "content_type": 4,
+    "codename": "delete_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 16,
+  "fields": {
+    "name": "Can view user",
+    "content_type": 4,
+    "codename": "view_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 17,
+  "fields": {
+    "name": "Can add content type",
+    "content_type": 5,
+    "codename": "add_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 18,
+  "fields": {
+    "name": "Can change content type",
+    "content_type": 5,
+    "codename": "change_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 19,
+  "fields": {
+    "name": "Can delete content type",
+    "content_type": 5,
+    "codename": "delete_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 20,
+  "fields": {
+    "name": "Can view content type",
+    "content_type": 5,
+    "codename": "view_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 21,
+  "fields": {
+    "name": "Can add session",
+    "content_type": 6,
+    "codename": "add_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 22,
+  "fields": {
+    "name": "Can change session",
+    "content_type": 6,
+    "codename": "change_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 23,
+  "fields": {
+    "name": "Can delete session",
+    "content_type": 6,
+    "codename": "delete_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 24,
+  "fields": {
+    "name": "Can view session",
+    "content_type": 6,
+    "codename": "view_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 25,
+  "fields": {
+    "name": "Can add Token",
+    "content_type": 7,
+    "codename": "add_token"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 26,
+  "fields": {
+    "name": "Can change Token",
+    "content_type": 7,
+    "codename": "change_token"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 27,
+  "fields": {
+    "name": "Can delete Token",
+    "content_type": 7,
+    "codename": "delete_token"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 28,
+  "fields": {
+    "name": "Can view Token",
+    "content_type": 7,
+    "codename": "view_token"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 29,
+  "fields": {
+    "name": "Can add token",
+    "content_type": 8,
+    "codename": "add_tokenproxy"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 30,
+  "fields": {
+    "name": "Can change token",
+    "content_type": 8,
+    "codename": "change_tokenproxy"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 31,
+  "fields": {
+    "name": "Can delete token",
+    "content_type": 8,
+    "codename": "delete_tokenproxy"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 32,
+  "fields": {
+    "name": "Can view token",
+    "content_type": 8,
+    "codename": "view_tokenproxy"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 33,
+  "fields": {
+    "name": "Can add coop type",
+    "content_type": 9,
+    "codename": "add_cooptype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 34,
+  "fields": {
+    "name": "Can change coop type",
+    "content_type": 9,
+    "codename": "change_cooptype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 35,
+  "fields": {
+    "name": "Can delete coop type",
+    "content_type": 9,
+    "codename": "delete_cooptype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 36,
+  "fields": {
+    "name": "Can view coop type",
+    "content_type": 9,
+    "codename": "view_cooptype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 37,
+  "fields": {
+    "name": "Can add contact method",
+    "content_type": 10,
+    "codename": "add_contactmethod"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 38,
+  "fields": {
+    "name": "Can change contact method",
+    "content_type": 10,
+    "codename": "change_contactmethod"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 39,
+  "fields": {
+    "name": "Can delete contact method",
+    "content_type": 10,
+    "codename": "delete_contactmethod"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 40,
+  "fields": {
+    "name": "Can view contact method",
+    "content_type": 10,
+    "codename": "view_contactmethod"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 41,
+  "fields": {
+    "name": "Can add address",
+    "content_type": 11,
+    "codename": "add_address"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 42,
+  "fields": {
+    "name": "Can change address",
+    "content_type": 11,
+    "codename": "change_address"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 43,
+  "fields": {
+    "name": "Can delete address",
+    "content_type": 11,
+    "codename": "delete_address"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 44,
+  "fields": {
+    "name": "Can view address",
+    "content_type": 11,
+    "codename": "view_address"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 45,
+  "fields": {
+    "name": "Can add address cache",
+    "content_type": 12,
+    "codename": "add_addresscache"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 46,
+  "fields": {
+    "name": "Can change address cache",
+    "content_type": 12,
+    "codename": "change_addresscache"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 47,
+  "fields": {
+    "name": "Can delete address cache",
+    "content_type": 12,
+    "codename": "delete_addresscache"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 48,
+  "fields": {
+    "name": "Can view address cache",
+    "content_type": 12,
+    "codename": "view_addresscache"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 49,
+  "fields": {
+    "name": "Can add coop public",
+    "content_type": 13,
+    "codename": "add_cooppublic"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 50,
+  "fields": {
+    "name": "Can change coop public",
+    "content_type": 13,
+    "codename": "change_cooppublic"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 51,
+  "fields": {
+    "name": "Can delete coop public",
+    "content_type": 13,
+    "codename": "delete_cooppublic"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 52,
+  "fields": {
+    "name": "Can view coop public",
+    "content_type": 13,
+    "codename": "view_cooppublic"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 53,
+  "fields": {
+    "name": "Can add coop proposal",
+    "content_type": 14,
+    "codename": "add_coopproposal"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 54,
+  "fields": {
+    "name": "Can change coop proposal",
+    "content_type": 14,
+    "codename": "change_coopproposal"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 55,
+  "fields": {
+    "name": "Can delete coop proposal",
+    "content_type": 14,
+    "codename": "delete_coopproposal"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 56,
+  "fields": {
+    "name": "Can view coop proposal",
+    "content_type": 14,
+    "codename": "view_coopproposal"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 57,
+  "fields": {
+    "name": "Can add coop",
+    "content_type": 15,
+    "codename": "add_coop"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 58,
+  "fields": {
+    "name": "Can change coop",
+    "content_type": 15,
+    "codename": "change_coop"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 59,
+  "fields": {
+    "name": "Can delete coop",
+    "content_type": 15,
+    "codename": "delete_coop"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 60,
+  "fields": {
+    "name": "Can view coop",
+    "content_type": 15,
+    "codename": "view_coop"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 61,
+  "fields": {
+    "name": "Can add coop address tags",
+    "content_type": 16,
+    "codename": "add_coopaddresstags"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 62,
+  "fields": {
+    "name": "Can change coop address tags",
+    "content_type": 16,
+    "codename": "change_coopaddresstags"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 63,
+  "fields": {
+    "name": "Can delete coop address tags",
+    "content_type": 16,
+    "codename": "delete_coopaddresstags"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 64,
+  "fields": {
+    "name": "Can view coop address tags",
+    "content_type": 16,
+    "codename": "view_coopaddresstags"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 65,
+  "fields": {
+    "name": "Can add person",
+    "content_type": 17,
+    "codename": "add_person"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 66,
+  "fields": {
+    "name": "Can change person",
+    "content_type": 17,
+    "codename": "change_person"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 67,
+  "fields": {
+    "name": "Can delete person",
+    "content_type": 17,
+    "codename": "delete_person"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 68,
+  "fields": {
+    "name": "Can view person",
+    "content_type": 17,
+    "codename": "view_person"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 69,
+  "fields": {
+    "name": "Can add address",
+    "content_type": 18,
+    "codename": "add_address"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 70,
+  "fields": {
+    "name": "Can change address",
+    "content_type": 18,
+    "codename": "change_address"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 71,
+  "fields": {
+    "name": "Can delete address",
+    "content_type": 18,
+    "codename": "delete_address"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 72,
+  "fields": {
+    "name": "Can view address",
+    "content_type": 18,
+    "codename": "view_address"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 73,
+  "fields": {
+    "name": "Can add country",
+    "content_type": 19,
+    "codename": "add_country"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 74,
+  "fields": {
+    "name": "Can change country",
+    "content_type": 19,
+    "codename": "change_country"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 75,
+  "fields": {
+    "name": "Can delete country",
+    "content_type": 19,
+    "codename": "delete_country"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 76,
+  "fields": {
+    "name": "Can view country",
+    "content_type": 19,
+    "codename": "view_country"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 77,
+  "fields": {
+    "name": "Can add locality",
+    "content_type": 20,
+    "codename": "add_locality"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 78,
+  "fields": {
+    "name": "Can change locality",
+    "content_type": 20,
+    "codename": "change_locality"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 79,
+  "fields": {
+    "name": "Can delete locality",
+    "content_type": 20,
+    "codename": "delete_locality"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 80,
+  "fields": {
+    "name": "Can view locality",
+    "content_type": 20,
+    "codename": "view_locality"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 81,
+  "fields": {
+    "name": "Can add state",
+    "content_type": 21,
+    "codename": "add_state"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 82,
+  "fields": {
+    "name": "Can change state",
+    "content_type": 21,
+    "codename": "change_state"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 83,
+  "fields": {
+    "name": "Can delete state",
+    "content_type": 21,
+    "codename": "delete_state"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 84,
+  "fields": {
+    "name": "Can view state",
+    "content_type": 21,
+    "codename": "view_state"
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$260000$ffqG6vs3Muo2UvORmMA5Lx$kxFKQ3jwYjWwCYX0HbHiv07i0p3yizVhZ7J25nMjAqM=",
+    "last_login": "2024-03-26T03:14:09.298Z",
+    "is_superuser": true,
+    "username": "chicommons",
+    "first_name": "",
+    "last_name": "",
+    "email": "chicommons@example.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2024-03-26T02:48:35.544Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "directory.contactmethod",
+  "pk": 1,
+  "fields": {
+    "is_public": true,
+    "type": "EMAIL",
+    "phone": null,
+    "email": "myemail@example.com"
+  }
+},
+{
+  "model": "directory.contactmethod",
+  "pk": 2,
+  "fields": {
+    "is_public": true,
+    "type": "PHONE",
+    "phone": "+17739441426",
+    "email": null
+  }
+},
+{
+  "model": "directory.contactmethod",
+  "pk": 3,
+  "fields": {
+    "is_public": true,
+    "type": "EMAIL",
+    "phone": null,
+    "email": "stevesmith@example.com"
+  }
+},
+{
+  "model": "directory.contactmethod",
+  "pk": 4,
+  "fields": {
+    "is_public": true,
+    "type": "EMAIL",
+    "phone": null,
+    "email": "myemail@example2.com"
+  }
+},
+{
+  "model": "directory.contactmethod",
+  "pk": 5,
+  "fields": {
+    "is_public": true,
+    "type": "EMAIL",
+    "phone": null,
+    "email": "hello@example2.com"
+  }
+},
+{
+  "model": "directory.contactmethod",
+  "pk": 6,
+  "fields": {
+    "is_public": true,
+    "type": "PHONE",
+    "phone": "+13122222222",
+    "email": null
+  }
+},
+{
+  "model": "directory.contactmethod",
+  "pk": 7,
+  "fields": {
+    "is_public": true,
+    "type": "EMAIL",
+    "phone": null,
+    "email": "ellison@example2.com"
+  }
+},
+{
+  "model": "directory.contactmethod",
+  "pk": 8,
+  "fields": {
+    "is_public": true,
+    "type": "EMAIL",
+    "phone": null,
+    "email": "ellison_spam@example2.com"
+  }
+},
+{
+  "model": "directory.contactmethod",
+  "pk": 9,
+  "fields": {
+    "is_public": true,
+    "type": "EMAIL",
+    "phone": null,
+    "email": "underwood@example2.com"
+  }
+},
+{
+  "model": "directory.contactmethod",
+  "pk": 10,
+  "fields": {
+    "is_public": true,
+    "type": "PHONE",
+    "phone": "+13122222223",
+    "email": null
+  }
+},
+{
+  "model": "directory.cooptype",
+  "pk": 1,
+  "fields": {
+    "name": "Library"
+  }
+},
+{
+  "model": "directory.cooptype",
+  "pk": 2,
+  "fields": {
+    "name": "Museum"
+  }
+},
+{
+  "model": "directory.cooptype",
+  "pk": 3,
+  "fields": {
+    "name": "Laboratory"
+  }
+},
+{
+  "model": "directory.cooptype",
+  "pk": 4,
+  "fields": {
+    "name": "Arboretum"
+  }
+},
+{
+  "model": "directory.cooptype",
+  "pk": 5,
+  "fields": {
+    "name": "Office"
+  }
+},
+{
+  "model": "directory.address",
+  "pk": 1,
+  "fields": {
+    "street_address": "222 W. Merchandise Mart Plaza, Suite 1212",
+    "city": "Chicago",
+    "county": "Cook County",
+    "state": "IL",
+    "postal_code": "60654",
+    "country": "US",
+    "latitude": 41.8881799,
+    "longitude": -87.635064
+  }
+},
+{
+  "model": "directory.address",
+  "pk": 2,
+  "fields": {
+    "street_address": "225 N Columbus Dr",
+    "city": "Chicago",
+    "county": "Cook County",
+    "state": "IL",
+    "postal_code": "60601",
+    "country": "US",
+    "latitude": 41.886335599999995,
+    "longitude": -87.61990629185485
+  }
+},
+{
+  "model": "directory.address",
+  "pk": 3,
+  "fields": {
+    "street_address": "400 N Michigan Ave",
+    "city": "Chicago",
+    "county": "Cook County",
+    "state": "IL",
+    "postal_code": "60611",
+    "country": "US",
+    "latitude": 41.88965875,
+    "longitude": -87.62463564125409
+  }
+},
+{
+  "model": "directory.address",
+  "pk": 4,
+  "fields": {
+    "street_address": "300 E Ontario St",
+    "city": "Chicago",
+    "county": "Cook County",
+    "state": "IL",
+    "postal_code": "60611",
+    "country": "US",
+    "latitude": 41.893492,
+    "longitude": -87.620113
+  }
+},
+{
+  "model": "directory.address",
+  "pk": 5,
+  "fields": {
+    "street_address": "400 N State St",
+    "city": "Chicago",
+    "county": "Cook County",
+    "state": "IL",
+    "postal_code": "60654",
+    "country": "US",
+    "latitude": 41.889415,
+    "longitude": -87.6282309
+  }
+},
+{
+  "model": "directory.address",
+  "pk": 6,
+  "fields": {
+    "street_address": "2200 Main St",
+    "city": "Evanston",
+    "county": "Cook County",
+    "state": "IL",
+    "postal_code": "60202",
+    "country": "US",
+    "latitude": 42.0335465,
+    "longitude": -87.7044164
+  }
+},
+{
+  "model": "directory.address",
+  "pk": 7,
+  "fields": {
+    "street_address": "800 Michigan Ave",
+    "city": "Evanston",
+    "county": "Cook County",
+    "state": "IL",
+    "postal_code": "60202",
+    "country": "US",
+    "latitude": 42.0323637,
+    "longitude": -87.6726205
+  }
+},
+{
+  "model": "directory.address",
+  "pk": 8,
+  "fields": {
+    "street_address": "123 Main St",
+    "city": "Skokie",
+    "county": "Cook County",
+    "state": "IL",
+    "postal_code": "60076",
+    "country": "US",
+    "latitude": 42.0335754,
+    "longitude": -87.7278351
+  }
+},
+{
+  "model": "directory.address",
+  "pk": 9,
+  "fields": {
+    "street_address": "125 Main St",
+    "city": "Skokie",
+    "county": "Cook County",
+    "state": "IL",
+    "postal_code": "60076",
+    "country": "US",
+    "latitude": 42.0335754,
+    "longitude": -87.7278351
+  }
+},
+{
+  "model": "directory.address",
+  "pk": 10,
+  "fields": {
+    "street_address": "125 Main St",
+    "city": "Skokie",
+    "county": "Cook County",
+    "state": "IL",
+    "postal_code": "60076",
+    "country": "US",
+    "latitude": 42.0335754,
+    "longitude": -87.7278351
+  }
+},
+{
+  "model": "directory.address",
+  "pk": 11,
+  "fields": {
+    "street_address": "125 Main St",
+    "city": "Skokie",
+    "county": "Cook County",
+    "state": "IL",
+    "postal_code": "60076",
+    "country": "US",
+    "latitude": 42.0335754,
+    "longitude": -87.7278351
+  }
+},
+{
+  "model": "directory.addresscache",
+  "pk": 1,
+  "fields": {
+    "query": "222 W. Merchandise Mart Plaza,, Chicago IL 60654",
+    "response": "{\n    \"address\": {\n        \"ISO3166-2-lvl4\": \"US-IL\",\n        \"city\": \"Chicago\",\n        \"country\": \"United States\",\n        \"country_code\": \"us\",\n        \"county\": \"Cook County\",\n        \"house_number\": \"222\",\n        \"office\": \"Vigorate Email Services\",\n        \"postcode\": \"60654\",\n        \"quarter\": \"Near North Side\",\n        \"road\": \"West Merchandise Mart Plaza\",\n        \"state\": \"Illinois\"\n    },\n    \"addresstype\": \"office\",\n    \"boundingbox\": [\n        \"41.8881299\",\n        \"41.8882299\",\n        \"-87.6351140\",\n        \"-87.6350140\"\n    ],\n    \"class\": \"office\",\n    \"display_name\": \"Vigorate Email Services, 222, West Merchandise Mart Plaza, Near North Side, Chicago, Cook County, Illinois, 60654, United States\",\n    \"importance\": 9.99999999995449e-06,\n    \"lat\": \"41.8881799\",\n    \"licence\": \"Data \\u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright\",\n    \"lon\": \"-87.635064\",\n    \"name\": \"Vigorate Email Services\",\n    \"osm_id\": 2747158283,\n    \"osm_type\": \"node\",\n    \"place_id\": 26311260,\n    \"place_rank\": 30,\n    \"type\": \"company\"\n}",
+    "place_id": "26311260"
+  }
+},
+{
+  "model": "directory.addresscache",
+  "pk": 2,
+  "fields": {
+    "query": "225 N Columbus Dr, Chicago IL 60601",
+    "response": "{\n    \"address\": {\n        \"ISO3166-2-lvl4\": \"US-IL\",\n        \"building\": \"Aqua\",\n        \"city\": \"Chicago\",\n        \"country\": \"United States\",\n        \"country_code\": \"us\",\n        \"county\": \"Cook County\",\n        \"house_number\": \"225\",\n        \"postcode\": \"60601\",\n        \"quarter\": \"Loop\",\n        \"road\": \"North Columbus Drive\",\n        \"state\": \"Illinois\"\n    },\n    \"addresstype\": \"building\",\n    \"boundingbox\": [\n        \"41.8858900\",\n        \"41.8867602\",\n        \"-87.6204998\",\n        \"-87.6193056\"\n    ],\n    \"class\": \"building\",\n    \"display_name\": \"Aqua, 225, North Columbus Drive, Loop, Chicago, Cook County, Illinois, 60601, United States\",\n    \"importance\": 0.3832672461146192,\n    \"lat\": \"41.886335599999995\",\n    \"licence\": \"Data \\u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright\",\n    \"lon\": \"-87.61990629185485\",\n    \"name\": \"Aqua\",\n    \"osm_id\": 95486962,\n    \"osm_type\": \"way\",\n    \"place_id\": 26298607,\n    \"place_rank\": 30,\n    \"type\": \"apartments\"\n}",
+    "place_id": "26298607"
+  }
+},
+{
+  "model": "directory.addresscache",
+  "pk": 3,
+  "fields": {
+    "query": "400 N Michigan Ave, Chicago IL 60611",
+    "response": "{\n    \"address\": {\n        \"ISO3166-2-lvl4\": \"US-IL\",\n        \"building\": \"Wrigley Building\",\n        \"city\": \"Chicago\",\n        \"country\": \"United States\",\n        \"country_code\": \"us\",\n        \"county\": \"Cook County\",\n        \"house_number\": \"400\",\n        \"postcode\": \"60611\",\n        \"quarter\": \"Near North Side\",\n        \"road\": \"North Michigan Avenue\",\n        \"state\": \"Illinois\"\n    },\n    \"addresstype\": \"building\",\n    \"boundingbox\": [\n        \"41.8892828\",\n        \"41.8900374\",\n        \"-87.6252007\",\n        \"-87.6243635\"\n    ],\n    \"class\": \"building\",\n    \"display_name\": \"Wrigley Building, 400, North Michigan Avenue, Near North Side, Chicago, Cook County, Illinois, 60611, United States\",\n    \"importance\": 0.36659166793469183,\n    \"lat\": \"41.88965875\",\n    \"licence\": \"Data \\u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright\",\n    \"lon\": \"-87.62463564125409\",\n    \"name\": \"Wrigley Building\",\n    \"osm_id\": 68831071,\n    \"osm_type\": \"way\",\n    \"place_id\": 26542987,\n    \"place_rank\": 30,\n    \"type\": \"office\"\n}",
+    "place_id": "26542987"
+  }
+},
+{
+  "model": "directory.addresscache",
+  "pk": 4,
+  "fields": {
+    "query": "300 E Ontario St, Chicago IL 60611",
+    "response": "{\n    \"address\": {\n        \"ISO3166-2-lvl4\": \"US-IL\",\n        \"city\": \"Chicago\",\n        \"country\": \"United States\",\n        \"country_code\": \"us\",\n        \"county\": \"Cook County\",\n        \"house_number\": \"300\",\n        \"neighbourhood\": \"Streeterville\",\n        \"postcode\": \"60611\",\n        \"quarter\": \"Near North Side\",\n        \"road\": \"East Ontario Street\",\n        \"state\": \"Illinois\"\n    },\n    \"addresstype\": \"place\",\n    \"boundingbox\": [\n        \"41.8934420\",\n        \"41.8935420\",\n        \"-87.6201630\",\n        \"-87.6200630\"\n    ],\n    \"class\": \"place\",\n    \"display_name\": \"300, East Ontario Street, Streeterville, Near North Side, Chicago, Cook County, Illinois, 60611, United States\",\n    \"importance\": 9.99999999995449e-06,\n    \"lat\": \"41.893492\",\n    \"licence\": \"Data \\u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright\",\n    \"lon\": \"-87.620113\",\n    \"name\": \"\",\n    \"osm_id\": 373849354,\n    \"osm_type\": \"way\",\n    \"place_id\": 342103325,\n    \"place_rank\": 30,\n    \"type\": \"house\"\n}",
+    "place_id": "342103325"
+  }
+},
+{
+  "model": "directory.addresscache",
+  "pk": 5,
+  "fields": {
+    "query": "400 N State St, Chicago IL 60654",
+    "response": "{\n    \"address\": {\n        \"ISO3166-2-lvl4\": \"US-IL\",\n        \"amenity\": \"Radio Room\",\n        \"city\": \"Chicago\",\n        \"country\": \"United States\",\n        \"country_code\": \"us\",\n        \"county\": \"Cook County\",\n        \"house_number\": \"400\",\n        \"neighbourhood\": \"Streeterville\",\n        \"postcode\": \"60654\",\n        \"road\": \"North State Street\",\n        \"state\": \"Illinois\"\n    },\n    \"addresstype\": \"amenity\",\n    \"boundingbox\": [\n        \"41.8893650\",\n        \"41.8894650\",\n        \"-87.6282809\",\n        \"-87.6281809\"\n    ],\n    \"class\": \"amenity\",\n    \"display_name\": \"Radio Room, 400, North State Street, Streeterville, River North, Chicago, Cook County, Illinois, 60654, United States\",\n    \"importance\": 9.99999999995449e-06,\n    \"lat\": \"41.889415\",\n    \"licence\": \"Data \\u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright\",\n    \"lon\": \"-87.6282309\",\n    \"name\": \"Radio Room\",\n    \"osm_id\": 5443109132,\n    \"osm_type\": \"node\",\n    \"place_id\": 26292810,\n    \"place_rank\": 30,\n    \"type\": \"restaurant\"\n}",
+    "place_id": "26292810"
+  }
+},
+{
+  "model": "directory.addresscache",
+  "pk": 6,
+  "fields": {
+    "query": "2200 Main St, Evanston IL 60202",
+    "response": "{\n    \"address\": {\n        \"ISO3166-2-lvl4\": \"US-IL\",\n        \"city\": \"Evanston\",\n        \"country\": \"United States\",\n        \"country_code\": \"us\",\n        \"county\": \"Cook County\",\n        \"house_number\": \"2200\",\n        \"municipality\": \"Evanston Township\",\n        \"postcode\": \"60202\",\n        \"road\": \"Main Street\",\n        \"state\": \"Illinois\"\n    },\n    \"addresstype\": \"place\",\n    \"boundingbox\": [\n        \"42.0334965\",\n        \"42.0335965\",\n        \"-87.7044664\",\n        \"-87.7043664\"\n    ],\n    \"class\": \"place\",\n    \"display_name\": \"2200, Main Street, Evanston, Evanston Township, Cook County, Illinois, 60202, United States\",\n    \"importance\": 9.99999999995449e-06,\n    \"lat\": \"42.0335465\",\n    \"licence\": \"Data \\u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright\",\n    \"lon\": \"-87.7044164\",\n    \"name\": \"\",\n    \"osm_id\": 2294252474,\n    \"osm_type\": \"node\",\n    \"place_id\": 26616387,\n    \"place_rank\": 30,\n    \"type\": \"house\"\n}",
+    "place_id": "26616387"
+  }
+},
+{
+  "model": "directory.addresscache",
+  "pk": 7,
+  "fields": {
+    "query": "800 Michigan Ave, Evanston IL 60202",
+    "response": "{\n    \"address\": {\n        \"ISO3166-2-lvl4\": \"US-IL\",\n        \"city\": \"Evanston\",\n        \"country\": \"United States\",\n        \"country_code\": \"us\",\n        \"county\": \"Cook County\",\n        \"house_number\": \"800\",\n        \"municipality\": \"Evanston Township\",\n        \"neighbourhood\": \"South Evanston\",\n        \"postcode\": \"60202\",\n        \"road\": \"Michigan Avenue\",\n        \"state\": \"Illinois\"\n    },\n    \"addresstype\": \"place\",\n    \"boundingbox\": [\n        \"42.0323137\",\n        \"42.0324137\",\n        \"-87.6726705\",\n        \"-87.6725705\"\n    ],\n    \"class\": \"place\",\n    \"display_name\": \"800, Michigan Avenue, South Evanston, Evanston, Evanston Township, Cook County, Illinois, 60202, United States\",\n    \"importance\": 9.99999999995449e-06,\n    \"lat\": \"42.0323637\",\n    \"licence\": \"Data \\u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright\",\n    \"lon\": \"-87.6726205\",\n    \"name\": \"\",\n    \"osm_id\": 2293170425,\n    \"osm_type\": \"node\",\n    \"place_id\": 26736504,\n    \"place_rank\": 30,\n    \"type\": \"house\"\n}",
+    "place_id": "26736504"
+  }
+},
+{
+  "model": "directory.addresscache",
+  "pk": 8,
+  "fields": {
+    "query": "123 Main St, Skokie IL 60076",
+    "response": "{\n    \"address\": {\n        \"ISO3166-2-lvl4\": \"US-IL\",\n        \"country\": \"United States\",\n        \"country_code\": \"us\",\n        \"county\": \"Cook County\",\n        \"municipality\": \"Niles Township\",\n        \"postcode\": \"60076\",\n        \"road\": \"Main Street\",\n        \"state\": \"Illinois\",\n        \"town\": \"Skokie\"\n    },\n    \"addresstype\": \"road\",\n    \"boundingbox\": [\n        \"42.0335750\",\n        \"42.0335769\",\n        \"-87.7280456\",\n        \"-87.7274561\"\n    ],\n    \"class\": \"highway\",\n    \"display_name\": \"Main Street, Skokie, Niles Township, Cook County, Illinois, 60076, United States\",\n    \"importance\": 0.10000999999999993,\n    \"lat\": \"42.0335754\",\n    \"licence\": \"Data \\u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright\",\n    \"lon\": \"-87.7278351\",\n    \"name\": \"Main Street\",\n    \"osm_id\": 435339715,\n    \"osm_type\": \"way\",\n    \"place_id\": 26577187,\n    \"place_rank\": 26,\n    \"type\": \"secondary\"\n}",
+    "place_id": "26577187"
+  }
+},
+{
+  "model": "directory.addresscache",
+  "pk": 9,
+  "fields": {
+    "query": "125 Main St, Skokie IL 60076",
+    "response": "{\n    \"address\": {\n        \"ISO3166-2-lvl4\": \"US-IL\",\n        \"country\": \"United States\",\n        \"country_code\": \"us\",\n        \"county\": \"Cook County\",\n        \"municipality\": \"Niles Township\",\n        \"postcode\": \"60076\",\n        \"road\": \"Main Street\",\n        \"state\": \"Illinois\",\n        \"town\": \"Skokie\"\n    },\n    \"addresstype\": \"road\",\n    \"boundingbox\": [\n        \"42.0335750\",\n        \"42.0335769\",\n        \"-87.7280456\",\n        \"-87.7274561\"\n    ],\n    \"class\": \"highway\",\n    \"display_name\": \"Main Street, Skokie, Niles Township, Cook County, Illinois, 60076, United States\",\n    \"importance\": 0.10000999999999993,\n    \"lat\": \"42.0335754\",\n    \"licence\": \"Data \\u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright\",\n    \"lon\": \"-87.7278351\",\n    \"name\": \"Main Street\",\n    \"osm_id\": 435339715,\n    \"osm_type\": \"way\",\n    \"place_id\": 26577187,\n    \"place_rank\": 26,\n    \"type\": \"secondary\"\n}",
+    "place_id": "26577187"
+  }
+},
+{
+  "model": "directory.coopaddresstags",
+  "pk": 1,
+  "fields": {
+    "address": 1,
+    "is_public": true
+  }
+},
+{
+  "model": "directory.coopaddresstags",
+  "pk": 2,
+  "fields": {
+    "address": 2,
+    "is_public": true
+  }
+},
+{
+  "model": "directory.coopaddresstags",
+  "pk": 3,
+  "fields": {
+    "address": 3,
+    "is_public": true
+  }
+},
+{
+  "model": "directory.coopaddresstags",
+  "pk": 4,
+  "fields": {
+    "address": 4,
+    "is_public": true
+  }
+},
+{
+  "model": "directory.coopaddresstags",
+  "pk": 5,
+  "fields": {
+    "address": 5,
+    "is_public": true
+  }
+},
+{
+  "model": "directory.coopaddresstags",
+  "pk": 6,
+  "fields": {
+    "address": 6,
+    "is_public": true
+  }
+},
+{
+  "model": "directory.coopaddresstags",
+  "pk": 7,
+  "fields": {
+    "address": 7,
+    "is_public": true
+  }
+},
+{
+  "model": "directory.coopaddresstags",
+  "pk": 8,
+  "fields": {
+    "address": 8,
+    "is_public": true
+  }
+},
+{
+  "model": "directory.coopaddresstags",
+  "pk": 9,
+  "fields": {
+    "address": 9,
+    "is_public": true
+  }
+},
+{
+  "model": "directory.coopaddresstags",
+  "pk": 10,
+  "fields": {
+    "address": 10,
+    "is_public": true
+  }
+},
+{
+  "model": "directory.coopaddresstags",
+  "pk": 11,
+  "fields": {
+    "address": 11,
+    "is_public": true
+  }
+},
+{
+  "model": "directory.person",
+  "pk": 1,
+  "fields": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "is_public": false,
+    "contact_methods": []
+  }
+},
+{
+  "model": "directory.person",
+  "pk": 2,
+  "fields": {
+    "first_name": "Steve",
+    "last_name": "Smith",
+    "is_public": false,
+    "contact_methods": [
+      3
+    ]
+  }
+},
+{
+  "model": "directory.person",
+  "pk": 3,
+  "fields": {
+    "first_name": "Cameron",
+    "last_name": "Ellison",
+    "is_public": false,
+    "contact_methods": [
+      7,
+      8
+    ]
+  }
+},
+{
+  "model": "directory.person",
+  "pk": 4,
+  "fields": {
+    "first_name": "Harry",
+    "last_name": "Underwood",
+    "is_public": false,
+    "contact_methods": [
+      9,
+      10
+    ]
+  }
+},
+{
+  "model": "directory.cooppublic",
+  "pk": 1,
+  "fields": {
+    "status": "ACTIVE",
+    "created_by": 1,
+    "created_datetime": "2024-03-26T03:25:28.222Z",
+    "last_modified_by": 1,
+    "last_modified_datetime": "2024-03-26T03:25:28.222Z"
+  }
+},
+{
+  "model": "directory.cooppublic",
+  "pk": 2,
+  "fields": {
+    "status": "ACTIVE",
+    "created_by": 1,
+    "created_datetime": "2024-03-26T03:25:50.287Z",
+    "last_modified_by": 1,
+    "last_modified_datetime": "2024-03-26T03:25:50.287Z"
+  }
+},
+{
+  "model": "directory.cooppublic",
+  "pk": 3,
+  "fields": {
+    "status": "ACTIVE",
+    "created_by": 1,
+    "created_datetime": "2024-03-26T03:25:52.627Z",
+    "last_modified_by": 1,
+    "last_modified_datetime": "2024-03-26T03:25:52.627Z"
+  }
+},
+{
+  "model": "directory.cooppublic",
+  "pk": 4,
+  "fields": {
+    "status": "ACTIVE",
+    "created_by": 1,
+    "created_datetime": "2024-03-26T03:25:55.011Z",
+    "last_modified_by": 1,
+    "last_modified_datetime": "2024-03-26T03:25:55.011Z"
+  }
+},
+{
+  "model": "directory.cooppublic",
+  "pk": 5,
+  "fields": {
+    "status": "ACTIVE",
+    "created_by": 1,
+    "created_datetime": "2024-03-26T03:25:57.540Z",
+    "last_modified_by": 1,
+    "last_modified_datetime": "2024-03-26T03:25:57.540Z"
+  }
+},
+{
+  "model": "directory.cooppublic",
+  "pk": 6,
+  "fields": {
+    "status": "ACTIVE",
+    "created_by": 1,
+    "created_datetime": "2024-03-26T03:25:59.962Z",
+    "last_modified_by": 1,
+    "last_modified_datetime": "2024-03-26T03:25:59.962Z"
+  }
+},
+{
+  "model": "directory.cooppublic",
+  "pk": 7,
+  "fields": {
+    "status": "ACTIVE",
+    "created_by": 1,
+    "created_datetime": "2024-03-26T03:26:02.485Z",
+    "last_modified_by": 1,
+    "last_modified_datetime": "2024-03-26T03:26:02.485Z"
+  }
+},
+{
+  "model": "directory.cooppublic",
+  "pk": 8,
+  "fields": {
+    "status": "ACTIVE",
+    "created_by": 1,
+    "created_datetime": "2024-03-26T03:26:05.268Z",
+    "last_modified_by": 1,
+    "last_modified_datetime": "2024-03-26T03:26:05.268Z"
+  }
+},
+{
+  "model": "directory.cooppublic",
+  "pk": 9,
+  "fields": {
+    "status": "REMOVED",
+    "created_by": 1,
+    "created_datetime": "2024-03-26T03:27:22.776Z",
+    "last_modified_by": 1,
+    "last_modified_datetime": "2024-03-26T03:28:27.533Z"
+  }
+},
+{
+  "model": "directory.coop",
+  "pk": 1,
+  "fields": {
+    "status": "ACTIVE",
+    "coop_public": 1,
+    "name": "Test Coop 1 Apple",
+    "web_site": "http://www.example.com/",
+    "description": "My Coop Description",
+    "is_public": true,
+    "scope": "Testing",
+    "tags": "tag1, tag2, tag3",
+    "types": [
+      1
+    ],
+    "contact_methods": [
+      1,
+      2
+    ],
+    "people": [
+      1,
+      2
+    ],
+    "addresses": [
+      1
+    ]
+  }
+},
+{
+  "model": "directory.coop",
+  "pk": 2,
+  "fields": {
+    "status": "ACTIVE",
+    "coop_public": 2,
+    "name": "Test Coop 2 Banana",
+    "web_site": "http://www.example2.com/",
+    "description": "My Coop Description",
+    "is_public": true,
+    "scope": "Testing",
+    "tags": "tag1, tag2, tag3",
+    "types": [
+      2,
+      3
+    ],
+    "contact_methods": [
+      4,
+      5,
+      6
+    ],
+    "people": [
+      3,
+      4
+    ],
+    "addresses": [
+      2,
+      3
+    ]
+  }
+},
+{
+  "model": "directory.coop",
+  "pk": 3,
+  "fields": {
+    "status": "ACTIVE",
+    "coop_public": 3,
+    "name": "Test Coop 3 Apple",
+    "web_site": "http://www.example3.com/",
+    "description": "My Coop Description",
+    "is_public": true,
+    "scope": "Testing",
+    "tags": "tag1, tag2, tag3",
+    "types": [
+      2
+    ],
+    "contact_methods": [],
+    "people": [],
+    "addresses": [
+      4
+    ]
+  }
+},
+{
+  "model": "directory.coop",
+  "pk": 4,
+  "fields": {
+    "status": "ACTIVE",
+    "coop_public": 4,
+    "name": "Test Coop 4 Banana",
+    "web_site": "http://www.example4.com/",
+    "description": "My Coop Description",
+    "is_public": true,
+    "scope": "Testing",
+    "tags": "tag1, tag2, tag3",
+    "types": [
+      4
+    ],
+    "contact_methods": [],
+    "people": [],
+    "addresses": [
+      5
+    ]
+  }
+},
+{
+  "model": "directory.coop",
+  "pk": 5,
+  "fields": {
+    "status": "ACTIVE",
+    "coop_public": 5,
+    "name": "Test Coop 5 Apple",
+    "web_site": "http://www.example5.com/",
+    "description": "My Coop Description",
+    "is_public": true,
+    "scope": "Testing",
+    "tags": "tag1, tag2, tag3",
+    "types": [
+      4
+    ],
+    "contact_methods": [],
+    "people": [],
+    "addresses": [
+      6
+    ]
+  }
+},
+{
+  "model": "directory.coop",
+  "pk": 6,
+  "fields": {
+    "status": "ACTIVE",
+    "coop_public": 6,
+    "name": "Test Coop 6 Banana",
+    "web_site": "http://www.example6.com/",
+    "description": "My Coop Description",
+    "is_public": true,
+    "scope": "Testing",
+    "tags": "tag1, tag2, tag3",
+    "types": [
+      4
+    ],
+    "contact_methods": [],
+    "people": [],
+    "addresses": [
+      7
+    ]
+  }
+},
+{
+  "model": "directory.coop",
+  "pk": 7,
+  "fields": {
+    "status": "ACTIVE",
+    "coop_public": 7,
+    "name": "Test Coop 7 Grapes",
+    "web_site": "http://www.example7.com/",
+    "description": "My Coop Description",
+    "is_public": false,
+    "scope": "Testing",
+    "tags": "tag1, tag2, tag3",
+    "types": [
+      5
+    ],
+    "contact_methods": [],
+    "people": [],
+    "addresses": [
+      8
+    ]
+  }
+},
+{
+  "model": "directory.coop",
+  "pk": 8,
+  "fields": {
+    "status": "ACTIVE",
+    "coop_public": 8,
+    "name": "Test Coop 8 Grapes",
+    "web_site": "http://www.example8.com/",
+    "description": "My Coop Description",
+    "is_public": true,
+    "scope": "Testing",
+    "tags": "tag1, tag2, tag3",
+    "types": [
+      5
+    ],
+    "contact_methods": [],
+    "people": [],
+    "addresses": [
+      9
+    ]
+  }
+},
+{
+  "model": "directory.coop",
+  "pk": 9,
+  "fields": {
+    "status": "ARCHIVED",
+    "coop_public": 9,
+    "name": "Test Coop 9 Durian",
+    "web_site": "http://www.example9.com/",
+    "description": "My Coop Description",
+    "is_public": true,
+    "scope": "Testing",
+    "tags": "tag1, tag2, tag3",
+    "types": [
+      5
+    ],
+    "contact_methods": [],
+    "people": [],
+    "addresses": [
+      10
+    ]
+  }
+},
+{
+  "model": "directory.coop",
+  "pk": 10,
+  "fields": {
+    "status": "PROPOSAL",
+    "coop_public": null,
+    "name": "Test Coop 10 Durian",
+    "web_site": "http://www.example9.com/",
+    "description": "My Coop Description",
+    "is_public": true,
+    "scope": "Testing",
+    "tags": "tag1, tag2, tag3",
+    "types": [
+      5
+    ],
+    "contact_methods": [],
+    "people": [],
+    "addresses": [
+      11
+    ]
+  }
+},
+{
+  "model": "directory.coopproposal",
+  "pk": 1,
+  "fields": {
+    "proposal_status": "APPROVED",
+    "operation": "CREATE",
+    "change_summary": "{\"requested_by\": \"chicommons\", \"proposal_status\": \"PENDING\", \"operation\": \"CREATE\", \"requested_datetime\": \"2024-03-26 03:20:05.609202+00:00\"}",
+    "review_notes": "lgtm",
+    "coop_public": 1,
+    "requested_by": 1,
+    "requested_datetime": "2024-03-26T03:20:05.609Z",
+    "reviewed_by": 1,
+    "reviewed_datetime": "2024-03-26T03:25:28.222Z",
+    "coop": 1
+  }
+},
+{
+  "model": "directory.coopproposal",
+  "pk": 2,
+  "fields": {
+    "proposal_status": "APPROVED",
+    "operation": "CREATE",
+    "change_summary": "{\"requested_by\": \"chicommons\", \"proposal_status\": \"PENDING\", \"operation\": \"CREATE\", \"requested_datetime\": \"2024-03-26 03:21:10.903438+00:00\"}",
+    "review_notes": "lgtm",
+    "coop_public": 2,
+    "requested_by": 1,
+    "requested_datetime": "2024-03-26T03:21:10.903Z",
+    "reviewed_by": 1,
+    "reviewed_datetime": "2024-03-26T03:25:50.287Z",
+    "coop": 2
+  }
+},
+{
+  "model": "directory.coopproposal",
+  "pk": 3,
+  "fields": {
+    "proposal_status": "APPROVED",
+    "operation": "CREATE",
+    "change_summary": "{\"requested_by\": \"chicommons\", \"proposal_status\": \"PENDING\", \"operation\": \"CREATE\", \"requested_datetime\": \"2024-03-26 03:22:15.700678+00:00\"}",
+    "review_notes": "lgtm",
+    "coop_public": 3,
+    "requested_by": 1,
+    "requested_datetime": "2024-03-26T03:22:15.700Z",
+    "reviewed_by": 1,
+    "reviewed_datetime": "2024-03-26T03:25:52.627Z",
+    "coop": 3
+  }
+},
+{
+  "model": "directory.coopproposal",
+  "pk": 4,
+  "fields": {
+    "proposal_status": "APPROVED",
+    "operation": "CREATE",
+    "change_summary": "{\"requested_by\": \"chicommons\", \"proposal_status\": \"PENDING\", \"operation\": \"CREATE\", \"requested_datetime\": \"2024-03-26 03:22:47.274234+00:00\"}",
+    "review_notes": "lgtm",
+    "coop_public": 4,
+    "requested_by": 1,
+    "requested_datetime": "2024-03-26T03:22:47.274Z",
+    "reviewed_by": 1,
+    "reviewed_datetime": "2024-03-26T03:25:55.011Z",
+    "coop": 4
+  }
+},
+{
+  "model": "directory.coopproposal",
+  "pk": 5,
+  "fields": {
+    "proposal_status": "APPROVED",
+    "operation": "CREATE",
+    "change_summary": "{\"requested_by\": \"chicommons\", \"proposal_status\": \"PENDING\", \"operation\": \"CREATE\", \"requested_datetime\": \"2024-03-26 03:23:08.924366+00:00\"}",
+    "review_notes": "lgtm",
+    "coop_public": 5,
+    "requested_by": 1,
+    "requested_datetime": "2024-03-26T03:23:08.924Z",
+    "reviewed_by": 1,
+    "reviewed_datetime": "2024-03-26T03:25:57.540Z",
+    "coop": 5
+  }
+},
+{
+  "model": "directory.coopproposal",
+  "pk": 6,
+  "fields": {
+    "proposal_status": "APPROVED",
+    "operation": "CREATE",
+    "change_summary": "{\"requested_by\": \"chicommons\", \"proposal_status\": \"PENDING\", \"operation\": \"CREATE\", \"requested_datetime\": \"2024-03-26 03:23:32.261459+00:00\"}",
+    "review_notes": "lgtm",
+    "coop_public": 6,
+    "requested_by": 1,
+    "requested_datetime": "2024-03-26T03:23:32.261Z",
+    "reviewed_by": 1,
+    "reviewed_datetime": "2024-03-26T03:25:59.962Z",
+    "coop": 6
+  }
+},
+{
+  "model": "directory.coopproposal",
+  "pk": 7,
+  "fields": {
+    "proposal_status": "APPROVED",
+    "operation": "CREATE",
+    "change_summary": "{\"requested_by\": \"chicommons\", \"proposal_status\": \"PENDING\", \"operation\": \"CREATE\", \"requested_datetime\": \"2024-03-26 03:23:54.307035+00:00\"}",
+    "review_notes": "lgtm",
+    "coop_public": 7,
+    "requested_by": 1,
+    "requested_datetime": "2024-03-26T03:23:54.307Z",
+    "reviewed_by": 1,
+    "reviewed_datetime": "2024-03-26T03:26:02.485Z",
+    "coop": 7
+  }
+},
+{
+  "model": "directory.coopproposal",
+  "pk": 8,
+  "fields": {
+    "proposal_status": "APPROVED",
+    "operation": "CREATE",
+    "change_summary": "{\"requested_by\": \"chicommons\", \"proposal_status\": \"PENDING\", \"operation\": \"CREATE\", \"requested_datetime\": \"2024-03-26 03:24:13.929899+00:00\"}",
+    "review_notes": "lgtm",
+    "coop_public": 8,
+    "requested_by": 1,
+    "requested_datetime": "2024-03-26T03:24:13.929Z",
+    "reviewed_by": 1,
+    "reviewed_datetime": "2024-03-26T03:26:05.268Z",
+    "coop": 8
+  }
+},
+{
+  "model": "directory.coopproposal",
+  "pk": 9,
+  "fields": {
+    "proposal_status": "APPROVED",
+    "operation": "CREATE",
+    "change_summary": "{\"requested_by\": \"chicommons\", \"proposal_status\": \"PENDING\", \"operation\": \"CREATE\", \"requested_datetime\": \"2024-03-26 03:26:59.501605+00:00\"}",
+    "review_notes": "lgtm",
+    "coop_public": 9,
+    "requested_by": 1,
+    "requested_datetime": "2024-03-26T03:26:59.501Z",
+    "reviewed_by": 1,
+    "reviewed_datetime": "2024-03-26T03:27:22.776Z",
+    "coop": 9
+  }
+},
+{
+  "model": "directory.coopproposal",
+  "pk": 10,
+  "fields": {
+    "proposal_status": "PENDING",
+    "operation": "CREATE",
+    "change_summary": "{\"requested_by\": \"chicommons\", \"proposal_status\": \"PENDING\", \"operation\": \"CREATE\", \"requested_datetime\": \"2024-03-26 03:27:15.226673+00:00\"}",
+    "review_notes": null,
+    "coop_public": null,
+    "requested_by": 1,
+    "requested_datetime": "2024-03-26T03:27:15.226Z",
+    "reviewed_by": null,
+    "reviewed_datetime": null,
+    "coop": 10
+  }
+},
+{
+  "model": "directory.coopproposal",
+  "pk": 11,
+  "fields": {
+    "proposal_status": "APPROVED",
+    "operation": "DELETE",
+    "change_summary": "{\"requested_by\": \"chicommons\", \"proposal_status\": \"PENDING\", \"operation\": \"DELETE\", \"requested_datetime\": \"2024-03-26 03:28:01.999378+00:00\"}",
+    "review_notes": "lgtm",
+    "coop_public": 9,
+    "requested_by": 1,
+    "requested_datetime": "2024-03-26T03:28:01.999Z",
+    "reviewed_by": 1,
+    "reviewed_datetime": "2024-03-26T03:28:27.533Z",
+    "coop": null
+  }
+}
+]

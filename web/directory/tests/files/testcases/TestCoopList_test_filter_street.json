@@ -1,6 +1,33 @@
 [
     {
-        "approved": true,
+        "addresses": [
+            {
+                "address": {
+                    "city": "Chicago",
+                    "country": "US",
+                    "county": "Cook County",
+                    "latitude": 41.886335599999995,
+                    "longitude": -87.61990629185485,
+                    "postal_code": "60601",
+                    "state": "IL",
+                    "street_address": "225 N Columbus Dr"
+                },
+                "is_public": true
+            },
+            {
+                "address": {
+                    "city": "Chicago",
+                    "country": "US",
+                    "county": "Cook County",
+                    "latitude": 41.88965875,
+                    "longitude": -87.62463564125409,
+                    "postal_code": "60611",
+                    "state": "IL",
+                    "street_address": "400 N Michigan Ave"
+                },
+                "is_public": true
+            }
+        ],
         "contact_methods": [
             {
                 "email": "myemail@example2.com",
@@ -21,37 +48,9 @@
                 "type": "PHONE"
             }
         ],
-        "coop_address_tags": [
-            {
-                "address": {
-                    "city": "Chicago",
-                    "country": "US",
-                    "county": "Testing County",
-                    "latitude": 37.4221,
-                    "longitude": -122.0841,
-                    "postal_code": "60601",
-                    "state": "IL",
-                    "street_address": "225 N Columbus Dr"
-                },
-                "is_public": true
-            },
-            {
-                "address": {
-                    "city": "Chicago",
-                    "country": "US",
-                    "county": "Testing County",
-                    "latitude": 37.4221,
-                    "longitude": -122.0841,
-                    "postal_code": "60611",
-                    "state": "IL",
-                    "street_address": "400 N Michigan Ave"
-                },
-                "is_public": true
-            }
-        ],
-        "coop_public": false,
+        "coop_public": 2,
         "description": "My Coop Description",
-        "enabled": true,
+        "is_public": true,
         "name": "Test Coop 2 Banana",
         "people": [
             {
@@ -93,14 +92,8 @@
                 "last_name": "Underwood"
             }
         ],
-        "proposed_changes": {
-            "description": "Testing testing testing."
-        },
-        "rec_source": "Testing",
-        "rec_updated_by": "admin",
-        "reject_reason": "This is sample data.",
         "scope": "Testing",
-        "status": "Testing",
+        "status": "ACTIVE",
         "tags": "tag1, tag2, tag3",
         "types": [
             {
@@ -113,16 +106,14 @@
         "web_site": "http://www.example2.com/"
     },
     {
-        "approved": true,
-        "contact_methods": [],
-        "coop_address_tags": [
+        "addresses": [
             {
                 "address": {
                     "city": "Evanston",
                     "country": "US",
-                    "county": "Testing County",
-                    "latitude": 37.4221,
-                    "longitude": -122.0841,
+                    "county": "Cook County",
+                    "latitude": 42.0323637,
+                    "longitude": -87.6726205,
                     "postal_code": "60202",
                     "state": "IL",
                     "street_address": "800 Michigan Ave"
@@ -130,19 +121,14 @@
                 "is_public": true
             }
         ],
-        "coop_public": false,
+        "contact_methods": [],
+        "coop_public": 6,
         "description": "My Coop Description",
-        "enabled": true,
+        "is_public": true,
         "name": "Test Coop 6 Banana",
         "people": [],
-        "proposed_changes": {
-            "description": "Testing testing testing."
-        },
-        "rec_source": "Testing",
-        "rec_updated_by": "admin",
-        "reject_reason": "This is sample data.",
         "scope": "Testing",
-        "status": "Testing",
+        "status": "ACTIVE",
         "tags": "tag1, tag2, tag3",
         "types": [
             {
