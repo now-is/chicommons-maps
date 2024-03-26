@@ -11,11 +11,21 @@ urlpatterns = format_suffix_patterns([
     path('admin/', admin.site.urls),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('users/', views.UserList.as_view(), name='user-list'),
+    path('users/<int:pk>/', views.UserDetail.as_view(), name='user-detail'),
+    path('register/', views.CreateUserView.as_view(), name='register'),
+    path('password_reset/', views.PasswordResetRequestView.as_view(), name='password-reset-request'),
+    path('password-reset-confirm/<uidb64>/<token>/', views.PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
+
     path('coops/', views.CoopList.as_view(), name='coop-list'),
     path('coops/<int:pk>/', views.CoopDetail.as_view(), name='coop-detail'),
     path('coops/no_coords', views.CoopsNoCoords.as_view(), name='coop-no-coords'),
     path('coops/unapproved', views.CoopsUnapproved.as_view(), name='coop-unapproved'),
-    path('coops/all/', views.CoopList.as_view()),
+    path('coops/public/', views.CoopPublicList.as_view(), name='coop-public'),
+    path('coops/proposal/', views.CoopProposalList.as_view(), name='coop-proposal-list'),
+    path('coops/proposal/create/', views.CoopProposalCreate.as_view(), name='coop-proposal'),
+    path('coops/proposal/review/<int:pk>/', views.CoopProposalReview.as_view(), name='coop-review'),
+
     path('people/', views.PersonList.as_view(), name='person-list'),
     path('people/<int:pk>/', views.PersonDetail.as_view(), name='person-detail'),
     path('predefined_types/', views.CoopTypeList.as_view()),
@@ -29,14 +39,8 @@ urlpatterns = format_suffix_patterns([
     path('contactmethods/<int:pk>/', views.ContactMethodDetail.as_view(), name='contactmethod-detail'),  
     path('countries/', views.CountryList.as_view(), name='country-list'),        
     path('states/<country_code>', views.StateList.as_view(), name='state-list'),
-    path('users/', views.UserList.as_view(), name='user-list'),
-    path('users/<int:pk>/', views.UserDetail.as_view(), name='user-detail'),
-    path('register/', views.CreateUserView.as_view(), name='register'),
-    path('password_reset/', views.PasswordResetRequestView.as_view(), name='password-reset-request'),
-    path('password-reset-confirm/<uidb64>/<token>/', views.PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
-    path('coops/public/', views.CoopPublicList.as_view()),
-    path('coopx/proposal/', views.CoopProposalList.as_view()),
-    path('coopx/proposal/create/', views.CoopProposalCreate.as_view(), name='coop-proposal'),
-    path('coopx/proposal/review/<int:pk>/', views.CoopProposalReview.as_view(), name='coop-review'),
+
+
+
     #     path('user_info', views.user_info),
 ])
