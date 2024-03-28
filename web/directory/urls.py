@@ -23,6 +23,7 @@ urlpatterns = format_suffix_patterns([
     path('coops/unapproved', views.CoopsUnapproved.as_view(), name='coop-unapproved'),
     path('coops/public/', views.CoopPublicList.as_view(), name='coop-public'),
     path('coops/proposal/', views.CoopProposalList.as_view(), name='coop-proposal-list'),
+    path('coops/proposal/<int:pk>/', views.CoopProposalRetrieve.as_view(), name='coop-proposal-list'),
     path('coops/proposal/create/', views.CoopProposalCreate.as_view(), name='coop-proposal'),
     path('coops/proposal/review/<int:pk>/', views.CoopProposalReview.as_view(), name='coop-review'),
 

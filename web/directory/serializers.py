@@ -109,6 +109,11 @@ class CoopProposalListSerializer(serializers.ModelSerializer):
         model = CoopProposal
         fields = ['id', 'proposal_status', 'operation', 'change_summary', 'review_notes', 'coop_public', 'requested_by', 'requested_datetime', 'reviewed_by', 'reviewed_datetime', 'coop']
 
+class CoopProposalRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CoopProposal
+        fields = ['id', 'proposal_status', 'operation', 'change_summary', 'review_notes', 'coop_public', 'requested_by', 'requested_datetime', 'reviewed_by', 'reviewed_datetime', 'coop']
+
 class PersonSerializer(serializers.ModelSerializer):
     contact_methods = ContactMethodSerializer(many=True)
     

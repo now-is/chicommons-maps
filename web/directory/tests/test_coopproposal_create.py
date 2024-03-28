@@ -132,7 +132,7 @@ class TestCoopProposalCreate(APITestCase):
                 "name": "Test Max 9999",
                 "web_site": "http://www.1871.com/",
                 "description": "My Coop Description",
-                "is_public": True, # TODO - Confirm biz logic. Should you be able to approve the Coop create in the same call you create it?
+                "is_public": True,
                 "scope": "Testing", #TODO - What are acceptable values?
                 "tags": "tag1, tag2, tag3", #TODO - What are acceptable values?
                 "types": [ {"name": "Library"}, {"name": "Museum"} ],

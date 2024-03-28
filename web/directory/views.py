@@ -123,9 +123,6 @@ class CoopDetail(generics.RetrieveAPIView):
     queryset = Coop.objects.filter(status=Coop.Status.ACTIVE)
     serializer_class = CoopXSerializer
     permission_classes = [AllowAny]
-
-    def perform_update(self, serializer):
-        serializer.save(rec_updated_by=self.request.user)
         
 class CoopsNoCoords(generics.ListAPIView):
     queryset = Coop.objects.filter(status=Coop.Status.ACTIVE).exclude(addresses__isnull=True).filter(
@@ -251,13 +248,21 @@ class PasswordResetConfirmView(APIView):
 class CoopPublicList(generics.ListAPIView):
     queryset = CoopPublic.objects.all()
     serializer_class = CoopPublicListSerializer
+    permission_classes = [AllowAny]
 
 class CoopProposalList(generics.ListAPIView):
     queryset = CoopProposal.objects.all()
     serializer_class = CoopProposalListSerializer
+    permission_classes = [IsAdminUser]
+
+class CoopProposalRetrieve(generics.RetrieveAPIView):
+    queryset = CoopProposal.objects.all()
+    serializer_class = CoopProposalRetrieveSerializer
+    permission_classes = [IsAdminUser]
     
 class CoopProposalCreate(generics.CreateAPIView):
     serializer_class = CoopProposalCreateSerializer
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(requested_by=self.request.user)
@@ -265,6 +270,7 @@ class CoopProposalCreate(generics.CreateAPIView):
 class CoopProposalReview(generics.UpdateAPIView):
     queryset = CoopProposal.objects.all()
     serializer_class = CoopProposalReviewSerializer
+    permission_classes = [IsAdminUser]
 
     def perform_update(self, serializer):
         serializer.save(reviewed_by=self.request.user)
