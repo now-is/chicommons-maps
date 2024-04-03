@@ -1,3 +1,4 @@
+backoff==2.2.1
 django-address==0.2.8
 django-cors-headers==4.3.1
 django-extensions==3.2.3
@@ -20,3 +21,4 @@ PyYAML==5.4
 ratelimit==2.2.1
 ruamel.yaml.clib==0.2.6
 ruamel.yaml==0.16.6
+uwsgi==2.0.20
