@@ -121,3 +121,5 @@ web/.vscode
 
 .DS_Store
 .vscode
+postgres/
+static/
