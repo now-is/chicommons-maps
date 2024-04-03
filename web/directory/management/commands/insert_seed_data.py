@@ -1,12 +1,12 @@
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
-from directory.models import Coop, CoopType, Address, CoopAddressTags, ContactMethod, AddressCache, Person
+from directory.models import Coop, CoopType, Address, CoopAddressTags, ContactMethod, AddressCache, Person, CoopProposal, CoopPublic
 
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
-        parser.add_argument('seed_file', type=str, nargs='?', default='web/directory/fixtures/seed_test.yaml')
+        parser.add_argument('seed_file', type=str, nargs='?', default='directory/fixtures/seed_data.yaml')
         parser.add_argument('delete_existing_data', type=bool, nargs='?', default='true')
 
     def handle(self, *args, **options):
@@ -28,8 +28,12 @@ class Command(BaseCommand):
                 Address.objects.all().delete()
             if CoopAddressTags.objects.exists():
                 CoopAddressTags.objects.all().delete()
+            if CoopProposal.objects.exists():
+                CoopProposal.objects.all().delete()
             if Coop.objects.exists():
                 Coop.objects.all().delete()
+            if CoopPublic.objects.exists():
+                CoopPublic.objects.all().delete()
         self.stdout.write('Seeding initial data')
         call_command('loaddata', seed_data_file)
 
