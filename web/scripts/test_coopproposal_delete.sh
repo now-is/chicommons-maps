@@ -66,7 +66,7 @@ login_req_json=$(cat << EOF
 }
 EOF
 )
-url="http://localhost:8000/api/token/"
+url="http://localhost:8000/api/v1/token/"
 
 login_response=$( curl -s -X POST "$url" -H "Content-type: application/json" -d "$login_req_json" )
 access_token=$( echo "$login_response" | jq -r '.access' )  # Extract "access" value from response json.
@@ -79,7 +79,7 @@ update_coop_req_json=$(cat << EOF
 }
 EOF
 )
-url="http://localhost:8000/coops/proposal/create/"
+url="http://localhost:8000/api/v1/coops/proposal/create/"
 access_header="Authorization: Bearer "$access_token""
 update_coop_response=$( curl -s -X POST "$url" -H "$access_header" -H "Content-type: application/json" -d "$update_coop_req_json" )
 echo $update_coop_response
