@@ -2,63 +2,33 @@ version: '3.8'
 
 services:
 
-  postgres:
-    image: postgres:10.5
-    ports:
-      - 5105:5432
-    environment:
-     - POSTGRES_DB=directory_data
-     - POSTGRES_USER=chicommons
-     - POSTGRES_PASSWORD=password
-    volumes:
-     - ./postgres/prod/db:/var/lib/postgresql/data
-
   web:
+    container_name: web-dev
     restart: always
-    build: ./web
-    #env_file: .env
+    build: 
+      context: ./web
+      dockerfile: Dockerfile_dev
     environment:
-     - DJANGO_SETTINGS_MODULE=directory.settings.prod
-     - DB_HOST=postgres # host.docker.internal
-     - DB_NAME=directory_data
-     - DB_USER=chicommons
-     - DB_PASS=password
-     - DB_PORT=5432
-    volumes:
-     - uwsgi_socket_volume:/config/uwsgi/socket/
-     - web_static_volume:/code/static/
-    depends_on:
-      - postgres 
-
-  # client:
-  #   restart: always
-  #   build:
-  #     context: ./client
-  #   environment:
-  #     - NODE_ENV=dockerdev
-  #   volumes:
-  #     - ./client:/app
-  #   ports:
-  #     - '3001:3000'
-  #   container_name: web-app
-  #   stdin_open: true
-  #   command: /bin/bash /app/install_and_run.sh
-  #   depends_on:
-  #     - web
-
-  nginx:
-    image: nginx:1.23.1
-    restart: always
-    volumes:
-     - ./nginx/:/etc/nginx/templates
-     - uwsgi_socket_volume:/config/uwsgi/socket/
-     - web_static_volume:/web-static/
+     - DEBUG='true'
+     - DJANGO_SETTINGS_MODULE=directory.settings.dev
     ports:
-     - "80:80"
-    depends_on:
-      - web 
+     - 8000:8000
+    volumes: 
+     - ./data/:/data/
+     - ./web/:/code/
 
-volumes:
-  web_static_volume:
-  uwsgi_socket_volume:
-  client_static_volume:
+  client:
+    container_name: client-dev
+    restart: always
+    build:
+      context: ./client
+      dockerfile: Dockerfile_dev
+    environment:
+      - NODE_ENV=dockerdev
+    ports:
+      - 3000:3000
+    volumes:
+     - ./client/:/app/
+    stdin_open: true
+    depends_on:
+      - web

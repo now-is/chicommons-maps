@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+
+  postgres:
+    container_name: postgres-prod
+    image: postgres:10.5
+    ports:
+      - 5105:5432
+    env_file: ./config/.env
+    volumes:
+     - ./postgres/prod/db:/var/lib/postgresql/data
+
+  web:
+    container_name: web-prod
+    restart: always
+    build:
+      context: ./web
+      dockerfile: Dockerfile_prod
+    env_file: ./config/.env
+    volumes:
+     - uwsgi_socket_volume:/config/uwsgi/socket/
+     - web_static_volume:/code/static/
+    depends_on:
+      - postgres 
+
+  client:
+    container_name: client-prod
+    build:
+      context: ./client
+      dockerfile: Dockerfile_prod
+    environment:
+      - NODE_ENV=dockerdev
+    volumes:
+      - client_static_volume:/app/build/
+    stdin_open: true
+    depends_on:
+      - web
+
+  nginx:
+    container_name: nginx-prod
+    image: nginx:1.23.1
+    restart: always
+    volumes:
+     - ./nginx/:/etc/nginx/templates
+     - uwsgi_socket_volume:/config/uwsgi/socket/
+     - web_static_volume:/web-static/
+     - client_static_volume:/client-static/
+    ports:
+     - 80:80
+    depends_on:
+      - web
+      - client
+
+volumes:
+  web_static_volume:
+  uwsgi_socket_volume:
+  client_static_volume:

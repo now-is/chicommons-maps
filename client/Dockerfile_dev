@@ -1,0 +1,7 @@
+FROM node:19-alpine3.16 AS alpine
+
+RUN apk update && apk add bash
+
+WORKDIR /app/
+
+ENTRYPOINT ["./entrypoint_dev.sh"]

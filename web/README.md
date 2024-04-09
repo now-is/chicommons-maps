@@ -104,10 +104,16 @@ python manage.py tests directory.tests.test_coop_list.TestCoopList.test_list_all
 - [x] Coop.patch Proposed Changes (views)
 - [x] What should be shown on is_public vs not?
 - [x] What to do about spreadsheet?
+- [x] Move API to /api/v1/ endpoint.
 
+- [ ] Docker Install: PROD vs DEV
+- [ ] ENV file for PRD
+- [ ] SMTP Settings: PROD vs DEV
 - [ ] Confirm `coops/<pk>` is really working off of public_id.
 - [ ] Confirm `coops/public` is not needed.
 - [ ] Create endpoint for All proposals for given coop.
 - [ ] Add data endpoint back in. 
+- [ ] HTTPS Certificates
+
 - [ ] General review of all constraints for models
 - [ ] What is monkey_patching.py?
