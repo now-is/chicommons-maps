@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.sessions',
     'django.contrib.staticfiles',
+    'drf_spectacular',
     'rest_framework',
     'rest_framework.authtoken', 
     'directory',
@@ -134,7 +135,7 @@ LOGOUT_PATH = 'logout'
 
 #AUTH_USER_MODEL = 'user.User'
 REST_FRAMEWORK = {
-#     #'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 #     'DEFAULT_PERMISSION_CLASSES': [
 #          'rest_framework.permissions.AllowAny',
 #          #'rest_framework.permissions.IsAuthenticated',
@@ -181,4 +182,8 @@ LOGGING = {
     }
 }
 
- 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'ChiCommons Maps API',
+    'VERSION': '1.0.0',
+    # Other settings...
+}
