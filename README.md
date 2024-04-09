@@ -30,6 +30,10 @@ If you need to reset the database, delete the SQLite database in `./data/` and r
 
 Both the front end and backend are running their respective debug servers and are running on separate ports.
 
+#### Email Server
+
+Development mode is configured to **not** send emails. Any emails sent from development will be printed to the console.
+
 #### Installation
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 2. Clone the Maps Repository
@@ -73,6 +77,10 @@ To run Django migrations or other admin tasks, log into the back end's terminal 
 * Back end: `http://<server_ip>/api/v1`
 
 The front end and back end are served by a common NGINX web server. They can be accessed via the same port. 
+
+#### Email Server
+
+Production mode is configured to send emails via SMTP. See [Environment Variables](#environment-variables) for details on configuration. 
 
 #### Installation
 1. Install Docker
@@ -212,28 +220,36 @@ Local mode is the most complex method for installation. The process installs a p
 ### Environment Variables
 The application requires a set of environment variables to run. A list of required environment variables can be found in the [`.config/env-template`](./config/.env-template) file. Refer to your respective installation guide on how to set the environment variables. 
 - `POSTGRES_HOST`
-  - **Used for:** `Production Mode` or `Local` installations.
-  - **Description:** The hostname of the Postgres database.
+  - The hostname of the Postgres database.
   - **Default:** `postgres` (if using `Production Mode`)
 - `POSTGRES_DB`
-  - **Used for:** `Production Mode` or `Local` installations.
-  - **Description:** The name of the Postgres database.
+  - The name of the Postgres database.
   - **Default:** `directory_data`
 - `POSTGRES_USER`
-  - **Used for:** `Production Mode` or `Local` installations.
-  - **Description:** The username to access the Postgres database.
+  - The username to access the Postgres database.
   - **Default:** `chicommons`
 - `POSTGRES_PASSWORD`
-  - **Used for:** `Production Mode` or `Local` installations.
-  - **Description:** The password for POSTGRES_USER to access the Postgres database.
+  - The password for POSTGRES_USER to access the Postgres database.
   - **Default:** `password` (... and you really should change it)
 - `POSTGRES_PORT`
-  - **Used for:** `Production Mode` or `Local` installations.
-  - **Description:** The port number of the Postgres database.
+  - The port number of the Postgres database.
   - **Default:** 5432
 - `DJANGO_SETTINGS_MODULE`
-  - **Used for:** All installations.
-  - **Description:** The port number of the Postgres database.
+  - The port number of the Postgres database.
   - **Default:** 
     * `directory.settings.prod` for `Production Mode` or `Local` installations
     * `directory.settings.dev` for `Development Mode` installations.
+- `EMAIL_HOST`
+  - The host to use for sending emails. See [EMAIL_HOST](https://docs.djangoproject.com/en/5.0/ref/settings/#email-host) for more details.
+- `EMAIL_PORT`
+  - Port to use for SMTP server defined in `EMAIL_HOST`. See [EMAIL_PORT](https://docs.djangoproject.com/en/5.0/ref/settings/#email-port) for more details.
+  - **Default:**  25
+- `EMAIL_HOST_USER`
+  - Username to use for the SMTP server defined in `EMAIL_HOST`. If empty, Django won’t attempt authentication. See [EMAIL_HOST_USER](https://docs.djangoproject.com/en/5.0/ref/settings/#email-host-user) for more details.
+  - **Default:** ""
+- `EMAIL_HOST_PASSWORD`
+  - Password to use for the SMTP server defined in `EMAIL_HOST`. This setting is used in conjunction with `EMAIL_HOST_USER` when authenticating to the SMTP server. If either of these settings is empty, Django won’t attempt authentication. See [EMAIL_HOST_PASSWORD](https://docs.djangoproject.com/en/5.0/ref/settings/#email-host-password.) for more details.
+  - **Default:** ""
+- `SECRET_KEY`
+  - A secret key for a particular Django installation. This is used to provide cryptographic signing, and should be set to a unique, unpredictable value. See [SECRET_KEY](https://docs.djangoproject.com/en/5.0/ref/settings/#secret-key) for more details.
+  - **Default:** ""

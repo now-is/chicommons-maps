@@ -125,3 +125,4 @@ postgres/
 static/
 data/
 *.env
+logs/

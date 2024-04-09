@@ -19,6 +19,7 @@ services:
       dockerfile: Dockerfile_prod
     env_file: ./config/.env
     volumes:
+     - ./logs/:/code/logs/
      - uwsgi_socket_volume:/config/uwsgi/socket/
      - web_static_volume:/code/static/
     depends_on:
