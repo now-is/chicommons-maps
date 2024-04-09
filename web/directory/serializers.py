@@ -385,7 +385,7 @@ class CoopProposalReviewSerializer(serializers.ModelSerializer):
         fields = ['id', 'proposal_status', 'review_notes', 'coop_public_id', 'reviewed_by']
     
     def validate(self, attrs):
-        if self.instance and (self.instance.proposal_status != CoopProposal.ProposalStatus.PENDING):
+        if self.instance and (self.instance.proposal_status != CoopProposal.ProposalStatusEnum.PENDING):
             raise exceptions.ValidationError("Only proposals with a 'PENDING' proposal_status can be reviewed and applied.")
         return super().validate(attrs)
     

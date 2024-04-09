@@ -8,7 +8,6 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 
 
 urlpatterns = [
-    path('api/v1/', views.api_root),
 
     path('api/v1/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/v1/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
@@ -25,10 +24,10 @@ urlpatterns = [
     path('api/v1/password-reset-confirm/<str:uidb64>/<str:token>/', views.PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
 
     path('api/v1/coops/', views.CoopList.as_view(), name='coop-list'),
-    path('api/v1/coops/<int:pk>/', views.CoopDetail.as_view(), name='coop-detail'),
+    path('api/v1/coops/<int:coop_public_id>/', views.CoopDetail.as_view(), name='coop-detail'),
     path('api/v1/coops/no_coords', views.CoopsNoCoords.as_view(), name='coop-no-coords'),
     path('api/v1/coops/unapproved', views.CoopsUnapproved.as_view(), name='coop-unapproved'),
-    path('api/v1/coops/public/', views.CoopPublicList.as_view(), name='coop-public'),
+    
     path('api/v1/coops/proposal/', views.CoopProposalList.as_view(), name='coop-proposal-list'),
     path('api/v1/coops/proposal/<int:pk>/', views.CoopProposalRetrieve.as_view(), name='coop-proposal-list'),
     path('api/v1/coops/proposal/create/', views.CoopProposalCreate.as_view(), name='coop-proposal'),

@@ -108,10 +108,9 @@ python manage.py tests directory.tests.test_coop_list.TestCoopList.test_list_all
 - [X] Docker Install: PROD vs DEV
 - [X] ENV file for PRD
 - [x] SMTP Settings: PROD vs DEV
-
-- [ ] Confirm `coops/<pk>` is really working off of public_id.
-- [ ] Confirm `coops/public` is not needed.
-- [ ] Create endpoint for All proposals for given coop.
+- [x] Confirm `coops/<pk>` is really working off of public_id.
+- [x] Confirm `coops/public` is not needed.
+- [x] Create endpoint for All proposals for given coop.
 - [ ] Add data endpoint back in. 
 - [ ] HTTPS Certificates
 

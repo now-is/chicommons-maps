@@ -97,11 +97,11 @@ class Coop(models.Model):
     addresses = models.ManyToManyField(CoopAddressTags)
 
 class CoopProposal(models.Model):
-    class ProposalStatus(models.TextChoices):
+    class ProposalStatusEnum(models.TextChoices):
         PENDING = 'PENDING', _('Pending')
         APPROVED = 'APPROVED', _('Approved')
         REJECTED = 'REJECTED', _('Rejected') 
-    proposal_status = models.CharField( null=False, max_length=8, choices=ProposalStatus.choices )
+    proposal_status = models.CharField( null=False, max_length=8, choices=ProposalStatusEnum.choices )
     class OperationTypes(models.TextChoices):
         CREATE = 'CREATE', _('Create')
         UPDATE = 'UPDATE', _('Update')

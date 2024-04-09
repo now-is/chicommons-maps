@@ -7,25 +7,17 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import status, generics
+from rest_framework import status, generics, exceptions
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
 
 from directory.models import ContactMethod, CoopType, Address, AddressCache, CoopAddressTags, CoopPublic, Coop, CoopProposal, Person
 from directory.serializers import *
-
-@api_view(['GET'])
-def api_root(request, format=None):
-    return Response({
-        'coops': reverse('coop-list', request=request, format=format),
-        'coop_type': reverse('cooptype-list', request=request, format=format),
-        'users': reverse('user-list', request=request, format=format),
-        'countries': reverse('country-list', request=request, format=format)
-    })
 
 # def data(request):
 #     # Create the HttpResponse object with the appropriate CSV header.
@@ -71,7 +63,19 @@ class CreateUserView(APIView):
                     'access': str(refresh.access_token),
                 }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(name='is_public', type=bool),
+            OpenApiParameter(name='name', type=str),
+            OpenApiParameter(name='street', type=str),
+            OpenApiParameter(name='city', type=str),
+            OpenApiParameter(name='zip', type=str),
+            OpenApiParameter(name='types', description="comma separated list of coop types", type=str),
+        ]
+    )
+)
 class CoopList(generics.ListAPIView):
     serializer_class = CoopXSerializer
 
@@ -123,6 +127,17 @@ class CoopDetail(generics.RetrieveAPIView):
     queryset = Coop.objects.filter(status=Coop.Status.ACTIVE)
     serializer_class = CoopXSerializer
     permission_classes = [AllowAny]
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        coop_public_id = self.kwargs.get('coop_public_id')
+        obj = queryset.filter(coop_public__id=coop_public_id).first()
+        if obj is None:
+            raise exceptions.NotFound(f"No user found with coop_public_id {coop_public_id}")
+        self.check_object_permissions(self.request, obj)
+
+        return obj
         
 class CoopsNoCoords(generics.ListAPIView):
     queryset = Coop.objects.filter(status=Coop.Status.ACTIVE).exclude(addresses__isnull=True).filter(
@@ -132,7 +147,7 @@ class CoopsNoCoords(generics.ListAPIView):
     permission_classes = [IsAdminUser]
 
 class CoopsUnapproved(generics.ListAPIView):
-    queryset = CoopProposal.objects.filter(proposal_status=CoopProposal.ProposalStatus.PENDING)
+    queryset = CoopProposal.objects.filter(proposal_status=CoopProposal.ProposalStatusEnum.PENDING)
     serializer_class = CoopXSerializer
     permission_classes = [IsAdminUser]
 
@@ -242,18 +257,44 @@ class PasswordResetConfirmView(APIView):
             user.save()
             return Response({"message": "Password has been reset successfully."}, status=status.HTTP_200_OK)
         return Response({"error": "Invalid token or user ID."}, status=status.HTTP_400_BAD_REQUEST)
-    
-#============================================================================
-    
-class CoopPublicList(generics.ListAPIView):
-    queryset = CoopPublic.objects.all()
-    serializer_class = CoopPublicListSerializer
-    permission_classes = [AllowAny]
 
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(name='coop_public_id', type=int),
+            OpenApiParameter(name='proposal_status', type=str, enum=CoopProposal.ProposalStatusEnum),
+            OpenApiParameter(name='operation', type=str, enum=CoopProposal.OperationTypes),
+        ]
+    )
+)
 class CoopProposalList(generics.ListAPIView):
     queryset = CoopProposal.objects.all()
     serializer_class = CoopProposalListSerializer
     permission_classes = [IsAdminUser]
+
+    def get_queryset(self):
+        queryset = CoopProposal.objects.all()
+
+        coop_public_id = self.request.GET.get("coop_public_id", None)
+        proposal_status_query = self.request.GET.get("proposal_status", None)
+        operation_query = self.request.GET.get("operation", None)
+
+        if coop_public_id:
+            queryset = queryset.filter(coop_public__id=coop_public_id)
+        if proposal_status_query:
+            try:
+                proposal_status = CoopProposal.ProposalStatusEnum(proposal_status_query).value
+                queryset = queryset.filter(proposal_status=proposal_status)
+            except:
+                pass
+        if operation_query:
+            try:
+                operation = CoopProposal.OperationTypes(operation_query).value
+                queryset = queryset.filter(operation=operation)
+            except:
+                pass
+
+        return queryset
 
 class CoopProposalRetrieve(generics.RetrieveAPIView):
     queryset = CoopProposal.objects.all()
