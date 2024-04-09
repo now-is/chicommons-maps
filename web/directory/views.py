@@ -18,27 +18,54 @@ from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiPara
 
 from directory.models import ContactMethod, CoopType, Address, AddressCache, CoopAddressTags, CoopPublic, Coop, CoopProposal, Person
 from directory.serializers import *
+from directory.renderers import CSVRenderer
 
-# def data(request):
-#     # Create the HttpResponse object with the appropriate CSV header.
-#     response = HttpResponse(content_type='text/csv')
-#     response['Content-Disposition'] = 'attachment; filename="data.csv"'
-#     writer = csv.writer(response, quoting=csv.QUOTE_ALL)
-#     writer.writerow(['name','address','city','postal code','type','website','lon','lat'])
-#     type = request.GET.get("type", "")
-#     contains = request.GET.get("contains", "")
-#     if type:
-#         coops = Coop.objects.get_by_type(type)
-#     elif contains:
-#         coops = Coop.objects.contains_type(contains.split(","))
-#     for coop in coops.order_by(Lower('name')):
-#         for address in coop.addresses.all():
-#             postal_code = address.locality.postal_code
-#             city = address.locality.name + ", " + address.locality.state.code + " " + postal_code
-#             coop_types = ', '.join([type.name for type in coop.types.all()])
-#             if address.longitude and address.latitude:
-#                 writer.writerow([coop.name, address.formatted, city, postal_code, coop_types, coop.web_site, address.longitude, address.latitude])
-#     return response
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(name='types', description="comma separated list of coop types", type=str)
+        ]
+    )
+)
+class CoopCSVView(APIView):
+    permission_classes = [AllowAny]
+    renderer_classes = [CSVRenderer]
+
+    def get(self, request, *args, **kwargs):
+        queryset = Coop.objects.filter(status=Coop.Status.ACTIVE)
+
+        types_query = self.request.query_params.get('types', None)
+
+        if types_query:
+            #types_arr = types_query.split(",")
+            types_arr = [j.strip() for j in types_query.split(",")]
+            filter = Q(
+                *[('types__name__icontains', type) for type in types_arr],
+                _connector=Q.OR
+            )
+            queryset = queryset.filter(filter)
+        else:
+            return Response(None)
+
+        # Flatten the structure: one row per Coop-Address combination
+        data = []
+        for coop in queryset:
+            coop_type_names = ', '.join(coop.types.all().values_list('name', flat=True))
+            for address_tag in coop.addresses.all():
+                if address_tag.is_public:
+                    address = address_tag.address
+                    data.append({
+                        'name': coop.name,
+                        'address': address.street_address,
+                        'city': address.city,
+                        'postal code': address.postal_code,
+                        'type': coop_type_names,
+                        'website': coop.web_site,
+                        'lon': address.longitude,
+                        'lat': address.latitude
+                    })
+
+        return Response(data)
     
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()

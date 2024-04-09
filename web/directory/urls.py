@@ -10,10 +10,8 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 urlpatterns = [
 
     path('api/v1/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/v1/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/v1/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('api/v1/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 
-    # path('data', views.data, name='data'),
     path('api/v1/admin/', admin.site.urls),
     path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
@@ -27,6 +25,7 @@ urlpatterns = [
     path('api/v1/coops/<int:coop_public_id>/', views.CoopDetail.as_view(), name='coop-detail'),
     path('api/v1/coops/no_coords', views.CoopsNoCoords.as_view(), name='coop-no-coords'),
     path('api/v1/coops/unapproved', views.CoopsUnapproved.as_view(), name='coop-unapproved'),
+    path('api/v1/coops/csv/', views.CoopCSVView.as_view(), name='data'),
     
     path('api/v1/coops/proposal/', views.CoopProposalList.as_view(), name='coop-proposal-list'),
     path('api/v1/coops/proposal/<int:pk>/', views.CoopProposalRetrieve.as_view(), name='coop-proposal-list'),

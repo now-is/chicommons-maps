@@ -111,8 +111,7 @@ python manage.py tests directory.tests.test_coop_list.TestCoopList.test_list_all
 - [x] Confirm `coops/<pk>` is really working off of public_id.
 - [x] Confirm `coops/public` is not needed.
 - [x] Create endpoint for All proposals for given coop.
-- [ ] Add data endpoint back in. 
+- [x] Add data endpoint back in. 
 - [ ] HTTPS Certificates
-
 - [ ] General review of all constraints for models
 - [ ] What is monkey_patching.py?
