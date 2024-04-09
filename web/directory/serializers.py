@@ -8,14 +8,6 @@ import json
 
 User = get_user_model()
 
-# class UserSerializer(serializers.HyperlinkedModelSerializer):
-#     coops = serializers.HyperlinkedRelatedField(many=True, view_name='coop-detail', read_only=True)
-
-#     class Meta:
-#         model = User
-#         fields = ['id', 'username', 'coops']
-
-# TODO - Don't let it create duplicate rows
 class CoopTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoopType

@@ -106,7 +106,7 @@ Production mode is configured to send emails via SMTP. See [Environment Variable
 #### Helpful Commands
 * To start the app: `docker-compose -f docker-compose.prod.yml up`
 * To shutdown the app: `docker-compose -f docker-compose.prod.yml down`
-* Log into Backend container's terminal: `docker exec -it web /bin/bash`
+* Log into Backend container's terminal: `docker exec -it web-prod /bin/bash`
 
 ### Option 3: Local (without Docker)
 Local mode is the most complex method for installation. The process installs a production-like environment outside of Docker. It is not recommended.
