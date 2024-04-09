@@ -104,7 +104,7 @@ class CreateUserView(APIView):
     )
 )
 class CoopList(generics.ListAPIView):
-    serializer_class = CoopXSerializer
+    serializer_class = CoopSerializer
 
     def perform_create(self, serializer):
         serializer.save(rec_updated_by=self.request.user)
@@ -152,7 +152,7 @@ class CoopList(generics.ListAPIView):
 
 class CoopDetail(generics.RetrieveAPIView):
     queryset = Coop.objects.filter(status=Coop.Status.ACTIVE)
-    serializer_class = CoopXSerializer
+    serializer_class = CoopSerializer
     permission_classes = [AllowAny]
 
     def get_object(self):
@@ -170,12 +170,12 @@ class CoopsNoCoords(generics.ListAPIView):
     queryset = Coop.objects.filter(status=Coop.Status.ACTIVE).exclude(addresses__isnull=True).filter(
             Q(addresses__address__latitude__isnull=True) | Q(addresses__address__longitude__isnull=True)
         )
-    serializer_class = CoopXSerializer
+    serializer_class = CoopSerializer
     permission_classes = [IsAdminUser]
 
 class CoopsUnapproved(generics.ListAPIView):
     queryset = CoopProposal.objects.filter(proposal_status=CoopProposal.ProposalStatusEnum.PENDING)
-    serializer_class = CoopXSerializer
+    serializer_class = CoopSerializer
     permission_classes = [IsAdminUser]
 
 class PersonList(generics.ListAPIView):

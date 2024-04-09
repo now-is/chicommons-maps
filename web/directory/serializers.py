@@ -178,7 +178,7 @@ class CoopAddressTagsSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
         
-class CoopXSerializer(serializers.ModelSerializer):
+class CoopSerializer(serializers.ModelSerializer):
     types = CoopTypeSerializer(many=True, read_only=False, required=False, allow_null=True)
     contact_methods = ContactMethodSerializer(many=True, read_only=False, required=False, allow_null=True)
     people = PersonSerializer(many=True, read_only=False, required=False, allow_null=False)
@@ -267,7 +267,7 @@ class CoopProposalCreateSerializer(serializers.ModelSerializer):
     requested_datetime = serializers.DateTimeField(read_only=True)
     coop_public_id = serializers.IntegerField(write_only=True, required=False)
     operation = serializers.CharField(write_only=True, required=True)
-    coop = CoopXSerializer(many=False, read_only=False, required=False)
+    coop = CoopSerializer(many=False, read_only=False, required=False)
 
     class Meta:
         model = CoopProposal
@@ -300,9 +300,9 @@ class CoopProposalCreateSerializer(serializers.ModelSerializer):
         coop_proposal = CoopProposal.objects.create(**validated_data)
 
         # Create Coop object
-        coopx_serializer = CoopXSerializer(data=coop_data)
-        if coopx_serializer.is_valid():
-            coop_instance = coopx_serializer.save()
+        coop_serializer = CoopSerializer(data=coop_data)
+        if coop_serializer.is_valid():
+            coop_instance = coop_serializer.save()
             coop_proposal.coop = coop_instance
             coop_proposal.save()
         return coop_proposal
@@ -345,9 +345,9 @@ class CoopProposalCreateSerializer(serializers.ModelSerializer):
         copied_coop.save()
 
         # Modify copied coop object with user supplied changes.
-        coopx_serializer = CoopXSerializer(copied_coop, data=coop_data)
-        if coopx_serializer.is_valid():
-            coop_instance = coopx_serializer.save()
+        coop_serializer = CoopSerializer(copied_coop, data=coop_data)
+        if coop_serializer.is_valid():
+            coop_instance = coop_serializer.save()
             coop_proposal.coop = coop_instance
             coop_proposal.save()
 
