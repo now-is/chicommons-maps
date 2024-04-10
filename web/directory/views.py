@@ -93,7 +93,6 @@ class CreateUserView(APIView):
 @extend_schema_view(
     get=extend_schema(
         parameters=[
-            OpenApiParameter(name='is_public', type=bool),
             OpenApiParameter(name='name', type=str),
             OpenApiParameter(name='street', type=str),
             OpenApiParameter(name='city', type=str),
@@ -111,17 +110,12 @@ class CoopList(generics.ListAPIView):
     def get_queryset(self):
         queryset = Coop.objects.filter(status=Coop.Status.ACTIVE)
 
-        is_public = self.request.GET.get("is_public", None)
-        if is_public is not None:
-            is_public = is_public.lower() == "true"
         name = self.request.query_params.get('name', None)
         street = self.request.query_params.get('street', None)
         city = self.request.query_params.get('city', None)
         zip = self.request.query_params.get('zip', None)
         types_data = self.request.query_params.get('types', None)
 
-        if is_public is not None:
-            queryset = queryset.filter(is_public=is_public)
         if name:
             queryset = queryset.filter(name__icontains=name)
         if street:

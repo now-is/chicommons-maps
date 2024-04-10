@@ -65,34 +65,7 @@ class TestCoopList(APITestCase):
         self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
         self.assertEqual(Coop.objects.count(), 10)
         self.assertEqual(len(response.data), 8)
-        self.assertEqual(response_data, expected_data)
-
-    def test_filter_is_public(self):
-        # Acting as unauthorized user
-        results_filename = "TestCoopList_test_filter_is_public.json"
-        results_filepath = (self.testcases_dir_path / results_filename).resolve()
-        
-        url = reverse('coop-list')
-        request = {
-            'is_public': 'false'
-        }
-        response = self.client.get(url, data=request, format='json')
-        response_data = helpers.sanitize_response(response)
-
-        # # When the structure of the result or test dataset changes, uncomment this
-        # #    section and run to update results files. Recomment when running test cases. 
-        # with open(results_filepath, 'w') as file:
-        #     file.write(response_data)
-
-        with open(results_filepath, "r") as file:
-            expected_data = file.read()
-
-        self.maxDiff = None
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(self.client._credentials, {}) # Assert acting as unauthorized user
-        self.assertEqual(Coop.objects.count(), 10)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response_data, expected_data)        
+        self.assertEqual(response_data, expected_data)  
     
     def test_filter_name(self):
         # Acting as unauthorized user

@@ -120,5 +120,5 @@ python manage.py test directory.tests.test_coop_list.TestCoopList.test_list_all
   - [x] People -> ContactMethod
 - [x] Filter out CoopCSV
 - [x] Filter out CoopDetail
-- [ ] Remove is_filter param from cooplist
+- [x] Remove is_filter param from cooplist
 - [ ] HTTPS Certificates
