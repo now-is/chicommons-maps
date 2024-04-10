@@ -37,7 +37,7 @@
             {
                 "contact_methods": [],
                 "first_name": "John",
-                "is_public": false,
+                "is_public": true,
                 "last_name": "Doe"
             },
             {
@@ -50,7 +50,7 @@
                     }
                 ],
                 "first_name": "Steve",
-                "is_public": false,
+                "is_public": true,
                 "last_name": "Smith"
             }
         ],
@@ -134,7 +134,7 @@
                     }
                 ],
                 "first_name": "Cameron",
-                "is_public": false,
+                "is_public": true,
                 "last_name": "Ellison"
             },
             {
@@ -153,7 +153,7 @@
                     }
                 ],
                 "first_name": "Harry",
-                "is_public": false,
+                "is_public": true,
                 "last_name": "Underwood"
             }
         ],

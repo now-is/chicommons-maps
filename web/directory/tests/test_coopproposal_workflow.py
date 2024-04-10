@@ -160,7 +160,7 @@ class TestCoopProposalWorkflow(APITestCase):
         self.assertEqual(CoopPublic.objects.filter(status="ACTIVE").count(), 0)
         self.assertEqual(CoopPublic.objects.filter(status="REMOVED").count(), 0)
 
-        # Validate CoopX
+        # Validate Coop
         self.assertEqual(Coop.objects.filter(status="ACTIVE").count(), 0)
         self.assertEqual(Coop.objects.filter(status="PROPOSAL").count(), 1)
         self.assertEqual(Coop.objects.filter(status="ARCHIVED").count(), 0)
@@ -197,7 +197,7 @@ class TestCoopProposalWorkflow(APITestCase):
         self.assertEqual(coop_proposal.review_notes, approval_data["review_notes"])
         self.assertEqual(coop_proposal.coop_public.id, coop_proposal.coop_public.id)       
 
-        # Validate CoopX
+        # Validate Coop
         self.assertEqual(Coop.objects.filter(status="ACTIVE").count(), 1)
         self.assertEqual(Coop.objects.filter(status="PROPOSAL").count(), 0)
         self.assertEqual(Coop.objects.filter(status="ARCHIVED").count(), 0)
@@ -235,7 +235,7 @@ class TestCoopProposalWorkflow(APITestCase):
         coop_public = coop_proposal.coop_public
         self.assertEqual(coop_public.status, "ACTIVE")
 
-        # Validate CoopX
+        # Validate Coop
         self.assertEqual(Coop.objects.filter(status="ACTIVE").count(), 1)
         self.assertEqual(Coop.objects.filter(status="PROPOSAL").count(), 1)
         self.assertEqual(Coop.objects.filter(status="ARCHIVED").count(), 0)

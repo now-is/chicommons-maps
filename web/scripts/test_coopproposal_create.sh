@@ -74,7 +74,7 @@ create_coop_req_json=$(cat << EOF
         "types": [ {"name": "Library"}, {"name": "Museum"} ],
         "contact_methods": [
         { "type": "EMAIL", "is_public": true, "email": "myemail@example.com" },
-        { "type": "PHONE", "is_public": true, "phone": "+17739441426" }          
+        { "type": "PHONE", "is_public": false, "phone": "+17739441426" }          
     ],
         "people": [
         {"first_name": "John", "last_name": "Doe", "is_public": false, "contact_methods": []}, 

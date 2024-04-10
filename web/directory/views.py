@@ -1,8 +1,9 @@
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.db.models.functions import Lower
+from django.http import Http404
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.urls import reverse_lazy
@@ -37,7 +38,6 @@ class CoopCSVView(APIView):
         types_query = self.request.query_params.get('types', None)
 
         if types_query:
-            #types_arr = types_query.split(",")
             types_arr = [j.strip() for j in types_query.split(",")]
             filter = Q(
                 *[('types__name__icontains', type) for type in types_arr],
@@ -76,7 +76,6 @@ class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
-    #TODO - Implement Owner Level Permissions
 
 class CreateUserView(APIView):
     def post(self, request):
@@ -121,8 +120,6 @@ class CoopList(generics.ListAPIView):
         zip = self.request.query_params.get('zip', None)
         types_data = self.request.query_params.get('types', None)
 
-        #TODO- if address.is_public=False, should we be showing it in results?
-
         if is_public is not None:
             queryset = queryset.filter(is_public=is_public)
         if name:
@@ -140,6 +137,19 @@ class CoopList(generics.ListAPIView):
                 _connector=Q.OR
             )
             queryset = queryset.filter(filter)
+        
+        public_addresses = CoopAddressTags.objects.filter(is_public=True)
+        public_contactmethods = ContactMethod.objects.filter(is_public=True)
+        public_people = Person.objects.filter(is_public=True)
+
+        people_with_public_contact_methods = Prefetch('contact_methods', queryset=public_contactmethods)
+        public_people = Person.objects.prefetch_related(people_with_public_contact_methods).filter(is_public=True)
+
+        queryset = queryset.prefetch_related(
+            Prefetch('addresses', queryset=public_addresses),
+            Prefetch('contact_methods', queryset=public_contactmethods),
+            Prefetch('people', queryset=public_people),
+        )
 
         return queryset
     
@@ -149,21 +159,31 @@ class CoopList(generics.ListAPIView):
         elif self.request.method == 'POST': #CREATE
             self.permission_classes = [IsAuthenticated]
         return [permission() for permission in self.permission_classes]
-
+    
 class CoopDetail(generics.RetrieveAPIView):
     queryset = Coop.objects.filter(status=Coop.Status.ACTIVE)
     serializer_class = CoopSerializer
     permission_classes = [AllowAny]
 
     def get_object(self):
-        queryset = self.filter_queryset(self.get_queryset())
-
         coop_public_id = self.kwargs.get('coop_public_id')
-        obj = queryset.filter(coop_public__id=coop_public_id).first()
-        if obj is None:
-            raise exceptions.NotFound(f"No user found with coop_public_id {coop_public_id}")
-        self.check_object_permissions(self.request, obj)
 
+        public_contact_methods = ContactMethod.objects.filter(is_public=True)
+        people_with_public_contact_methods = Prefetch('contact_methods', queryset=public_contact_methods)
+        public_people = Person.objects.prefetch_related(people_with_public_contact_methods).filter(is_public=True)
+
+        queryset = self.queryset.prefetch_related(
+            Prefetch('addresses', queryset=CoopAddressTags.objects.filter(is_public=True)),
+            Prefetch('contact_methods', queryset=ContactMethod.objects.filter(is_public=True)),
+            Prefetch('people', queryset=public_people),
+        ).filter(coop_public_id=coop_public_id)
+
+        try:
+            obj = queryset.get()
+        except Coop.DoesNotExist:
+            raise Http404("No Coop matches the given query.")
+
+        self.check_object_permissions(self.request, obj)
         return obj
         
 class CoopsNoCoords(generics.ListAPIView):
@@ -177,16 +197,6 @@ class CoopsUnapproved(generics.ListAPIView):
     queryset = CoopProposal.objects.filter(proposal_status=CoopProposal.ProposalStatusEnum.PENDING)
     serializer_class = CoopSerializer
     permission_classes = [IsAdminUser]
-
-class PersonList(generics.ListAPIView):
-    queryset = Person.objects.all()
-    serializer_class = PersonSerializer
-    permission_classes = [AllowAny]
-    
-class PersonDetail(generics.RetrieveAPIView):
-    queryset = Person.objects.all()
-    serializer_class = PersonSerializer
-    permission_classes = [AllowAny]
     
 class CoopTypeList(generics.ListAPIView):
     queryset = CoopType.objects.all().order_by(Lower('name'))
@@ -196,36 +206,6 @@ class CoopTypeList(generics.ListAPIView):
 class CoopTypeDetail(generics.RetrieveAPIView):
     queryset = CoopType.objects.all()
     serializer_class = CoopTypeSerializer
-    permission_classes = [AllowAny]
-    
-class CoopAddressTagsList(generics.ListAPIView):
-    queryset = CoopAddressTags.objects.all()
-    serializer_class = CoopAddressTagsSerializer
-    permission_classes = [AllowAny]
-
-class CoopAddressTagsDetail(generics.RetrieveAPIView):
-    queryset = CoopAddressTags.objects.all()
-    serializer_class = CoopAddressTagsSerializer
-    permission_classes = [AllowAny]
-    
-class AddressList(generics.ListAPIView):
-    queryset = Address.objects.all()
-    serializer_class = AddressSerializer
-    permission_classes = [AllowAny]
-
-class AddressDetail(generics.RetrieveAPIView):
-    queryset = Address.objects.all()
-    serializer_class = AddressSerializer
-    permission_classes = [AllowAny]
-    
-class ContactMethodList(generics.ListAPIView):
-    queryset = ContactMethod.objects.all()
-    serializer_class = ContactMethodSerializer
-    permission_classes = [AllowAny]
-
-class ContactMethodDetail(generics.RetrieveAPIView):
-    queryset = ContactMethod.objects.all()
-    serializer_class = ContactMethodSerializer
     permission_classes = [AllowAny]
 
 class CountryList(APIView):

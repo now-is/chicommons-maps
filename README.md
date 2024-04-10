@@ -109,7 +109,7 @@ Production mode is configured to send emails via SMTP. See [Environment Variable
 * Log into Backend container's terminal: `docker exec -it web-prod /bin/bash`
 
 ### Option 3: Local (without Docker)
-Local mode is the most complex method for installation. The process installs a production-like environment outside of Docker. It is not recommended.
+Local mode is the most complex method for installation. The process installs a production-like environment outside of Docker. It is not recommended for everyday development. It is only useful to run local debugging tools. 
 
 #### Installation 
 1. Install Prerequisites

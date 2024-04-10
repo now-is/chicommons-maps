@@ -21,7 +21,7 @@ class ContactMethod(models.Model):
     email = models.EmailField(null=True)
 
 class CoopType(models.Model):
-    name = models.CharField(max_length=200, null=False, unique=True) 
+    name = models.CharField(max_length=200, null=False) 
 
     class Meta:
         # Creates a new unique constraint with the `name` field

@@ -17,7 +17,7 @@ class TestCoopProposalDelete(APITestCase):
         self.staging_dir_path = (pathlib.Path(__file__).parent / 'files' / 'staging').resolve()
         self.testcases_dir_path = (pathlib.Path(__file__).parent / 'files' / 'testcases').resolve()
         self.mock_raw_dict = {'lat': 37.4221, 'lon': -122.0841, 'place_id': 'XXXYYYYZZZ', 'address': {'county': 'Testing County'}}
-        self.user = User.objects.create_user(username='testuser', password='password')
+        self.user = User.objects.create_superuser(username='testuser', password='password')
         self.token = helpers.obtain_jwt_token("testuser", "password")
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token}')
         self.create_data = {

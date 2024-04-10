@@ -59,31 +59,31 @@ Tests are stored in the [directory/tests](./directory/tests/) directory using Py
 
 Run all tests:
 ```
-python manage.py tests directory.tests
+python manage.py test directory.tests
 ```
 
 Run all tests in a specific file:
 ```
-python manage.py tests directory.tests.[file_name]
+python manage.py test directory.tests.[file_name]
 
 Example:
-python manage.py tests directory.tests.test_coop_list
+python manage.py test directory.tests.test_coop_list
 ```
 
 Run all tests in a specific class:
 ```
-python manage.py tests directory.tests.[file_name].[class_name]
+python manage.py test directory.tests.[file_name].[class_name]
 
 Example:
-python manage.py tests directory.tests.test_coop_list.TestCoopList
+python manage.py test directory.tests.test_coop_list.TestCoopList
 ```
 
 Run a single test:
 ```
-python manage.py tests directory.tests.[file_name].[class_name].[test_name]
+python manage.py test directory.tests.[file_name].[class_name].[test_name]
 
 Example:
-python manage.py tests directory.tests.test_coop_list.TestCoopList.test_list_all
+python manage.py test directory.tests.test_coop_list.TestCoopList.test_list_all
 ```
 
 ## TODO List
@@ -113,5 +113,12 @@ python manage.py tests directory.tests.test_coop_list.TestCoopList.test_list_all
 - [x] Create endpoint for All proposals for given coop.
 - [x] Add data endpoint back in. 
 - [x] What is monkey_patching.py?
+- [x] Filter out results based on is_public CoopList
+  - [x] CoopAddressTags
+  - [x] ContactMethod
+  - [x] People
+  - [x] People -> ContactMethod
+- [x] Filter out CoopCSV
+- [x] Filter out CoopDetail
+- [ ] Remove is_filter param from cooplist
 - [ ] HTTPS Certificates
-- [ ] General review of all constraints for models

@@ -17,7 +17,7 @@ class TestCoopProposalUpdate(APITestCase):
         self.staging_dir_path = (pathlib.Path(__file__).parent / 'files' / 'staging').resolve()
         self.testcases_dir_path = (pathlib.Path(__file__).parent / 'files' / 'testcases').resolve()
         self.mock_raw_dict = {'lat': 37.4221, 'lon': -122.0841, 'place_id': 'XXXYYYYZZZ', 'address': {'county': 'Testing County'}}
-        self.user = User.objects.create_user(username='testuser', password='password')
+        self.user = User.objects.create_superuser(username='testuser', password='password')
         self.token = helpers.obtain_jwt_token("testuser", "password")
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token}')
         self.create_data = {
@@ -35,8 +35,8 @@ class TestCoopProposalUpdate(APITestCase):
                     { "type": "PHONE", "is_public": True, "phone": "+17739441426" }          
                 ],
                 "people": [
-                    {"first_name": "John", "last_name": "Doe", "is_public": False, "contact_methods": []}, 
-                    {"first_name": "Steve", "last_name": "Smith", "is_public": False, "contact_methods": [
+                    {"first_name": "John", "last_name": "Doe", "is_public": True, "contact_methods": []}, 
+                    {"first_name": "Steve", "last_name": "Smith", "is_public": True, "contact_methods": [
                         { "type": "EMAIL", "is_public": True, "email": "stevesmith@example.com" },
                         { "type": "PHONE", "is_public": True, "phone": "+13125555555" }
                     ]}

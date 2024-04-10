@@ -69,7 +69,7 @@
                     }
                 ],
                 "first_name": "Cameron",
-                "is_public": false,
+                "is_public": true,
                 "last_name": "Ellison"
             },
             {
@@ -88,7 +88,7 @@
                     }
                 ],
                 "first_name": "Harry",
-                "is_public": false,
+                "is_public": true,
                 "last_name": "Underwood"
             }
         ],

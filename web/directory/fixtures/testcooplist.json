@@ -1237,7 +1237,7 @@
   "fields": {
     "first_name": "John",
     "last_name": "Doe",
-    "is_public": false,
+    "is_public": true,
     "contact_methods": []
   }
 },
@@ -1247,7 +1247,7 @@
   "fields": {
     "first_name": "Steve",
     "last_name": "Smith",
-    "is_public": false,
+    "is_public": true,
     "contact_methods": [
       3
     ]
@@ -1259,7 +1259,7 @@
   "fields": {
     "first_name": "Cameron",
     "last_name": "Ellison",
-    "is_public": false,
+    "is_public": true,
     "contact_methods": [
       7,
       8
@@ -1272,7 +1272,7 @@
   "fields": {
     "first_name": "Harry",
     "last_name": "Underwood",
-    "is_public": false,
+    "is_public": true,
     "contact_methods": [
       9,
       10
