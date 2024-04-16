@@ -1,23 +1,29 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuthentication } from '../hooks';
-import { FormControl, FormGroup, FormLabel, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
-import "../Search.css";
+import {
+  FormControl,
+  FormGroup,
+  FormLabel,
+  ToggleButton,
+  ToggleButtonGroup
+} from 'react-bootstrap';
+import '../Search.css';
 
-import RenderCoopList from "./RenderCoopList";
-import Spreadsheet from "./Spreadsheet";
+import RenderCoopList from './RenderCoopList';
+import Spreadsheet from './Spreadsheet';
 
-import _ from "lodash";
+import _ from 'lodash';
 
 /* Import Components */
-import Input from "../components/Input";
-import Button from "../components/Button";
-import CancelButton from "../components/CancelButton";
-import DropDownInput from "../components/DropDownInput";
-import Province from "./Province.jsx";
+import Input from '../components/Input';
+import Button from '../components/Button';
+import CancelButton from '../components/CancelButton';
+import DropDownInput from '../components/DropDownInput';
+import Province from './Province.jsx';
 
-import "../containers/FormContainer.css";
+import '../containers/FormContainer.css';
 
-import { DEFAULT_COUNTRY_CODE } from "../utils/constants";
+import { DEFAULT_COUNTRY_CODE } from '../utils/constants';
 
 const { REACT_APP_PROXY } = process.env;
 
@@ -28,48 +34,48 @@ let abortController = new window.AbortController();
  * /coops/?name=coopName&coop_type=credit+union&enabled=true&street=Main&city=Chicago&zip=60605&state=IL
  */
 const buildSearchUrl = (coopSearchSettings, setSearchUrl) => {
-  let searchUrl = REACT_APP_PROXY + "/coops/";
+  let searchUrl = REACT_APP_PROXY + '/api/v1/coops/';
 
   // compile individual search settings into a list
   let individualSearchSettings = [];
-  if ("name" in coopSearchSettings && coopSearchSettings.name != "") {
+  if ('name' in coopSearchSettings && coopSearchSettings.name != '') {
     individualSearchSettings.push(
-      "name=" + encodeURIComponent(coopSearchSettings.name)
+      'name=' + encodeURIComponent(coopSearchSettings.name)
     );
   }
-  if ("type" in coopSearchSettings && coopSearchSettings.type != []) {
+  if ('type' in coopSearchSettings && coopSearchSettings.type != []) {
     individualSearchSettings.push(
-      "coop_type=" + encodeURIComponent(coopSearchSettings.type.join(","))
+      'coop_type=' + encodeURIComponent(coopSearchSettings.type.join(','))
     );
   }
-  if ("street" in coopSearchSettings && coopSearchSettings.street != "") {
+  if ('street' in coopSearchSettings && coopSearchSettings.street != '') {
     individualSearchSettings.push(
-      "street=" + encodeURIComponent(coopSearchSettings.street)
+      'street=' + encodeURIComponent(coopSearchSettings.street)
     );
   }
-  if ("city" in coopSearchSettings && coopSearchSettings.city != "") {
+  if ('city' in coopSearchSettings && coopSearchSettings.city != '') {
     individualSearchSettings.push(
-      "city=" + encodeURIComponent(coopSearchSettings.city)
+      'city=' + encodeURIComponent(coopSearchSettings.city)
     );
   }
-  if ("zip" in coopSearchSettings && coopSearchSettings.zip != "") {
+  if ('zip' in coopSearchSettings && coopSearchSettings.zip != '') {
     individualSearchSettings.push(
-      "zip=" + encodeURIComponent(coopSearchSettings.zip)
+      'zip=' + encodeURIComponent(coopSearchSettings.zip)
     );
   }
-  if ("county" in coopSearchSettings && coopSearchSettings.county != "") {
+  if ('county' in coopSearchSettings && coopSearchSettings.county != '') {
     individualSearchSettings.push(
-      "county=" + encodeURIComponent(coopSearchSettings.county)
+      'county=' + encodeURIComponent(coopSearchSettings.county)
     );
   }
-  if ("state" in coopSearchSettings && coopSearchSettings.state != "") {
+  if ('state' in coopSearchSettings && coopSearchSettings.state != '') {
     individualSearchSettings.push(
-      "state=" + encodeURIComponent(coopSearchSettings.state)
+      'state=' + encodeURIComponent(coopSearchSettings.state)
     );
   }
-  if ("enabled" in coopSearchSettings && coopSearchSettings.enabled != "none") {
+  if ('enabled' in coopSearchSettings && coopSearchSettings.enabled != 'none') {
     individualSearchSettings.push(
-      "enabled=" + encodeURIComponent(coopSearchSettings.enabled)
+      'enabled=' + encodeURIComponent(coopSearchSettings.enabled)
     );
   }
 
@@ -77,9 +83,9 @@ const buildSearchUrl = (coopSearchSettings, setSearchUrl) => {
   let i;
   for (i = 0; i < individualSearchSettings.length; i++) {
     if (i === 0) {
-      searchUrl = searchUrl + "?" + individualSearchSettings[i];
+      searchUrl = searchUrl + '?' + individualSearchSettings[i];
     } else {
-      searchUrl = searchUrl + "&" + individualSearchSettings[i];
+      searchUrl = searchUrl + '&' + individualSearchSettings[i];
     }
   }
 
@@ -99,8 +105,8 @@ const doSearch = (
   setLoading(true);
 
   fetch(searchUrl, {
-    method: "GET",
-    signal: abortController.signal,
+    method: 'GET',
+    signal: abortController.signal
   })
     .then((response) => response.json())
     .then((data) => {
@@ -116,21 +122,24 @@ const doSearchDebounced = _.debounce(doSearch, 100);
 
 const Search = (props) => {
   //store evolving search settings before search form is submitted
-  const [coopSearchSettings, setCoopSearchSettings] = useState({ state: "IL", type: [] });
+  const [coopSearchSettings, setCoopSearchSettings] = useState({
+    state: 'IL',
+    type: []
+  });
 
   // store finalized search url
-  const [searchUrl, setSearchUrl] = useState("");
+  const [searchUrl, setSearchUrl] = useState('');
 
   const [coopTypes, setCoopTypes] = React.useState([]);
   const [provinces, setProvinces] = React.useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [listView, setListView] = useState(true)
+  const [listView, setListView] = useState(true);
   const { isAuthenticated } = useAuthentication();
 
   useEffect(() => {
     // Get all possible coop types to populate search form
-    fetch(REACT_APP_PROXY + "/coop_types/")
+    fetch(REACT_APP_PROXY + '/api/v1/coop_types/')
       .then((response) => {
         return response.json();
       })
@@ -144,7 +153,7 @@ const Search = (props) => {
 
   useEffect(() => {
     // Get initial provinces (states)
-    fetch(REACT_APP_PROXY + "/states/" + DEFAULT_COUNTRY_CODE)
+    fetch(REACT_APP_PROXY + '/api/v1/states/' + DEFAULT_COUNTRY_CODE)
       .then((response) => {
         return response.json();
       })
@@ -159,7 +168,7 @@ const Search = (props) => {
   useEffect(
     () => {
       // set searchResults to empty if searchUrl is empty
-      if (searchUrl === "") {
+      if (searchUrl === '') {
         setSearchResults([]);
         return;
       } else {
@@ -197,33 +206,34 @@ const Search = (props) => {
   const handleMultiSelect = (e) => {
     const { name } = e.target;
     const selections = [].slice
-    .call(e.target.selectedOptions)
-    .map((item) => item.value);
+      .call(e.target.selectedOptions)
+      .map((item) => item.value);
 
-    setCoopSearchSettings({...coopSearchSettings, [name]: selections})
-  }
+    setCoopSearchSettings({ ...coopSearchSettings, [name]: selections });
+  };
 
-  const handleToggle = (bool) => setListView(bool)
+  const handleToggle = (bool) => setListView(bool);
   // same logic from Search.jsx
   const renderSearchResults = () => {
     if (searchResults && searchResults.length) {
-        if(listView){
-          return (
-            <RenderCoopList link={"/directory-additions-updates/"} searchResults={searchResults}  columnOneText={"Matching Entities"} columnTwoText={"Edit"} />
-          )
-        }else{
-          return (
-            <Spreadsheet searchResults={searchResults}/>
-          ) 
-        }
-    };
+      if (listView) {
+        return (
+          <RenderCoopList
+            link={'/directory-additions-updates/'}
+            searchResults={searchResults}
+            columnOneText={'Matching Entities'}
+            columnTwoText={'Edit'}
+          />
+        );
+      } else {
+        return <Spreadsheet searchResults={searchResults} />;
+      }
+    }
   };
 
   return (
     <div className="form container-fluid">
-      <form
-          onSubmit={handleFormSubmit}
-        >
+      <form onSubmit={handleFormSubmit}>
         {/* FormGroup logic from FormContainer.jsx */}
         <FormGroup controlId="formBasicText">
           {/* FormLabel and FormControl logic from Input.jsx */}
@@ -232,22 +242,22 @@ const Search = (props) => {
               <FormLabel class="formInputStyle">Name</FormLabel>
               <FormControl
                 class="form-control"
-                id={"name"}
-                name={"name"}
+                id={'name'}
+                name={'name'}
                 value={coopSearchSettings.name}
                 placeholder="Enter cooperative name"
                 onChange={handleInputChange}
                 aria-label="Name"
-              />{" "}
+              />{' '}
             </div>
             <div className="form-group col-md-6 col-lg-6 col-xl-6">
               <DropDownInput
-                className={"formInputStyle"}
-                type={"select"}
-                as={"select"}
-                title={"CoOp Type"}
-                multiple={"multiple"}
-                name={"type"}
+                className={'formInputStyle'}
+                type={'select'}
+                as={'select'}
+                title={'CoOp Type'}
+                multiple={'multiple'}
+                name={'type'}
                 value={coopSearchSettings.type}
                 handleChange={handleMultiSelect}
                 options={coopTypes}
@@ -259,34 +269,34 @@ const Search = (props) => {
               <FormLabel class="formInputStyle">Street</FormLabel>
               <FormControl
                 class="form-control"
-                id={"street"}
-                name={"street"}
+                id={'street'}
+                name={'street'}
                 value={coopSearchSettings.street}
                 placeholder="Enter address street"
                 onChange={handleInputChange}
-              />{" "}
+              />{' '}
             </div>
             <div className="form-group col-md-3 col-lg-3 col-xl-3">
               <FormLabel class="formInputStyle">City</FormLabel>
               <FormControl
                 class="form-control"
-                id={"city"}
-                name={"city"}
+                id={'city'}
+                name={'city'}
                 value={coopSearchSettings.city}
                 placeholder="Enter address city"
                 onChange={handleInputChange}
-              />{" "}
-              </div>
+              />{' '}
+            </div>
             <div className="form-group col-md-3 col-lg-3 col-xl-3">
               <FormLabel class="formInputStyle">Postal Code</FormLabel>
               <FormControl
                 class="form-control"
-                id={"zip"}
-                name={"zip"}
+                id={'zip'}
+                name={'zip'}
                 value={coopSearchSettings.zip}
                 placeholder="Enter postal code"
                 onChange={handleInputChange}
-              />{" "}
+              />{' '}
             </div>
           </div>
           <div className="form-row">
@@ -294,35 +304,33 @@ const Search = (props) => {
               <FormLabel class="formInputStyle">County</FormLabel>
               <FormControl
                 class="form-control"
-                id={"county"}
-                name={"county"}
+                id={'county'}
+                name={'county'}
                 value={coopSearchSettings.county}
                 placeholder="Enter county"
                 onChange={handleInputChange}
-              />{" "}
+              />{' '}
             </div>
             <div className="form-group col-md-3 col-lg-3 col-xl-3">
               <Province
-                title={"State"}
+                title={'State'}
                 className="formInputStyle"
-                name={"state"}
+                name={'state'}
                 options={provinces}
                 value={coopSearchSettings.state}
-                placseholder={"Select state"}
+                placseholder={'Select state'}
                 handleChange={(e) =>
                   setCoopSearchSettings({
                     ...coopSearchSettings,
-                    [e.target.name]: e.target.value,
+                    [e.target.name]: e.target.value
                   })
                 }
-              />{" "}
+              />{' '}
             </div>
             <div className="form-group col-md-3 col-lg-3 col-xl-3">
-              <label class="form-label formInputStyle">
-                Enabled
-              </label>
+              <label class="form-label formInputStyle">Enabled</label>
               <select
-                name={"enabled"}
+                name={'enabled'}
                 value={coopSearchSettings.enabled}
                 onChange={handleInputChange}
                 className="form-control"
@@ -337,30 +345,40 @@ const Search = (props) => {
           </div>
           <div className="form-group form-row">
             <div className="form-group col-md-6" align="center">
-              <Button buttonType={"primary"} title={"Submit"} type={"submit"} />{" "}
+              <Button buttonType={'primary'} title={'Submit'} type={'submit'} />{' '}
             </div>
             <div className="form-group col-md-6" align="center">
               <CancelButton />
             </div>
           </div>
-          {isAuthenticated ? 
+          {isAuthenticated ? (
             <div className="form-group form-row">
-              <div className="form-group col-md-12">Return search results as:</div>
               <div className="form-group col-md-12">
-              <ToggleButtonGroup type="radio" name="options" defaultValue={true} onChange={handleToggle}>
-                <ToggleButton className="buttonStyle btn-toggle" value={true}>
-                  List
-                </ToggleButton>
-                <ToggleButton className="buttonStyle btn-toggle" value={false}>
-                  Spreadsheet
-                </ToggleButton>
-              </ToggleButtonGroup>
+                Return search results as:
+              </div>
+              <div className="form-group col-md-12">
+                <ToggleButtonGroup
+                  type="radio"
+                  name="options"
+                  defaultValue={true}
+                  onChange={handleToggle}
+                >
+                  <ToggleButton className="buttonStyle btn-toggle" value={true}>
+                    List
+                  </ToggleButton>
+                  <ToggleButton
+                    className="buttonStyle btn-toggle"
+                    value={false}
+                  >
+                    Spreadsheet
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </div>
             </div>
-            </div>
-            :
+          ) : (
             <div></div>
-            }
-            <div>
+          )}
+          <div>
             {renderSearchResults()}
             {loading && (
               <div class="loading">

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
-import "../Search.css";
-import ListGroup from "react-bootstrap/ListGroup";
-import ListGroupItem from "react-bootstrap/ListGroupItem";
-import { PencilSquare } from "react-bootstrap-icons";
-import { Link } from "react-router-dom";
-import _ from "lodash";
+import React, { useState, useEffect } from 'react';
+import '../Search.css';
+import ListGroup from 'react-bootstrap/ListGroup';
+import ListGroupItem from 'react-bootstrap/ListGroupItem';
+import { PencilSquare } from 'react-bootstrap-icons';
+import { Link } from 'react-router-dom';
+import _ from 'lodash';
 
 const { REACT_APP_PROXY } = process.env;
 
@@ -15,14 +15,14 @@ const doSearch = (query, setSearchResults, setLoading) => {
   abortController = new window.AbortController();
   setLoading(true);
   // const searchUrl = REACT_APP_PROXY + "/coops/?contains=" + encodeURIComponent(query);
-  const searchUrl = REACT_APP_PROXY + "/coops/no_coords";
+  const searchUrl = REACT_APP_PROXY + '/api/v1/coops/no_coords';
   fetch(searchUrl, {
-    method: "GET",
-    signal: abortController.signal,
+    method: 'GET',
+    signal: abortController.signal
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log(" query:" + query);
+      console.log(' query:' + query);
       console.log(data);
       setSearchResults(data);
       setLoading(false);
@@ -35,12 +35,12 @@ const doSearch = (query, setSearchResults, setLoading) => {
 const doSearchDebounced = _.debounce(doSearch, 100);
 
 const Search = (props) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const results = doSearchDebounced("", setSearchResults, setLoading);
+    const results = doSearchDebounced('', setSearchResults, setLoading);
     setSearchResults(results);
   }, []);
 
@@ -58,7 +58,7 @@ const Search = (props) => {
               <ListGroupItem key={item.id} value={item.name}>
                 {item.name}
                 <span className="float-right">
-                  <Link to={"/directory-additions-updates/" + item.id}>
+                  <Link to={'/directory-additions-updates/' + item.id}>
                     <PencilSquare color="RoyalBlue" size={26} />
                   </Link>
                 </span>
