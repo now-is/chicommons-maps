@@ -203,7 +203,7 @@ class CoopTypeDetail(generics.RetrieveAPIView):
     permission_classes = [AllowAny]
 
 class CountryList(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):   
         countries_data = [
@@ -215,7 +215,7 @@ class CountryList(APIView):
         return Response(countries_data, status.HTTP_200_OK)
     
 class StateList(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
         input_country_code = self.kwargs['country_code']
