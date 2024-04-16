@@ -1,10 +1,8 @@
 from django.urls import path
-from rest_framework.urlpatterns import format_suffix_patterns
 from directory import views
 from django.contrib import admin
-from django.contrib.auth import views as auth_views
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 
 urlpatterns = [
