@@ -1,85 +1,96 @@
-# removed 7/21/222 
+from directory.models import Address, AddressCache
+from django.core.exceptions import ObjectDoesNotExist
+from geopy.exc import GeocoderQuotaExceeded, GeocoderQueryError
 from geopy.geocoders import Nominatim
-import ssl
-import sys
-import requests
+from ratelimit import limits, RateLimitException
+from backoff import on_exception, expo
+import re
+import json
 
-
-from address.models import State, Country, Locality, Address
+def preprocess_street_address(address:Address):
+    unit_number_pattern = re.compile(r'\b(?:apt|unit|suite|office|room)\b\s*[#\d-]*', re.IGNORECASE)
+    cleaned_address = re.sub(unit_number_pattern, '', address)
+    cleaned_address = ' '.join(cleaned_address.split())
+    return cleaned_address
 
 class LocationService(object):
+    def __init__(self, address:Address):
+        self.address = address
+        self.geo_response = None
+        self._fetch_geo_response()
 
-    def __init__(self):
-        self._locator = Nominatim(user_agent="myGeocoder")
+    @on_exception(expo, RateLimitException, max_tries=8, jitter=None) # If RateLimitException is thrown, wait with exponential backoff(expo) and retry. Maximum of 8 times.
+    @limits(calls=1, period=1) # 1 Call per 1 second. Throws RateLimitException if exceeded.
+    def _call_geocoder_api(self):
+        street_address_cleaned = preprocess_street_address(self.address.street_address)
+        self.query = "%s, %s %s %s" % (street_address_cleaned, self.address.city, self.address.state, self.address.postal_code)
+    
+        service = Nominatim(user_agent="chicommons")
+        try:
+            geocode = service.geocode(query=self.query, exactly_one=True, addressdetails=True, language='en', country_codes='US', timeout=30)
+            return geocode.raw
+        except GeocoderQuotaExceeded:
+            raise RateLimitException("Rate limit exceeded", period_remaining=60)
+        except RateLimitException:
+            raise RateLimitException("Rate limit exceeded", period_remaining=60)
+        except GeocoderQueryError:
+            raise Exception("Invalid LocationService query: '%s' %s" %(self.address))
+        except:
+            raise Exception("Address could not be geocoded: %s" %(self.address))
 
-    def get_coords(self, address, city, state_code, zip, country_code):
-        """
-        Returns an array ([lat, lon]) of coordinates or None if no coords
-        are generated.  "country_code" is a 2-letter abbreviation referencing the
-        address_country.code column.
-        """
-        latitude = None
-        longitude = None
-        country = Country.objects.filter(code=country_code).first() 
-        state = State.objects.filter(
-            code=state_code,
-            country=country
-        ).first()
-        if state:
-            locality = Locality.objects.filter(
-                name=city,
-                postal_code=zip,
-                state=state
-            ).first()
-            if locality:
-                address = Address.objects.filter(
-                    raw=address,
-                    locality=locality
-                ).first()
-                if address and address.latitude and address.longitude:
-                    latitude = address.latitude
-                    longitude = address.longitude
-        if not latitude and not longitude:
-            address_str = "%s, %s, %s %s %s" % (address, city, state_code, zip, country.name if country else "")
-            if not address:
-                address_str = "%s, %s %s %s" % (city, state_code, zip, country.name if country else "")
-            try:
-                # get geo loc from Open Street Maps 7/11/22
-                # fmi see https://www.natasshaselvaraj.com/a-step-by-step-guide-on-geocoding-in-python/
-                #         https://nominatim.org/release-docs/latest/api/Overview/
-                url = 'https://nominatim.openstreetmap.org/search/' + address_str +'?format=json'
-                location = requests.get(url).json()
-                if location:
-                    latitude = float(location[0]['lat'])
-                    longitude = float(location[0]['lon'])
-                else:
-                    print("Failed to find coordinates for %s " % address_str, file=sys.stderr) 
-            except Exception as err:
-                 print("%s: Failed to find coordinates for %s " % (str(err), address_str), file=sys.stderr) 
-           
-        return [latitude, longitude] if latitude and longitude else None            
+    def _fetch_geo_response(self):
+        street_address_cleaned = preprocess_street_address(self.address.street_address)
+        self.query = "%s, %s %s %s" % (street_address_cleaned, self.address.city, self.address.state, self.address.postal_code)
 
-    def save_coords(self, address):
-        """
-        Takes a model object of type address.address and sets
-        the latitude and lonitude (if possible) of the object and saves
-        this object.
-        """
-        ssl._create_default_https_context = ssl._create_unverified_context
+        try:
+            cached_address = AddressCache.objects.get(query=self.query)
+            self.geo_response = json.loads(cached_address.response)
+        except ObjectDoesNotExist as e:
+            cached_address = None
+            geocode = self._call_geocoder_api()
+            self.geo_response = geocode
+            response_json = json.dumps(self.geo_response, indent=4, sort_keys=True)
+            AddressCache.objects.create( query=self.query, response=response_json, place_id=self.geo_response["place_id"])
+
+    def get_coords(self) -> tuple[float, float]:
+        if self.geo_response == None:
+            self._fetch_geo_response()
         
-        if self._locator:
-            state = address.locality.state
-            country = state.country
-            # This is an example of a formatted address string that will return lat and lon:
-            #     "1600 Pennsylvania Avenue NW, Washington, DC 20500 United States"
-            coords = self.get_coords(
-                address.formatted, 
-                address.locality.name, 
-                state.code, 
-                address.locality.postal_code, 
-                country.name
-            )
-            if coords:
-                address.latitude = coords[0]
-                address.longitude = coords[1]
-                address.save(update_fields=["latitude", "longitude"])      
+        if self.geo_response["lat"] and self.geo_response["lon"]:
+            return (self.geo_response['lat'], self.geo_response['lon'])
+        else:
+            raise Exception("Unexpected response format for geocode_task: %s" %(self.geo_response))
+    
+    def save_coords(self): 
+        if self.geo_response == None:
+            self._fetch_geo_response()
+        
+        latitude, longitude = self.get_coords()
+
+        if latitude and longitude:
+            self.address.latitude=latitude
+            self.address.longitude=longitude
+            self.address.save()
+        else:
+            raise Exception("save_coords failed")
+    
+    def get_county(self) -> str:
+        if self.geo_response == None:
+            self._fetch_geo_response()
+        
+        if self.geo_response["address"]["county"]:
+            return self.geo_response["address"]["county"]
+        else:
+            raise Exception("Unexpected response format for geocode_task: %s" %(self.geo_response))
+    
+    def save_county(self):
+        if self.geo_response == None:
+            self._fetch_geo_response()
+        
+        county = self.get_county()
+
+        if county:
+            self.address.county = county
+            self.address.save()
+        else:
+            raise Exception("save_county failed")

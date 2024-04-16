@@ -1,37 +1,39 @@
 from django.urls import path
-from rest_framework.urlpatterns import format_suffix_patterns
 from directory import views
-from directory import settings
-from rest_framework.authtoken.views import obtain_auth_token
-from django.contrib.auth import views as auth_views
-from django.views.decorators.csrf import csrf_exempt
+from django.contrib import admin
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+
 
 urlpatterns = [
-    path('data', views.data, name='data'),
-    path('coops/no_coords', views.coops_wo_coordinates, name='coops_wo_coordinates'),
-    path('coops/unapproved', views.unapproved_coops, name='unapproved_coops'),
-    path('coops/', views.CoopList.as_view()),
-    path('coops/<int:pk>/', views.CoopDetail.as_view()),
-    path('coops/all/', views.CoopListAll.as_view()),
-    path('people/', views.PersonWithCoopList.as_view()),
-    path('people/<int:pk>/', views.PersonDetail.as_view()),
-    path('users/', views.CreateUserView.as_view()),
-    path('predefined_types/', views.CoopTypeList.as_view()),
-    path('coop_types/', views.CoopTypeList.as_view()),
-    path('countries/', views.CountryList.as_view()),
-    path('states/<country_code>', views.StateList.as_view()),
-    path('login', views.signin),
-    path(settings.LOGOUT_PATH, views.signout),
-    path('user_info', views.user_info),
-    path('reset_password', views.ResetPasswordView.as_view(template_name='../templates/users/password_reset.html'), name='reset_password'),
-    path('password-reset-confirm/<uidb64>/<token>/',
-         auth_views.PasswordResetConfirmView.as_view(template_name='users/password_reset_confirm.html'),
-         name='password_reset_confirm'),
-    path('password-reset-complete/',
-         auth_views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'),
-         name='password_reset_complete'),
+
+    path('api/v1/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/v1/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/v1/admin/', admin.site.urls),
+
+    path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    path('api/v1/users/', views.UserList.as_view(), name='user-list'),
+    path('api/v1/users/<int:pk>/', views.UserDetail.as_view(), name='user-detail'),
+    path('api/v1/register/', views.CreateUserView.as_view(), name='register'),
+    path('api/v1/password_reset/', views.PasswordResetRequestView.as_view(), name='password-reset-request'),
+    path('api/v1/password-reset-confirm/<str:uidb64>/<str:token>/', views.PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
+
+    path('api/v1/coops/', views.CoopList.as_view(), name='coop-list'),
+    path('api/v1/coops/<int:coop_public_id>/', views.CoopDetail.as_view(), name='coop-detail'),
+    path('api/v1/coops/no_coords', views.CoopsNoCoords.as_view(), name='coop-no-coords'),
+    path('api/v1/coops/unapproved', views.CoopsUnapproved.as_view(), name='coop-unapproved'),
+    path('api/v1/coops/csv/', views.CoopCSVView.as_view(), name='data'),
+    
+    path('api/v1/coops/proposal/', views.CoopProposalList.as_view(), name='coop-proposal-list'),
+    path('api/v1/coops/proposal/<int:pk>/', views.CoopProposalRetrieve.as_view(), name='coop-proposal-list'),
+    path('api/v1/coops/proposal/create/', views.CoopProposalCreate.as_view(), name='coop-proposal'),
+    path('api/v1/coops/proposal/review/<int:pk>/', views.CoopProposalReview.as_view(), name='coop-review'),
+
+    path('api/v1/predefined_types/', views.CoopTypeList.as_view()),
+    path('api/v1/coop_types/', views.CoopTypeList.as_view(), name='cooptype-list'),
+    path('api/v1/coop_types/<int:pk>/', views.CoopTypeDetail.as_view(), name='cooptype-detail'),
+    path('api/v1/countries/', views.CountryList.as_view(), name='country-list'),        
+    path('api/v1/states/<str:country_code>', views.StateList.as_view(), name='state-list'),
 ]
-
-urlpatterns = format_suffix_patterns(urlpatterns)
-
-

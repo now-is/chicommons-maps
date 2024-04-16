@@ -1,0 +1,237 @@
+[
+    {
+        "addresses": [
+            {
+                "address": {
+                    "city": "Chicago",
+                    "country": "US",
+                    "county": "Cook County",
+                    "latitude": 41.8881799,
+                    "longitude": -87.635064,
+                    "postal_code": "60654",
+                    "state": "IL",
+                    "street_address": "222 W. Merchandise Mart Plaza, Suite 1212"
+                },
+                "is_public": true
+            }
+        ],
+        "contact_methods": [
+            {
+                "email": "myemail@example.com",
+                "is_public": true,
+                "phone": null,
+                "type": "EMAIL"
+            },
+            {
+                "email": null,
+                "is_public": true,
+                "phone": "+17739441426",
+                "type": "PHONE"
+            }
+        ],
+        "coop_public": 1,
+        "description": "My Coop Description",
+        "is_public": true,
+        "name": "Test Coop 1 Apple",
+        "people": [
+            {
+                "contact_methods": [],
+                "first_name": "John",
+                "is_public": true,
+                "last_name": "Doe"
+            },
+            {
+                "contact_methods": [
+                    {
+                        "email": "stevesmith@example.com",
+                        "is_public": true,
+                        "phone": null,
+                        "type": "EMAIL"
+                    }
+                ],
+                "first_name": "Steve",
+                "is_public": true,
+                "last_name": "Smith"
+            }
+        ],
+        "scope": "Testing",
+        "status": "ACTIVE",
+        "tags": "tag1, tag2, tag3",
+        "types": [
+            {
+                "name": "Library"
+            }
+        ],
+        "web_site": "http://www.example.com/"
+    },
+    {
+        "addresses": [
+            {
+                "address": {
+                    "city": "Chicago",
+                    "country": "US",
+                    "county": "Cook County",
+                    "latitude": 41.886335599999995,
+                    "longitude": -87.61990629185485,
+                    "postal_code": "60601",
+                    "state": "IL",
+                    "street_address": "225 N Columbus Dr"
+                },
+                "is_public": true
+            },
+            {
+                "address": {
+                    "city": "Chicago",
+                    "country": "US",
+                    "county": "Cook County",
+                    "latitude": 41.88965875,
+                    "longitude": -87.62463564125409,
+                    "postal_code": "60611",
+                    "state": "IL",
+                    "street_address": "400 N Michigan Ave"
+                },
+                "is_public": true
+            }
+        ],
+        "contact_methods": [
+            {
+                "email": "myemail@example2.com",
+                "is_public": true,
+                "phone": null,
+                "type": "EMAIL"
+            },
+            {
+                "email": "hello@example2.com",
+                "is_public": true,
+                "phone": null,
+                "type": "EMAIL"
+            },
+            {
+                "email": null,
+                "is_public": true,
+                "phone": "+13122222222",
+                "type": "PHONE"
+            }
+        ],
+        "coop_public": 2,
+        "description": "My Coop Description",
+        "is_public": true,
+        "name": "Test Coop 2 Banana",
+        "people": [
+            {
+                "contact_methods": [
+                    {
+                        "email": "ellison@example2.com",
+                        "is_public": true,
+                        "phone": null,
+                        "type": "EMAIL"
+                    },
+                    {
+                        "email": "ellison_spam@example2.com",
+                        "is_public": true,
+                        "phone": null,
+                        "type": "EMAIL"
+                    }
+                ],
+                "first_name": "Cameron",
+                "is_public": true,
+                "last_name": "Ellison"
+            },
+            {
+                "contact_methods": [
+                    {
+                        "email": "underwood@example2.com",
+                        "is_public": true,
+                        "phone": null,
+                        "type": "EMAIL"
+                    },
+                    {
+                        "email": null,
+                        "is_public": true,
+                        "phone": "+13122222223",
+                        "type": "PHONE"
+                    }
+                ],
+                "first_name": "Harry",
+                "is_public": true,
+                "last_name": "Underwood"
+            }
+        ],
+        "scope": "Testing",
+        "status": "ACTIVE",
+        "tags": "tag1, tag2, tag3",
+        "types": [
+            {
+                "name": "Museum"
+            },
+            {
+                "name": "Laboratory"
+            }
+        ],
+        "web_site": "http://www.example2.com/"
+    },
+    {
+        "addresses": [
+            {
+                "address": {
+                    "city": "Chicago",
+                    "country": "US",
+                    "county": "Cook County",
+                    "latitude": 41.893492,
+                    "longitude": -87.620113,
+                    "postal_code": "60611",
+                    "state": "IL",
+                    "street_address": "300 E Ontario St"
+                },
+                "is_public": true
+            }
+        ],
+        "contact_methods": [],
+        "coop_public": 3,
+        "description": "My Coop Description",
+        "is_public": true,
+        "name": "Test Coop 3 Apple",
+        "people": [],
+        "scope": "Testing",
+        "status": "ACTIVE",
+        "tags": "tag1, tag2, tag3",
+        "types": [
+            {
+                "name": "Museum"
+            }
+        ],
+        "web_site": "http://www.example3.com/"
+    },
+    {
+        "addresses": [
+            {
+                "address": {
+                    "city": "Chicago",
+                    "country": "US",
+                    "county": "Cook County",
+                    "latitude": 41.889415,
+                    "longitude": -87.6282309,
+                    "postal_code": "60654",
+                    "state": "IL",
+                    "street_address": "400 N State St"
+                },
+                "is_public": true
+            }
+        ],
+        "contact_methods": [],
+        "coop_public": 4,
+        "description": "My Coop Description",
+        "is_public": true,
+        "name": "Test Coop 4 Banana",
+        "people": [],
+        "scope": "Testing",
+        "status": "ACTIVE",
+        "tags": "tag1, tag2, tag3",
+        "types": [
+            {
+                "name": "Arboretum"
+            }
+        ],
+        "web_site": "http://www.example4.com/"
+    }
+]

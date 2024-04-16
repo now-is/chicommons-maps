@@ -1,0 +1,108 @@
+[
+    {
+        "addresses": [
+            {
+                "address": {
+                    "city": "Chicago",
+                    "country": "US",
+                    "county": "Cook County",
+                    "latitude": 41.886335599999995,
+                    "longitude": -87.61990629185485,
+                    "postal_code": "60601",
+                    "state": "IL",
+                    "street_address": "225 N Columbus Dr"
+                },
+                "is_public": true
+            },
+            {
+                "address": {
+                    "city": "Chicago",
+                    "country": "US",
+                    "county": "Cook County",
+                    "latitude": 41.88965875,
+                    "longitude": -87.62463564125409,
+                    "postal_code": "60611",
+                    "state": "IL",
+                    "street_address": "400 N Michigan Ave"
+                },
+                "is_public": true
+            }
+        ],
+        "contact_methods": [
+            {
+                "email": "myemail@example2.com",
+                "is_public": true,
+                "phone": null,
+                "type": "EMAIL"
+            },
+            {
+                "email": "hello@example2.com",
+                "is_public": true,
+                "phone": null,
+                "type": "EMAIL"
+            },
+            {
+                "email": null,
+                "is_public": true,
+                "phone": "+13122222222",
+                "type": "PHONE"
+            }
+        ],
+        "coop_public": 2,
+        "description": "My Coop Description",
+        "is_public": true,
+        "name": "Test Coop 2 Banana",
+        "people": [
+            {
+                "contact_methods": [
+                    {
+                        "email": "ellison@example2.com",
+                        "is_public": true,
+                        "phone": null,
+                        "type": "EMAIL"
+                    },
+                    {
+                        "email": "ellison_spam@example2.com",
+                        "is_public": true,
+                        "phone": null,
+                        "type": "EMAIL"
+                    }
+                ],
+                "first_name": "Cameron",
+                "is_public": true,
+                "last_name": "Ellison"
+            },
+            {
+                "contact_methods": [
+                    {
+                        "email": "underwood@example2.com",
+                        "is_public": true,
+                        "phone": null,
+                        "type": "EMAIL"
+                    },
+                    {
+                        "email": null,
+                        "is_public": true,
+                        "phone": "+13122222223",
+                        "type": "PHONE"
+                    }
+                ],
+                "first_name": "Harry",
+                "is_public": true,
+                "last_name": "Underwood"
+            }
+        ],
+        "scope": "Testing",
+        "status": "ACTIVE",
+        "tags": "tag1, tag2, tag3",
+        "types": [
+            {
+                "name": "Museum"
+            },
+            {
+                "name": "Laboratory"
+            }
+        ],
+        "web_site": "http://www.example2.com/"
+    }
+]
