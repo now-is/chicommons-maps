@@ -27,6 +27,7 @@ export default function DirectoryAddUpdate() {
   const [country, setCountry] = useState(DEFAULT_COUNTRY_CODE);
   const [websites, setWebsites] = useState('');
   const [contactName, setContactName] = useState('');
+  const [contactMethods, setContactMethods] = useState('');
   const [contactNamePublic, setContactNamePublic] =
     useState(DEFAULT_FORM_YES_NO);
   const [contactEmail, setContactEmail] = useState([]);
@@ -78,10 +79,10 @@ export default function DirectoryAddUpdate() {
     setWebsites('');
     setContactName('');
     setContactNamePublic(DEFAULT_FORM_YES_NO);
-    setContactEmail([]);
-    setContactEmailPublic(DEFAULT_FORM_YES_NO);
-    setContactPhone('');
-    setContactPhonePublic(DEFAULT_FORM_YES_NO);
+    //     setContactEmail([]);
+    //     setContactEmailPublic(DEFAULT_FORM_YES_NO);
+    //     setContactPhone('');
+    //     setContactPhonePublic(DEFAULT_FORM_YES_NO);
     setEntityTypes([]);
     setScope('Local');
     setTags('');
@@ -242,6 +243,7 @@ export default function DirectoryAddUpdate() {
         throw Error('Cannot access requested entity.');
       }
       const coopResults = await res.json();
+      console.log('[coopresults]', coopResults);
 
       setCoopName(coopResults.name ? coopResults.name : '');
       setStreet(
@@ -272,6 +274,9 @@ export default function DirectoryAddUpdate() {
       setWebsites(coopResults.web_site ? coopResults.web_site : '');
       setContactEmail(coopResults.email ? coopResults.email : []);
       setContactPhone(coopResults.phone ? coopResults.phone : []);
+      setContactMethods(
+        coopResults.contact_methods ? coopResults.contact_methods : []
+      );
       setEntityTypes(
         [coopResults.types[0]] ? coopResults.types.map((type) => type.name) : []
       );
@@ -322,12 +327,7 @@ export default function DirectoryAddUpdate() {
           }
         }
       ],
-      phone: {
-        phone: contactPhone
-      },
-      email: {
-        email: contactEmail
-      },
+      contact_methods: contactMethods,
       web_site: websites,
       description: descEng
     };
@@ -420,8 +420,6 @@ export default function DirectoryAddUpdate() {
   useEffect(() => {
     checkRequired();
   }, requiredFields);
-  console.log('[email value]', contactEmail);
-  console.log('[phone value]', contactPhone);
 
   const handlePhoneChange = (event, key) => {
     event.preventDefault();
@@ -443,6 +441,16 @@ export default function DirectoryAddUpdate() {
     setContactEmail(updatedValues);
   };
 
+  const handleContactMethodChange = (event, key) => {
+    event.preventDefault();
+    const { name, value } = event.target;
+    const updatedValues = [...contactMethods];
+    const selectedItem = contactMethods[name];
+    selectedItem[key] = value;
+    updatedValues[name] = selectedItem;
+    setContactMethods(updatedValues);
+  };
+
   const addPhoneField = () => {
     let newPhoneArray = [...contactPhone];
     let newField = { type: 'PHONE', phone: '', phone_is_public: false };
@@ -455,6 +463,13 @@ export default function DirectoryAddUpdate() {
     let newField = { type: 'EMAIL', email: '', email_is_public: false };
     newEmailArray.push(newField);
     setContactEmail(newEmailArray);
+  };
+
+  const addContactMethodField = () => {
+    let newContactMethodArray = [...contactMethods];
+    let newField = {};
+    newContactMethodArray.push(newField);
+    setContactMethods(newContactMethodArray);
   };
 
   return (
@@ -506,86 +521,27 @@ export default function DirectoryAddUpdate() {
                   errors={errors}
                 />{' '}
               </div>
-              <div className="form-group col-md-6 col-lg-3 col-xl-3">
-                <Input
-                  type={'text'}
-                  title={'Street Address'}
-                  name={'street'}
-                  value={street}
-                  placeholder={'Address street'}
-                  handleChange={(e) => setStreet(e.target.value)}
-                  errors={errors}
-                />{' '}
-              </div>
-              <div className="form-group col-md-4 col-lg-3 col-xl-2">
-                <Input
-                  type={'text'}
-                  title={'City'}
-                  name={'city'}
-                  value={city}
-                  placeholder={'Address city'}
-                  handleChange={(e) => setCity(e.target.value)}
-                  errors={errors}
-                />{' '}
-              </div>
-              <div className="form-group col-md-3 col-lg-2 col-xl-2">
-                <Province
-                  title={'State'}
-                  name={'state'}
-                  options={provinces}
-                  value={state}
-                  placeholder={'Select State'}
-                  handleChange={(e) => setState(e.target.value)}
-                />{' '}
-              </div>
-              <div className="form-group col-md-2 col-lg-2 col-xl-2">
-                <Input
-                  type={'text'}
-                  title={'Zip Code'}
-                  name={'zip'}
-                  value={zip}
-                  placeholder={'Zip code'}
-                  handleChange={(e) => setZip(e.target.value)}
-                  errors={errors}
-                />{' '}
-              </div>
-              <div className="form-group col-md-3 col-lg-2 col-xl-3">
-                <Input
-                  type={'text'}
-                  title={'County'}
-                  name={'county'}
-                  value={county}
-                  placeholder={'County'}
-                  handleChange={(e) => setCounty(e.target.value)}
-                  errors={errors}
-                />{' '}
-              </div>
-              <div className="form-group col-md-4 col-lg-2 col-xl-3">
-                <Country
-                  title={'Country'}
-                  name={'country'}
-                  options={countries}
-                  value={country}
-                  countryCode={'US'}
-                  placeholder={'Select Country'}
-                  handleChange={(e) => setCountry(e.target.value)}
-                />{' '}
-              </div>
-              <div className="form-group col-md-8 col-lg-6 col-xl-5">
-                <DropDownInput
-                  type={'select'}
-                  as={'select'}
-                  title={'Is Address to be public on the map?'}
-                  name={'address_public'}
-                  value={addressPublic}
-                  multiple={''}
-                  handleChange={(e) => setAddressPublic(e.target.value)}
-                  options={[
-                    { id: 'yes', name: 'Yes' },
-                    { id: 'no', name: 'No' }
-                  ]}
-                />
-              </div>
+              <AddressGroup
+                street={street}
+                city={city}
+                state={state}
+                zip={zip}
+                county={county}
+                country={country}
+                addressPublic={addressPublic}
+                index
+                setStreet={setStreet}
+                setCity={setCity}
+                setState={setState}
+                setZip={setZip}
+                setCounty={setCounty}
+                setCountry={setCountry}
+                setAddressPublic={setAddressPublic}
+                errors={errors}
+                provinces={provinces}
+                countries={countries}
+              />
+
               <div className="form-group col-md-12">
                 <Input
                   className={'required'}
@@ -628,103 +584,22 @@ export default function DirectoryAddUpdate() {
                   ]}
                 />
               </div>
-              <div className="form-group col-12 form__desc required">
-                You must include at least either a phone number or an e-mail
-                address.
-              </div>
-              {contactEmail &&
-                contactEmail.map((email, index) => (
-                  <>
-                    <div
-                      key={email.id}
-                      className="form-group col-md-4 col-lg-4"
-                    >
-                      <Input
-                        type={'email'}
-                        title={'Contact Email Address'}
-                        name={index}
-                        value={email.email}
-                        placeholder={'Contact email'}
-                        handleChange={(e) => handleEmailChange(e, 'email')}
-                        errors={errors}
-                      />{' '}
-                    </div>
-                    <div
-                      key={email.id}
-                      className="form-group col-md-6 col-lg-6"
-                    >
-                      <DropDownInput
-                        className={'required'}
-                        type={'select'}
-                        as={'select'}
-                        title={'Is Email to be public on the map?'}
-                        name={index}
-                        multiple={''}
-                        value={email.email_is_public}
-                        handleChange={(e) =>
-                          handleEmailChange(e, 'email_is_public')
-                        }
-                        options={[
-                          { id: 'yes', name: 'Yes' },
-                          { id: 'no', name: 'No' }
-                        ]}
-                      />
-                    </div>
-                  </>
+
+              {contactMethods &&
+                contactMethods.map((contact, index) => (
+                  <ContactMethodInput
+                    contactMethod={contact}
+                    index={index}
+                    handleContactMethodChange={handleContactMethodChange}
+                    errors={errors}
+                  />
                 ))}
               <div className="form-group col-md-4 col-lg-4">
                 <Button
                   buttonType={'primary'}
-                  title={'Add Email'}
+                  title={'Add Contact Method'}
                   type={'button'}
-                  action={addEmailField}
-                />
-              </div>
-              <div className="form-group col-md-6 col-lg-6"></div>
-              {contactPhone &&
-                contactPhone.map((phone, index) => (
-                  <>
-                    <div
-                      key={phone.id}
-                      className="form-group col-md-4 col-lg-4"
-                    >
-                      <Input
-                        key={phone.id}
-                        type={'tel'}
-                        title={'Contact Phone Number'}
-                        name={index}
-                        value={phone.phone}
-                        placeholder={'Contact phone'}
-                        handleChange={(e) => handlePhoneChange(e, 'phone')}
-                        errors={errors}
-                      />
-                    </div>
-                    <div className="form-group col-md-6 col-lg-6">
-                      <DropDownInput
-                        className={'required'}
-                        type={'select'}
-                        as={'select'}
-                        title={'Is Phone number to be public on the map?'}
-                        name={index}
-                        multiple={''}
-                        value={phone.phone_is_public}
-                        handleChange={(e) =>
-                          handlePhoneChange(e, 'phone_is_public')
-                        }
-                        options={[
-                          { id: 'Yes', name: 'true' },
-                          { id: 'No', name: 'false' }
-                        ]}
-                      />
-                    </div>
-                  </>
-                ))}
-              <div className="form-group col-md-4 col-lg-4">
-                <Button
-                  buttonType={'primary'}
-                  title={'Add Phone'}
-                  type={'button'}
-                  action={addPhoneField}
+                  action={addContactMethodField}
                 />
               </div>
               <div className="form-group col-md-6 col-lg-6"></div>
@@ -857,3 +732,173 @@ export default function DirectoryAddUpdate() {
     </div>
   );
 }
+
+const ContactMethodInput = ({
+  contactMethod,
+  index,
+  handleContactMethodChange,
+  errors
+}) => {
+  const { type, is_public, phone, email, id } = contactMethod;
+  const inputType = type === 'PHONE' ? 'phone' : 'email';
+  const value = type === 'PHONE' ? phone : email;
+  const title =
+    type === 'PHONE' ? 'Contact Phone Number' : 'Contact Email Address';
+  const placeholder = type === 'PHONE' ? 'Contact phone' : 'Contact email';
+  const valueType = type === 'PHONE' ? 'phone' : 'email';
+  const typeLabel = type === 'PHONE' ? 'Phone' : 'Email';
+
+  return (
+    <>
+      <div key={id} className="form-group col-md-4 col-lg-4">
+        <Input
+          type={inputType}
+          title={title}
+          name={index}
+          value={value}
+          placeholder={placeholder}
+          handleChange={(e) => handleContactMethodChange(e, valueType)}
+          errors={errors}
+        />{' '}
+      </div>
+      <div key={id} className="form-group col-md-4 col-lg-4">
+        <DropDownInput
+          className={'required'}
+          type={'select'}
+          as={'select'}
+          title={`Type`}
+          name={index}
+          multiple={''}
+          value={type}
+          handleChange={(e) => handleContactMethodChange(e, 'type')}
+          options={[
+            { id: 'phone', name: 'PHONE' },
+            { id: 'email', name: 'EMAIL' }
+          ]}
+        />
+      </div>
+      <div key={id} className="form-group col-md-4 col-lg-4">
+        <DropDownInput
+          className={'required'}
+          type={'select'}
+          as={'select'}
+          title={`Is ${typeLabel} to be public on the map?`}
+          name={index}
+          multiple={''}
+          value={is_public}
+          handleChange={(e) => handleContactMethodChange(e, 'is_public')}
+          options={[
+            { id: 'yes', name: 'Yes' },
+            { id: 'no', name: 'No' }
+          ]}
+        />
+      </div>
+    </>
+  );
+};
+
+const AddressGroup = ({
+  street,
+  city,
+  state,
+  zip,
+  county,
+  country,
+  addressPublic,
+  index,
+  setStreet,
+  setCity,
+  setState,
+  setZip,
+  setCounty,
+  setCountry,
+  setAddressPublic,
+  errors,
+  provinces,
+  countries
+}) => {
+  return (
+    <>
+      <div className="form-group col-md-6 col-lg-3 col-xl-3">
+        <Input
+          type={'text'}
+          title={'Street Address'}
+          name={'street'}
+          value={street}
+          placeholder={'Address street'}
+          handleChange={(e) => setStreet(e.target.value)}
+          errors={errors}
+        />{' '}
+      </div>
+      <div className="form-group col-md-4 col-lg-3 col-xl-2">
+        <Input
+          type={'text'}
+          title={'City'}
+          name={'city'}
+          value={city}
+          placeholder={'Address city'}
+          handleChange={(e) => setCity(e.target.value)}
+          errors={errors}
+        />{' '}
+      </div>
+      <div className="form-group col-md-3 col-lg-2 col-xl-2">
+        <Province
+          title={'State'}
+          name={'state'}
+          options={provinces}
+          value={state}
+          placeholder={'Select State'}
+          handleChange={(e) => setState(e.target.value)}
+        />{' '}
+      </div>
+      <div className="form-group col-md-2 col-lg-2 col-xl-2">
+        <Input
+          type={'text'}
+          title={'Zip Code'}
+          name={'zip'}
+          value={zip}
+          placeholder={'Zip code'}
+          handleChange={(e) => setZip(e.target.value)}
+          errors={errors}
+        />{' '}
+      </div>
+      <div className="form-group col-md-3 col-lg-2 col-xl-3">
+        <Input
+          type={'text'}
+          title={'County'}
+          name={'county'}
+          value={county}
+          placeholder={'County'}
+          handleChange={(e) => setCounty(e.target.value)}
+          errors={errors}
+        />{' '}
+      </div>
+      <div className="form-group col-md-4 col-lg-2 col-xl-3">
+        <Country
+          title={'Country'}
+          name={'country'}
+          options={countries}
+          value={country}
+          countryCode={'US'}
+          placeholder={'Select Country'}
+          handleChange={(e) => setCountry(e.target.value)}
+        />{' '}
+      </div>
+      <div className="form-group col-md-8 col-lg-6 col-xl-5">
+        <DropDownInput
+          type={'select'}
+          as={'select'}
+          title={'Is Address to be public on the map?'}
+          name={'address_public'}
+          value={addressPublic}
+          multiple={''}
+          handleChange={(e) => setAddressPublic(e.target.value)}
+          options={[
+            { id: 'yes', name: 'Yes' },
+            { id: 'no', name: 'No' }
+          ]}
+        />
+      </div>
+    </>
+  );
+};
