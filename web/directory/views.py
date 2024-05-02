@@ -14,9 +14,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, inline_serializer
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
 
 from directory.models import ContactMethod, CoopType, Address, AddressCache, CoopAddressTags, CoopPublic, Coop, CoopProposal, Person
 from directory.serializers import *
@@ -67,19 +66,20 @@ class CoopCSVView(APIView):
                     })
 
         return Response(data)
-
-class UserDetail(generics.RetrieveUpdateAPIView):
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
+    
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
 
-@extend_schema(
-    request=UserProfileSerializer,
-    responses=TokenObtainPairSerializer
-)
-class UserRegister(APIView):
+class UserDetail(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
+
+class CreateUserView(APIView):
     def post(self, request):
-        serializer = UserProfileSerializer(data=request.data)
+        serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             if user:
