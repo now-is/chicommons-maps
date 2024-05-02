@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import serializers, exceptions
-from directory.models import CoopType, ContactMethod, CoopAddressTags, Address, CoopProposal, CoopPublic, Coop, Person
+from directory.models import CoopType, ContactMethod, CoopAddressTags, Address, CoopProposal, CoopPublic, Coop, Person, UserProfile
 from django.utils.timezone import now
 from directory.services.location_service import LocationService
 import json
@@ -80,14 +80,63 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
+        password = validated_data.pop('password')
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
-            password=validated_data['password'],
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', ''),
         )
+        if password:
+            user.set_password(password)
+
         return user
+    
+class UserProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+    email = serializers.EmailField(source='user.email')
+    first_name = serializers.CharField(source='user.first_name')
+    last_name = serializers.CharField(source='user.last_name')
+    phone = serializers.CharField(allow_blank=True, required=False)
+    github_username = serializers.CharField(allow_blank=True, required=False, max_length=165)
+    password = serializers.CharField(source='user.password', write_only=True)
+
+    class Meta:
+        model = UserProfile
+        fields = ['username', 'email', 'first_name', 'last_name', 'phone', 'github_username', 'password']
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        password = user_data.pop('password')
+        user = User.objects.create(
+            username=user_data['username'],
+            email=user_data['email'],
+            first_name=user_data['first_name'],
+            last_name=user_data['last_name']
+        )
+        user.set_password(password)
+        user.save()
+        user_profile = UserProfile.objects.create(user=user, **validated_data)
+        return user_profile
+
+    def update(self, instance, validated_data):
+        print(instance)
+        print(validated_data)
+        user_data = validated_data.pop('user')
+        user = instance.user
+        for key, value in user_data.items():
+            if key == 'password':
+                user.set_password(value)
+            else:
+                setattr(user, key, value)
+        user.save()
+
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        instance.save()
+
+        return instance
+
     
 #============================================================================
 

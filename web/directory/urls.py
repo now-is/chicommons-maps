@@ -12,12 +12,12 @@ urlpatterns = [
     path('api/v1/admin/', admin.site.urls),
 
     path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
 
-    path('api/v1/users/', views.UserList.as_view(), name='user-list'),
     path('api/v1/users/<int:pk>/', views.UserDetail.as_view(), name='user-detail'),
-    path('api/v1/register/', views.CreateUserView.as_view(), name='register'),
-    path('api/v1/password_reset/', views.PasswordResetRequestView.as_view(), name='password-reset-request'),
+    path('api/v1/register/', views.UserRegister.as_view(), name='register'),
+
+    path('api/v1/password-reset/', views.PasswordResetRequestView.as_view(), name='password-reset-request'),
     path('api/v1/password-reset-confirm/<str:uidb64>/<str:token>/', views.PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
 
     path('api/v1/coops/', views.CoopList.as_view(), name='coop-list'),

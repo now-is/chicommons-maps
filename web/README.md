@@ -55,7 +55,7 @@ Three Django models are used for this process.
 | Delete Existing Coop | ![](./img/DeleteOperation_Proposal.png) | ![](./img/DeleteOperation_ReviewRejected.png) | ![](./img/DeleteOperation_ReviewApproved.png) |
 
 ## Testing
-Tests are stored in the [directory/tests](./directory/tests/) directory using Python's `unittest` framework with additional add-ins from Django and Django Rest Framework. Tests can be run via Django's [manage.py](./manage.py) script. 
+Tests are stored in the [directory/tests](./directory/tests/) directory using Python's `unittest` framework with additional add-ins from Django and Django Rest Framework. Tests can be run via Django's [manage.py](./manage.py) script. If using Development Mode via Docker, you can access manage.py via `docker exec -it web-dev /bin/bash`. If using Production Mode via Docker, you can access manage.py via `docker exec -it web-prod /bin/bash`.
 
 Run all tests:
 ```
@@ -121,4 +121,7 @@ python manage.py test directory.tests.test_coop_list.TestCoopList.test_list_all
 - [x] Filter out CoopCSV
 - [x] Filter out CoopDetail
 - [x] Remove is_filter param from cooplist
+- [x] Clean up loose TODOs 
+- [ ] What should Coop.scope do? 
+- [ ] What should Coop.tags do?
 - [ ] HTTPS Certificates
